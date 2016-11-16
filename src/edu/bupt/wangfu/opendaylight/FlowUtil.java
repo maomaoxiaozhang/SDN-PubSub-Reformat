@@ -89,22 +89,22 @@ public class FlowUtil extends SysInfo {
 		return success;
 	}
 
-	public static boolean deleteFlow(Controller controller, String table_id, String flow_id) {
-		String url = controller.url + "/restconf/config/opendaylight-inventory:nodes/node/openflow:" + localSwtId
-				+ "/table/" + table_id + "/flow/" + flow_id;
-		return RestProcess.doClientDelete(url).equals("200");
-	}
+//	public static boolean deleteFlow(Controller controller, String table_id, String flow_id) {
+//		String url = controller.url + "/restconf/config/opendaylight-inventory:nodes/node/openflow:" + localSwtId
+//				+ "/table/" + table_id + "/flow/" + flow_id;
+//		return RestProcess.doClientDelete(url).equals("200");
+//	}
 
 	public static boolean deleteFlow(Controller controller, Flow flow) {
 		String url = controller.url + "/restconf/config/opendaylight-inventory:nodes/node/openflow:" + localSwtId
 				+ "/table/" + flow.table_id + "/flow/" + flow.flow_id;
-		return RestProcess.doClientDelete(url).equals("200");
+		return RestProcess.doClientDelete(url,flow.xmlContent).equals("200");
 	}
 
 	public static boolean downFlow(Controller controller, Flow flow, String action) {
 		//TODO 这里还要考虑下发到具体哪个流表里，看要执行的动作是 更新流表项 还是 添加新流表项
 		// action == "Add" "update"
-		return RestProcess.doClientPost(controller.url, flow.jsonContent).get(0).equals("200");
+		return RestProcess.doClientPost(controller.url, flow.xmlContent).get(0).equals("200");
 	}
 
 	//TODO 生成函数找韩波

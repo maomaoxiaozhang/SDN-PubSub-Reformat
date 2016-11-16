@@ -3,6 +3,7 @@ package edu.bupt.wangfu.opendaylight;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 
 import java.util.ArrayList;
@@ -96,6 +97,25 @@ public class RestProcess {
 		ArrayList<String> result = new ArrayList<>();
 		result.add(Integer.toString(status));
 		return result;
+	}
+
+	public static String doClientGet(String url) {//nll 用户名密码认证方式
+		try {
+			HttpClient httpclient = new HttpClient();
+			UsernamePasswordCredentials creds = new UsernamePasswordCredentials("admin", "admin");
+			httpclient.getState().setCredentials(AuthScope.ANY, creds);
+			GetMethod getMethod = new GetMethod(url);
+			getMethod.setDoAuthentication(true);
+
+			int status = httpclient.executeMethod(getMethod);
+			System.out.println("the code is " + status);
+			String body = getMethod.getResponseBodyAsString();
+			getMethod.releaseConnection();
+			return body;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	/*public static String doClientDelete(String url) {
