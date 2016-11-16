@@ -3,31 +3,102 @@ package edu.bupt.wangfu.opendaylight;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.DeleteMethod;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.methods.PutMethod;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.json.JSONObject;
+import org.apache.commons.httpclient.methods.PostMethod;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RestProcess {
-	public static String REST_URL = "http://192.168.1.30:8080";
-	private static String API_KEY = "your api key";
-	private static String SECRET_KEY = "your secret key";
-	private static int index = 2;
-	private static CloseableHttpClient client = HttpClients.createDefault();
+//	public static String REST_URL = "http://192.168.1.30:8080";
+//	private static String API_KEY = "your api key";
+//	private static String SECRET_KEY = "your secret key";
+//	private static int index = 2;
+//	private static CloseableHttpClient client = HttpClients.createDefault();
 
 
-	public static String doClientDelete(String url) {
+	public static List<String> doClientPost(String url, String body) {
+		if (!url.startsWith("http://")) url = "http://" + url;
+		String new_url = url + "/restconf/operations/sal-flow:add-flow";
+		int status = 0;
+		try {
+			HttpClient httpclient = new HttpClient();
+			UsernamePasswordCredentials cred = new UsernamePasswordCredentials("admin", "admin");
+			httpclient.getState().setCredentials(AuthScope.ANY, cred);
+
+			PostMethod postMethod = new PostMethod(new_url);
+			postMethod.setRequestHeader("Content-Type","application/xml");
+			postMethod.setRequestBody(body);
+
+			postMethod.setDoAuthentication(true);
+
+			status = httpclient.executeMethod(postMethod);
+			System.out.println("Post Status:"+status);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		List<String> result = new ArrayList<>();
+		result.add(Integer.toString(status));
+		return result;
+	}
+
+	/**
+	 * new modify by HanB
+	 */
+	public static List<String> doClientDelete(String url, String body) {
+		if (!url.startsWith("http://")) url = "http://" + url;
+		String new_url = url + "/restconf/operations/sal-flow:remove-flow";
+		List<String> result = new ArrayList<>();
+		int status = 0;
+		try {
+			HttpClient httpclient = new HttpClient();
+			UsernamePasswordCredentials cred = new UsernamePasswordCredentials("admin", "admin");
+			httpclient.getState().setCredentials(AuthScope.ANY, cred);
+
+			PostMethod postMethod = new PostMethod(new_url);
+			postMethod.setRequestHeader("Content-Type","application/xml");
+			postMethod.setRequestBody(body);
+
+			postMethod.setDoAuthentication(true);
+
+			status = httpclient.executeMethod(postMethod);
+			System.out.println("Delete Status:"+status);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		result.add(Integer.toString(status));
+		return result;
+	}
+
+	public static List<String> doClientUpdate(String url, String body) {
+		if (!url.startsWith("http://")) url = "http://" + url;
+		url += "/restconf/operations/sal-flow:update-flow";
+		int status = 0;
+		try {
+			HttpClient httpclient = new HttpClient();
+			UsernamePasswordCredentials cred = new UsernamePasswordCredentials("admin", "admin");
+			httpclient.getState().setCredentials(AuthScope.ANY, cred);
+
+			PostMethod postMethod = new PostMethod(url);
+			postMethod.setRequestHeader("Content-Type","application/xml");
+			postMethod.setRequestBody(body);
+
+			postMethod.setDoAuthentication(true);
+
+			status = httpclient.executeMethod(postMethod);
+			System.out.println("Update Status:"+status);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		ArrayList<String> result = new ArrayList<>();
+		result.add(Integer.toString(status));
+		return result;
+	}
+
+	/*public static String doClientDelete(String url) {
 		try {
 			HttpClient httpclient = new HttpClient();
 			UsernamePasswordCredentials creds = new UsernamePasswordCredentials("admin", "admin");
@@ -112,5 +183,5 @@ public class RestProcess {
 		}
 
 		return result;
-	}
+	}*/
 }
