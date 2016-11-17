@@ -27,6 +27,7 @@ public class Host extends DevInfo {
 
 	@Override
 	public String getMac() {
+		//TODO 可能会因为操作系统的不同，而改变这个函数，需要测试
 		if (this.mac == null) {
 			InetAddress ia;
 			byte[] mac = null;

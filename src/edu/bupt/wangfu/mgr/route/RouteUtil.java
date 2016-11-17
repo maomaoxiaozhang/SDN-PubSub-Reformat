@@ -308,17 +308,4 @@ public class RouteUtil extends SysInfo {
 			FlowUtil.deleteFlow(groupCtl, flow);
 		}
 	}
-
-	//下发同步流表，使wsn计算出来的新route可以全网同步
-	public static void downSyncGroupRouteFlow() {
-		Flow floodOutFlow = FlowUtil.getInstance().generateFlow(localSwtId, portWsn2Swt, "flood", "route", "sys", 1, 10);
-		FlowUtil.downFlow(groupCtl, floodOutFlow, "add");
-
-		for (Switch swt : switchMap.values()) {
-			for (String p : swt.neighbors.keySet()) {
-				Flow floodInFlow = FlowUtil.getInstance().generateFlow(localSwtId, p, "flood", "route", "sys", 1, 10);
-				FlowUtil.downFlow(groupCtl, floodInFlow, "add");
-			}
-		}
-	}
 }

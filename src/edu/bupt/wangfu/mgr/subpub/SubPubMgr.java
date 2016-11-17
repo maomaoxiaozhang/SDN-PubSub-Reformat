@@ -1,15 +1,12 @@
 package edu.bupt.wangfu.mgr.subpub;
 
-import edu.bupt.wangfu.info.device.Flow;
 import edu.bupt.wangfu.info.device.Group;
-import edu.bupt.wangfu.info.device.Switch;
-import edu.bupt.wangfu.info.msg.SubPubInfo;
+import edu.bupt.wangfu.info.msg.SPInfo;
 import edu.bupt.wangfu.mgr.base.SysInfo;
 import edu.bupt.wangfu.mgr.route.RouteUtil;
 import edu.bupt.wangfu.mgr.subpub.rcver.PubReceiver;
 import edu.bupt.wangfu.mgr.subpub.rcver.SubReceiver;
 import edu.bupt.wangfu.mgr.topology.GroupUtil;
-import edu.bupt.wangfu.opendaylight.FlowUtil;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 import java.util.HashSet;
@@ -197,7 +194,7 @@ public class SubPubMgr extends SysInfo {
 	}
 
 	private static void spreadSPInfo(String topic, String type, Action action) {
-		SubPubInfo nsp = new SubPubInfo();
+		SPInfo nsp = new SPInfo();
 		MultiHandler handler = new MultiHandler(uPort, type, "sys");
 
 		nsp.action = action;
@@ -211,35 +208,6 @@ public class SubPubMgr extends SysInfo {
 
 		handler.v6Send(nsp);
 	}
-
-	//下发注册流表，有了这个流表，之后如果wsn要产生什么订阅或者发布，就可以通过这个流表扩散到全网
-	//这里也是不需要定义in_port，只需要出现这样的消息，就全网flood
-	public static void downSubPubFlow() {
-		for (Switch swt : switchMap.values()) {
-			Flow floodFlow = FlowUtil.getInstance().generateFlow(swt.id, "flood", "sub", "sys", 1, 10);//TODO 优先级是越大越靠后吗？
-			FlowUtil.downFlow(groupCtl, floodFlow, "add");
-			floodFlow = FlowUtil.getInstance().generateFlow(swt.id, "flood", "pub", "sys", 1, 10);
-			FlowUtil.downFlow(groupCtl, floodFlow, "add");
-		}
-	}
-//	{
-//		for (Switch swt : switchMap.values()) {
-//			for (String port : swt.neighbors.keySet()) {//swt上连接着集群内其他swt或者host的端口
-//				Flow floodFlow = FlowUtil.getInstance().generateFlow(swt.id, port, "flood", "sub", "sys", 1, 10);//TODO 优先级是越大越靠后吗？
-//				FlowUtil.downFlow(localCtl, floodFlow, "add");
-//				floodFlow = FlowUtil.getInstance().generateFlow(swt.id, port, "flood", "pub", "sys", 1, 10);
-//				FlowUtil.downFlow(localCtl, floodFlow, "add");
-//			}
-//			for (String port : swt.portSet) {
-//				if (!port.equals("LOCAL")) {//swt上连接着集群外swt的端口
-//					Flow floodFlow = FlowUtil.getInstance().generateFlow(swt.id, port, "flood", "sub", "sys", 1, 10);
-//					FlowUtil.downFlow(localCtl, floodFlow, "add");
-//					floodFlow = FlowUtil.getInstance().generateFlow(swt.id, port, "flood", "pub", "sys", 1, 10);
-//					FlowUtil.downFlow(localCtl, floodFlow, "add");
-//				}
-//			}
-//		}
-//	}
 
 	private static class CheckSplit extends TimerTask {
 		int splitThreshold = 1;//TODO 需要动态设置？

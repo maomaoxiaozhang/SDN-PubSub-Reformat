@@ -3,7 +3,10 @@ package edu.bupt.wangfu.mgr.base;
 import edu.bupt.wangfu.info.device.Controller;
 import edu.bupt.wangfu.info.device.Host;
 import edu.bupt.wangfu.info.msg.Route;
+import edu.bupt.wangfu.opendaylight.RestProcess;
 import edu.bupt.wangfu.opendaylight.WsnUtil;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -23,11 +26,38 @@ public class Config extends SysInfo {
 
 		Host node = new Host(localAddr);
 		localMac = node.getMac();
-		localSwtId = WsnUtil.getLinkedSwtId(localMac);
+		localSwtId = getLinkedSwtId(localMac);
 
 		//初始化topic和对应的编码
 		WsnUtil.initSysTopicMap();
 		WsnUtil.initNotifyTopicMap();
+	}
+
+	private String getLinkedSwtId(String hostMac) {
+		//返回wsn程序所在主机所连Switch的odl_id
+		String url = groupCtl.url + "/restconf/operational/network-topology:network-topology/";
+		String body = RestProcess.doClientGet(url);
+		JSONObject json = new JSONObject(body);
+		JSONObject net_topology = json.getJSONObject("network-topology");
+		JSONArray topology = net_topology.getJSONArray("topology");
+
+		for (int i = 0; i < topology.length(); i++) {
+			JSONArray link = topology.getJSONObject(i).getJSONArray("link");
+			for (int j = 0; j < link.length(); j++) {
+				String link_id = link.getJSONObject(j).getString("link-id");
+				if (link_id.contains(hostMac)) {
+					String[] ps = link_id.split("/");
+					for (String p : ps) {
+						if (p.contains("openflow")) {
+							String[] qs = p.split(":");
+							portWsn2Swt = qs[2];
+							return qs[1];
+						}
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	private void setParams() {
@@ -76,6 +106,4 @@ public class Config extends SysInfo {
 		localCtl = new Controller(localAddr);
 		groupRoutes = Collections.synchronizedSet(new HashSet<Route>());
 	}
-
-
 }

@@ -3,9 +3,7 @@ package edu.bupt.wangfu.mgr.topology;
 import edu.bupt.wangfu.info.device.*;
 import edu.bupt.wangfu.info.msg.AllGrps;
 import edu.bupt.wangfu.mgr.base.SysInfo;
-import edu.bupt.wangfu.mgr.route.RouteUtil;
 import edu.bupt.wangfu.mgr.route.graph.Edge;
-import edu.bupt.wangfu.mgr.subpub.SubPubMgr;
 import edu.bupt.wangfu.opendaylight.FlowUtil;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 import edu.bupt.wangfu.opendaylight.RestProcess;
@@ -25,7 +23,7 @@ public class GroupUtil extends SysInfo {
 	private static Timer refreshTimer = new Timer();
 
 	public static void main(String[] args) {
-		setMaps(new Controller("10.108.165.188:8181"));
+		getGrpTopo(new Controller("10.108.165.188:8181"));
 	}
 
 	public static void initGroup() {
@@ -33,7 +31,7 @@ public class GroupUtil extends SysInfo {
 	}
 
 	//初始化hostMap，switchMap，outPorts
-	public static void setMaps(Controller controller) {
+	private static void getGrpTopo(Controller controller) {
 		String url = controller.url + "/restconf/operational/network-topology:network-topology/";
 
 		//测试用
@@ -183,39 +181,16 @@ public class GroupUtil extends SysInfo {
 				&& outSwitches.get(gl.srcBorderSwtId).portSet.contains(gl.srcOutPort);
 	}
 
-	//groupCtl下发全集群各swt上flood流表
-	private static void downRepFlow() {
-		for (Switch swt : switchMap.values()) {
-			String id = swt.id;
-			//可以不匹配端口，直接匹配v4_dst和v6_dst(topic)
-			Flow fromGroupCtlFlow = FlowUtil.getInstance().generateRestFlow(id, "flood", 1, 10);
-//			TODO fromGroupCtlFlow.setV4Src(localAddr);
-			FlowUtil.downFlow(groupCtl, fromGroupCtlFlow, "add");
-
-			Flow toGroupCtlFlow = FlowUtil.getInstance().generateRestFlow(id, "flood", 1, 10);
-//			TODO toGroupCtlFlow.setV4Dst(localAddr);
-			FlowUtil.downFlow(groupCtl, toGroupCtlFlow, "add");
-		}
-	}
-
-	//localCtl下发本地swt上flood流表
-	private static void downRegFlow() {
-		Flow toGroupCtlFlow = FlowUtil.getInstance().generateFlow(localSwtId, portWsn2Swt, "flood", "rest", "sys", 1, 10);//TODO 优先级是越大越靠后吗？
-//		TODO fromGroupCtlFlow.setV4Dst(groupCtl.url);
-		FlowUtil.downFlow(groupCtl, toGroupCtlFlow, "add");
-	}
-
 	public static void spreadLocalGrp(Group g) {
 		MultiHandler handler = new MultiHandler(uPort, "lsa", "sys");
 		handler.v6Send(g);
 	}
 
-
 	//更新group拓扑信息
 	private static class RefreshGroup extends TimerTask {
 		@Override
 		public void run() {
-			setMaps(groupCtl);
+			getGrpTopo(groupCtl);
 			while (switchMap.size() == 0) {
 				try {
 					Thread.sleep(100);
@@ -224,11 +199,11 @@ public class GroupUtil extends SysInfo {
 				}
 			}
 			//定时广播自己集群的信息，确保每个新增加的节点都有最新的全网集群信息
-			downLSAFlow();
 			spreadAllGrps();
-
-			SubPubMgr.downSubPubFlow();
-			RouteUtil.downSyncGroupRouteFlow();
+			//下发注册流表，之后如果wsn要产生新订阅或新发布，就可以通过它扩散到全网
+			downSubPubFlow();
+			//下发同步流表，使wsn计算出来的新route可以在集群内同步
+			downSynGrpRtFlow();
 			//下发访问groupCtl的flood流表
 			if (localCtl.equals(groupCtl)) {
 				downRepFlow();
@@ -238,16 +213,58 @@ public class GroupUtil extends SysInfo {
 		}
 
 		private void spreadAllGrps() {
+			for (Switch swt : switchMap.values()) {
+				Flow floodFlow = FlowUtil.getInstance().generateFlow(swt.id, "flood", "lsa", "sys", 1, 10);//TODO 优先级是越大越靠后吗？
+				FlowUtil.downFlow(groupCtl, floodFlow, "add");
+			}
+
 			MultiHandler handler = new MultiHandler(uPort, "lsa", "sys");
 			AllGrps ags = new AllGrps(allGroups);
 			handler.v6Send(ags);
 		}
 
-		private void downLSAFlow() {
+		private void downSubPubFlow() {
 			for (Switch swt : switchMap.values()) {
-				Flow floodFlow = FlowUtil.getInstance().generateFlow(swt.id, "flood", "lsa", "sys", 1, 10);//TODO 优先级是越大越靠后吗？
+				//这里也是不需要定义in_port，只需要出现这样的消息，就全网flood
+				Flow floodFlow = FlowUtil.getInstance().generateFlow(swt.id, "flood", "sub", "sys", 1, 10);//TODO 优先级是越大越靠后吗？
+				FlowUtil.downFlow(groupCtl, floodFlow, "add");
+				floodFlow = FlowUtil.getInstance().generateFlow(swt.id, "flood", "pub", "sys", 1, 10);
 				FlowUtil.downFlow(groupCtl, floodFlow, "add");
 			}
+		}
+
+		private void downSynGrpRtFlow() {
+			Flow floodOutFlow = FlowUtil.getInstance().generateFlow(localSwtId, portWsn2Swt, "flood", "route", "sys", 1, 10);
+			FlowUtil.downFlow(groupCtl, floodOutFlow, "add");
+
+			for (Switch swt : switchMap.values()) {
+				for (String p : swt.neighbors.keySet()) {
+					Flow floodInFlow = FlowUtil.getInstance().generateFlow(localSwtId, p, "flood", "route", "sys", 1, 10);
+					FlowUtil.downFlow(groupCtl, floodInFlow, "add");
+				}
+			}
+		}
+
+		//groupCtl下发全集群各swt上flood流表
+		private void downRepFlow() {
+			for (Switch swt : switchMap.values()) {
+				String id = swt.id;
+				//可以不匹配端口，直接匹配v4_dst和v6_dst(topic)
+				Flow fromGroupCtlFlow = FlowUtil.getInstance().generateRestFlow(id, "flood", 1, 10);
+//			TODO fromGroupCtlFlow.setV4Src(localAddr);
+				FlowUtil.downFlow(groupCtl, fromGroupCtlFlow, "add");
+
+				Flow toGroupCtlFlow = FlowUtil.getInstance().generateRestFlow(id, "flood", 1, 10);
+//			TODO toGroupCtlFlow.setV4Dst(localAddr);
+				FlowUtil.downFlow(groupCtl, toGroupCtlFlow, "add");
+			}
+		}
+
+		//localCtl下发本地swt上flood流表
+		private void downRegFlow() {
+			Flow toGroupCtlFlow = FlowUtil.getInstance().generateFlow(localSwtId, portWsn2Swt, "flood", "rest", "sys", 1, 10);//TODO 优先级是越大越靠后吗？
+//		TODO fromGroupCtlFlow.setV4Dst(groupCtl.url);
+			FlowUtil.downFlow(groupCtl, toGroupCtlFlow, "add");
 		}
 	}
 }

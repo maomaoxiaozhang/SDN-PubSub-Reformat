@@ -1,7 +1,7 @@
 package edu.bupt.wangfu.mgr.subpub.rcver;
 
 import edu.bupt.wangfu.info.device.Group;
-import edu.bupt.wangfu.info.msg.SubPubInfo;
+import edu.bupt.wangfu.info.msg.SPInfo;
 import edu.bupt.wangfu.mgr.base.SysInfo;
 import edu.bupt.wangfu.mgr.route.RouteUtil;
 import edu.bupt.wangfu.mgr.subpub.Action;
@@ -24,15 +24,15 @@ public class SubReceiver extends SysInfo implements Runnable {
 	public void run() {
 		while (true) {
 			Object msg = handler.v6Receive();
-			SubPubInfo ns = (SubPubInfo) msg;
+			SPInfo ns = (SPInfo) msg;
 			new Thread(new SubHandler(ns)).start();
 		}
 	}
 
 	private class SubHandler implements Runnable {
-		private SubPubInfo sub;
+		private SPInfo sub;
 
-		SubHandler(SubPubInfo sub) {
+		SubHandler(SPInfo sub) {
 			this.sub = sub;
 		}
 

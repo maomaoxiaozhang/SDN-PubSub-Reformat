@@ -13,7 +13,7 @@ import java.util.Set;
  */
 public class FlowUtil extends SysInfo {
 	private static FlowUtil ins;
-	private static int flowcount;
+	private int flowcount;
 
 	private FlowUtil() {
 		this.flowcount = 0;
@@ -98,7 +98,7 @@ public class FlowUtil extends SysInfo {
 	public static boolean deleteFlow(Controller controller, Flow flow) {
 		String url = controller.url + "/restconf/config/opendaylight-inventory:nodes/node/openflow:" + localSwtId
 				+ "/table/" + flow.table_id + "/flow/" + flow.flow_id;
-		return RestProcess.doClientDelete(url,flow.xmlContent).equals("200");
+		return RestProcess.doClientDelete(url, flow.xmlContent).equals("200");
 	}
 
 	public static boolean downFlow(Controller controller, Flow flow, String action) {

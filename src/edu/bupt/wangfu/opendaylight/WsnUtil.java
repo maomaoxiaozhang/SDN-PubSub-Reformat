@@ -4,14 +4,11 @@ package edu.bupt.wangfu.opendaylight;
 import edu.bupt.wangfu.info.device.Flow;
 import edu.bupt.wangfu.mgr.base.SysInfo;
 import edu.bupt.wangfu.opendaylight.rcver.AdminReceiver;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Enumeration;
-import java.util.Map;
 import java.util.Properties;
 
 /**
@@ -29,7 +26,7 @@ public class WsnUtil extends SysInfo {
 
 	public static void initSysTopicMap() {
 		Properties props = new Properties();
-		String propertiesPath = "resources/SysTopic.properties";
+		String propertiesPath = "./resources/SysTopic.properties";
 		try {
 			props.load(new FileInputStream(propertiesPath));
 		} catch (FileNotFoundException e) {
@@ -55,6 +52,7 @@ public class WsnUtil extends SysInfo {
 	}
 
 	private static String getFullLengthTopicCode(int newTopicCode) {
+		//前补0补到100bit
 		char[] tmp = new char[100];
 		for (int i = 0; i < tmp.length; i++) {
 			tmp[i] = '0';
@@ -63,42 +61,6 @@ public class WsnUtil extends SysInfo {
 		for (int i = tmp.length - 1, j = s.length() - 1; j >= 0; i--, j--) {
 			tmp[i] = s.charAt(j);
 		}
-		String res = String.valueOf(tmp);
-		return res;
-	}
-
-	public static Map<String, String> getSysTopicMap() {
-		return sysTopicAddrMap;
-	}
-
-	public static Map<String, String> getNotifyTopicList() {
-		return notifyTopicAddrMap;
-	}
-
-	public static String getLinkedSwtId(String hostMac) {
-		//返回wsn程序所在主机所连Switch的odl_id
-		String url = groupCtl.url + "/restconf/operational/network-topology:network-topology/";
-		String body = RestProcess.doClientGet(url);
-		JSONObject json = new JSONObject(body);
-		JSONObject net_topology = json.getJSONObject("network-topology");
-		JSONArray topology = net_topology.getJSONArray("topology");
-
-		for (int i = 0; i < topology.length(); i++) {
-			JSONArray link = topology.getJSONObject(i).getJSONArray("link");
-			for (int j = 0; j < link.length(); j++) {
-				String link_id = link.getJSONObject(j).getString("link-id");
-				if (link_id.contains(hostMac)) {
-					String[] ps = link_id.split("/");
-					for (String p : ps) {
-						if (p.contains("openflow")) {
-							String[] qs = p.split(":");
-							portWsn2Swt = qs[2];
-							return qs[1];
-						}
-					}
-				}
-			}
-		}
-		return null;
+		return String.valueOf(tmp);
 	}
 }

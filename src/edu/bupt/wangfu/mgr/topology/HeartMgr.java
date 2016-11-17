@@ -33,7 +33,7 @@ public class HeartMgr extends SysInfo {
 		new Thread(new ReHelloReceiver()).start();
 
 		Properties props = new Properties();
-		String propertiesPath = "resources/DtConfig.properties";
+		String propertiesPath = "./resources/DtConfig.properties";
 		try {
 			props.load(new FileInputStream(propertiesPath));
 		} catch (IOException e) {
