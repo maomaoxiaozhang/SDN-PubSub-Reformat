@@ -10,7 +10,7 @@ import java.util.*;
  */
 public class Dijkstra {
 	public static List<String> dijkstra(String startSwtId, String endSwtId, Map<String, Switch> switchMap) {
-		Set<Switch> op = new HashSet<>();
+		Set<Switch> op = new HashSet<Switch>();
 		//将所有switch存储在op集合中
 		for (String st : switchMap.keySet()) {
 			op.add(switchMap.get(st));
@@ -46,27 +46,34 @@ public class Dijkstra {
 			}
 		}
 
-		Switch nearest;
-		while (!open.isEmpty()) {
+		Switch nearest = null;
+		while (!op.isEmpty()) {
 			//查询距离startSwt最近的节点
-			nearest = getNearestSwitch(dis, open);
+			nearest = getNearestSwitch(dis, op);
 			close.add(nearest);
-			open.remove(nearest);
+			op.remove(nearest);
 			//dis_1记录最近节点到startSwt的距离
 			int dis_1 = dis.get(nearest.id);
 			//更新dis中的距离信息
-			for (Switch sw : open) {
+			for (Switch sw : op) {
 				//dis_2当前节点到startSwt的距离
 				int dis_2 = dis.get(sw.id);
 				//dis_3记录当前节点到nearest节点的距离
-				int dis_3;
+				int dis_3 = 0;
 				Map<String, DevInfo> neighbors = nearest.neighbors;
-				if (neighbors.containsKey(sw.id)) {
-//					dis_3 = neighbors.get(sw.id).distance;
-					//默认相邻交换机距离为1
-					dis_3 = 1;
-				} else {
-					dis_3 = -1;
+				for(String st : neighbors.keySet()){
+					DevInfo dev = neighbors.get(st);
+					if (dev instanceof Switch) {
+						Switch swi = (Switch) dev;
+						if (swi.id.equals(sw.id)) {
+//							dis_3 = neighbors.get(sw.id).distance;
+							//默认相邻交换机距离为1
+							dis_3 = 1;
+							break;
+						} else {
+							dis_3 = -1;
+						}
+					}
 				}
 
 				if (dis_3 == -1) {
@@ -85,15 +92,21 @@ public class Dijkstra {
 				}
 			}
 		}
-		return path.get(endSwt.id);
+		ArrayList<String> across = new ArrayList<String>();
+		across.add(startSwtId);
+		if(!(path.get(endSwtId) == null)){
+			across.addAll(path.get(endSwtId));
+		}
+		across.add(endSwtId);
+		return across;
 	}
 
 	//返回dis中距离startSwt交换机最近的节点
-	public static Switch getNearestSwitch(Map<String, Integer> dis, Set<Switch> open) {
+	public static Switch getNearestSwitch(Map<String, Integer> dis, Set<Switch> op) {
 		Switch res = null;
 		int minDis = Integer.MAX_VALUE;
 		//返回open集合中最小距离对应的节点
-		for (Switch sw : open) {
+		for (Switch sw : op) {
 			int distance = dis.get(sw.id);
 			if (distance == -1) {
 				//当前节点并未与startSwt相邻，不操作
