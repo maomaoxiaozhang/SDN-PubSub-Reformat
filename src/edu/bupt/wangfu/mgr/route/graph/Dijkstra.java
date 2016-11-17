@@ -105,7 +105,7 @@ public class Dijkstra {
 	public static Switch getNearestSwitch(Map<String, Integer> dis, Set<Switch> op) {
 		Switch res = null;
 		int minDis = Integer.MAX_VALUE;
-		//返回open集合中最小距离对应的节点
+		//返回op集合中最小距离对应的节点
 		for (Switch sw : op) {
 			int distance = dis.get(sw.id);
 			if (distance == -1) {
