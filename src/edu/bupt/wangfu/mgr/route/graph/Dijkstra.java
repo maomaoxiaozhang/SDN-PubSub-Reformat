@@ -10,7 +10,7 @@ import java.util.*;
  */
 public class Dijkstra {
 	public static List<String> dijkstra(String startSwtId, String endSwtId, Map<String, Switch> switchMap) {
-		Set<Switch> op = new HashSet<Switch>();
+		Set<Switch> op = new HashSet<>();
 		//将所有switch存储在op集合中
 		for (String st : switchMap.keySet()) {
 			op.add(switchMap.get(st));
@@ -92,7 +92,7 @@ public class Dijkstra {
 				}
 			}
 		}
-		ArrayList<String> across = new ArrayList<String>();
+		ArrayList<String> across = new ArrayList<>();
 		across.add(startSwtId);
 		if(!(path.get(endSwtId) == null)){
 			across.addAll(path.get(endSwtId));
