@@ -27,7 +27,7 @@ public class HeartMgr extends SysInfo {
 	public HeartMgr() {
 		addSelf2Allgroups();
 
-		downRcvhelloRehelloFlow();
+		downRcvHelloRehelloFlow();
 
 		new Thread(new HelloReceiver()).start();
 		new Thread(new ReHelloReceiver()).start();
@@ -42,6 +42,7 @@ public class HeartMgr extends SysInfo {
 		reHelloPeriod = Long.parseLong(props.getProperty("reHelloPeriod"));//判断失效阀值
 		helloPeriod = Long.parseLong(props.getProperty("helloPeriod"));//发送周期
 		helloTaskPeriod = Long.parseLong(props.getProperty("helloTaskPeriod"));//hello任务的执行周期
+		nbrGrpExpiration = Long.parseLong(props.getProperty("nbrGrpExpiration"));//邻居集群丢失时间的判断阈值
 
 		helloTimer.schedule(new HelloTask(), 0, helloTaskPeriod);
 	}
@@ -54,7 +55,7 @@ public class HeartMgr extends SysInfo {
 		allGroups.put(localGroupName, g);
 	}
 
-	private void downRcvhelloRehelloFlow() {
+	private void downRcvHelloRehelloFlow() {
 		for (Switch swt : outSwitches.values()) {
 			for (String out : swt.portSet) {
 				if (!out.equals("LOCAL")) {
@@ -90,6 +91,10 @@ public class HeartMgr extends SysInfo {
 			for (Switch swt : outSwitches.values()) {
 				for (String out : swt.portSet) {
 					if (!out.equals("LOCAL")) {
+						Group localGrp = allGroups.get(localGroupName);
+						localGrp.updateTime = System.currentTimeMillis();
+						allGroups.put(localGroupName, localGrp);
+
 						List<String> ctl2out = RouteUtil.calRoute(localSwtId, swt.id);
 						List<String> out2ctl = RouteUtil.calRoute(swt.id, localSwtId);
 						List<Flow> c2o = RouteUtil.downRouteFlows(ctl2out, portWsn2Swt, out, "hello", "sys", groupCtl);
@@ -107,6 +112,13 @@ public class HeartMgr extends SysInfo {
 						RouteUtil.delRouteFlows(c2o);
 						RouteUtil.delRouteFlows(o2c);
 					}
+				}
+			}
+			//定时检测邻居集群的代表是否还在线
+			for (Group g : allGroups.values()) {
+				if (System.currentTimeMillis() - g.updateTime > nbrGrpExpiration) {
+					allGroups.remove(g.groupName);
+					nbrGrpLinks.remove(g.groupName);
 				}
 			}
 		}

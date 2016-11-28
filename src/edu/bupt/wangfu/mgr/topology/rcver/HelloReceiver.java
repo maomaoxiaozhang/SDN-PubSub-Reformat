@@ -98,7 +98,8 @@ public class HelloReceiver extends SysInfo implements Runnable {
 			//同步LSDB，其他集群的连接情况；把对面已知的每个group的信息都替换为最新版本的
 			Map<String, Group> newAllGroup = finalHello.allGroups;
 			for (String grpName : newAllGroup.keySet()) {
-				if (allGroups.get(grpName) == null
+				if ((allGroups.get(grpName) == null
+						&& System.currentTimeMillis() - allGroups.get(grpName).updateTime < nbrGrpExpiration)
 						|| allGroups.get(grpName).updateTime < newAllGroup.get(grpName).updateTime)
 					allGroups.put(grpName, newAllGroup.get(grpName));
 			}

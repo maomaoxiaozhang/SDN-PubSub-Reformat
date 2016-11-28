@@ -53,5 +53,6 @@ public abstract class SysInfo {
 	public static long helloPeriod;//发送hello的频率，这个间隔内应该足够完成re_hello等动作
 	public static long refreshPeriod;//刷新集群内拓扑的频率
 	public static long checkSplitPeriod;//进行当前订阅主题流量检查的频率，检查是否需要分裂为原订阅
+	public static long nbrGrpExpiration;//邻居集群丢失时间的判断阈值
 	public static int splitThreshold;//进行主题分裂的流量占比阈值的初始值
 }

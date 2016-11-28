@@ -5,6 +5,7 @@ import edu.bupt.wangfu.info.msg.Route;
 import edu.bupt.wangfu.mgr.base.SysInfo;
 import edu.bupt.wangfu.mgr.route.graph.Dijkstra;
 import edu.bupt.wangfu.mgr.route.graph.Edge;
+import edu.bupt.wangfu.mgr.route.graph.GroupDijkstra;
 import edu.bupt.wangfu.mgr.subpub.Action;
 import edu.bupt.wangfu.opendaylight.FlowUtil;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
@@ -20,92 +21,91 @@ import java.util.*;
 public class RouteUtil extends SysInfo {
 	public static void main(String[] args) {
 
-			String url = "http://10.108.165.188:8181/restconf/operational/network-topology:network-topology/";
+		String url = "http://10.108.165.188:8181/restconf/operational/network-topology:network-topology/";
 
-			//测试用
+		//测试用
 		HashMap<String, Host> hostMap = new HashMap<>();
 		HashMap<String, Switch> switchMap = new HashMap<>();
 		HashSet<Edge> groupEdges = new HashSet<>();
 		HashMap<String, Switch> outSwitches = new HashMap<>();
-			//结束
-			hostMap.clear();
-			switchMap.clear();
-			groupEdges.clear();
-			outSwitches.clear();
+		//结束
+		hostMap.clear();
+		switchMap.clear();
+		groupEdges.clear();
+		outSwitches.clear();
 
-			String body = RestProcess.doClientGet(url);
-			JSONObject json = new JSONObject(body);
-			JSONObject net_topology = json.getJSONObject("network-topology");
-			JSONArray topology = net_topology.getJSONArray("topology");
-			JSONArray nodes = topology.getJSONObject(0).getJSONArray("node");
-			for (int j = 0; j < nodes.length(); j++) {
-				String node_id = nodes.getJSONObject(j).getString("node-id");
-				if (node_id.contains("host")) {
-					String swt = nodes.getJSONObject(j).getJSONArray("host-tracker-service:attachment-points").getJSONObject(0).getString("tp-id");
-					String port = swt.split(":")[2];
-					String swtId = swt.split(":")[1];
-					String ip = nodes.getJSONObject(j).getJSONArray("host-tracker-service:addresses").getJSONObject(0).getString("ip");
-					String mac = node_id.substring(5, node_id.length());
+		String body = RestProcess.doClientGet(url);
+		JSONObject json = new JSONObject(body);
+		JSONObject net_topology = json.getJSONObject("network-topology");
+		JSONArray topology = net_topology.getJSONArray("topology");
+		JSONArray nodes = topology.getJSONObject(0).getJSONArray("node");
+		for (int j = 0; j < nodes.length(); j++) {
+			String node_id = nodes.getJSONObject(j).getString("node-id");
+			if (node_id.contains("host")) {
+				String swt = nodes.getJSONObject(j).getJSONArray("host-tracker-service:attachment-points").getJSONObject(0).getString("tp-id");
+				String port = swt.split(":")[2];
+				String swtId = swt.split(":")[1];
+				String ip = nodes.getJSONObject(j).getJSONArray("host-tracker-service:addresses").getJSONObject(0).getString("ip");
+				String mac = node_id.substring(5, node_id.length());
 
-					Host host = new Host(ip);
-					host.mac = mac;
-					host.swtId = swtId;
-					host.port = port;
-					hostMap.put(mac, host);
-				} else if (node_id.contains("openflow")) {
-					String swtId = node_id.split(":")[1];
-					Switch swt = new Switch(swtId);
-					swt.portSet = new HashSet<>();
-					JSONArray nbs = nodes.getJSONObject(j).getJSONArray("termination-point");
-					for (int i = 0; i < nbs.length(); i++) {
-						String port = nbs.getJSONObject(i).getString("tp-id").split(":")[2];
-						swt.portSet.add(port);
-					}
-					switchMap.put(swtId, swt);
+				Host host = new Host(ip);
+				host.mac = mac;
+				host.swtId = swtId;
+				host.port = port;
+				hostMap.put(mac, host);
+			} else if (node_id.contains("openflow")) {
+				String swtId = node_id.split(":")[1];
+				Switch swt = new Switch(swtId);
+				swt.portSet = new HashSet<>();
+				JSONArray nbs = nodes.getJSONObject(j).getJSONArray("termination-point");
+				for (int i = 0; i < nbs.length(); i++) {
+					String port = nbs.getJSONObject(i).getString("tp-id").split(":")[2];
+					swt.portSet.add(port);
+				}
+				switchMap.put(swtId, swt);
+			}
+		}
+
+		for (int i = 0; i < topology.length(); i++) {
+			JSONArray links = topology.getJSONObject(i).getJSONArray("link");
+			for (int j = 0; j < links.length(); j++) {
+				String link_id = links.getJSONObject(j).getString("link-id");
+				String dest = links.getJSONObject(j).getJSONObject("destination").getString("dest-tp");
+				String src = links.getJSONObject(j).getJSONObject("source").getString("source-tp");
+				String hostMac = null, swtId1, port1, swtId2 = null, port2 = null;
+				//获取连接关系
+				if (link_id.contains("host")) {
+					hostMac = dest.contains("host") ? dest.substring(5, dest.length()) : src.substring(5, src.length());
+					swtId1 = dest.contains("host") ? src.split(":")[1] : dest.split(":")[1];
+					port1 = dest.contains("host") ? src.split(":")[2] : dest.split(":")[2];
+				} else {
+					swtId1 = src.split(":")[1];
+					port1 = src.split(":")[2];
+					swtId2 = dest.split(":")[1];
+					port2 = dest.split(":")[2];
+				}
+				//修改连接关系
+				if (hostMac != null) {
+					Host h = hostMap.get(hostMac);
+					switchMap.get(swtId1).addNeighbor(port1, h);
+					switchMap.get(swtId1).portSet.remove(port1);
+				} else {
+					Switch s1 = switchMap.get(swtId1);
+					Switch s2 = switchMap.get(swtId2);
+					s1.addNeighbor(port1, s2);
+					s1.portSet.remove(port1);
+					s2.addNeighbor(port2, s1);
+					s2.portSet.remove(port2);
 				}
 			}
-
-			for (int i = 0; i < topology.length(); i++) {
-				JSONArray links = topology.getJSONObject(i).getJSONArray("link");
-				for (int j = 0; j < links.length(); j++) {
-					String link_id = links.getJSONObject(j).getString("link-id");
-					String dest = links.getJSONObject(j).getJSONObject("destination").getString("dest-tp");
-					String src = links.getJSONObject(j).getJSONObject("source").getString("source-tp");
-					String hostMac = null, swtId1, port1, swtId2 = null, port2 = null;
-					//获取连接关系
-					if (link_id.contains("host")) {
-						hostMac = dest.contains("host") ? dest.substring(5, dest.length()) : src.substring(5, src.length());
-						swtId1 = dest.contains("host") ? src.split(":")[1] : dest.split(":")[1];
-						port1 = dest.contains("host") ? src.split(":")[2] : dest.split(":")[2];
-					} else {
-						swtId1 = src.split(":")[1];
-						port1 = src.split(":")[2];
-						swtId2 = dest.split(":")[1];
-						port2 = dest.split(":")[2];
-					}
-					//修改连接关系
-					if (hostMac != null) {
-						Host h = hostMap.get(hostMac);
-						switchMap.get(swtId1).addNeighbor(port1, h);
-						switchMap.get(swtId1).portSet.remove(port1);
-					} else {
-						Switch s1 = switchMap.get(swtId1);
-						Switch s2 = switchMap.get(swtId2);
-						s1.addNeighbor(port1, s2);
-						s1.portSet.remove(port1);
-						s2.addNeighbor(port2, s1);
-						s2.portSet.remove(port2);
-					}
-				}
-			}
+		}
 
 
-
-		List<String> res = test("138650386896193", "143995463036234",switchMap);
+		List<String> res = test("138650386896193", "143995463036234", switchMap);
 		System.out.println(123);
 	}
 
-	public static List<String> test(String startSwtId, String endSwtId,Map<String,Switch> switchMap) {
+	public static List<String> test(String startSwtId, String endSwtId, Map<String, Switch> switchMap) {
 		return Dijkstra.dijkstra(startSwtId, endSwtId, switchMap);
 	}
 
@@ -115,7 +115,7 @@ public class RouteUtil extends SysInfo {
 				return r.route;
 			}
 		}
-		//TODO 冠群
+		//冠群
 		List<String> route = Dijkstra.dijkstra(startSwtId, endSwtId, switchMap);
 
 		Route r = new Route();
@@ -262,8 +262,8 @@ public class RouteUtil extends SysInfo {
 
 	//计算集群间的最短路径
 	private static List<String> calGraphRoute(String startGrpName, String endGrpName) {
-		//TODO 也是冠群，输入的是集群的名字，素材是allGroups
-		return new ArrayList<>();
+		//也是冠群，输入的是集群的名字，素材是allGroups
+		return GroupDijkstra.groupdijkstra(startGrpName, endGrpName, allGroups);
 	}
 
 

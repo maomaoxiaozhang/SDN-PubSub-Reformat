@@ -46,7 +46,7 @@ public class Dijkstra {
 			}
 		}
 
-		Switch nearest = null;
+		Switch nearest;
 		while (!op.isEmpty()) {
 			//查询距离startSwt最近的节点
 			nearest = getNearestSwitch(dis, op);
