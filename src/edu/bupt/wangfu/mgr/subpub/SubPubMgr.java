@@ -7,6 +7,7 @@ import edu.bupt.wangfu.mgr.route.RouteUtil;
 import edu.bupt.wangfu.mgr.subpub.rcver.PubReceiver;
 import edu.bupt.wangfu.mgr.subpub.rcver.SubReceiver;
 import edu.bupt.wangfu.mgr.topology.GroupUtil;
+import edu.bupt.wangfu.mgr.wsn.WsnPubSubRegister;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 import java.util.HashSet;
@@ -22,7 +23,8 @@ public class SubPubMgr extends SysInfo {
 	private static Timer splitTimer = new Timer();
 
 	public SubPubMgr() {
-		new Thread(new SubPubRegister(tPort)).start();//接收新发布者和订阅者的注册
+		//new Thread(new SubPubRegister(tPort)).start();//接收新发布者和订阅者的注册
+		new Thread(new WsnPubSubRegister()).start(); // webservice方式接收新发布者或订阅者的注册
 
 		new Thread(new SubReceiver()).start();
 		new Thread(new PubReceiver()).start();
