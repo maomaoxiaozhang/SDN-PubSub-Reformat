@@ -36,7 +36,7 @@ public class FlowUtil extends SysInfo {
 
 	public static boolean deleteFlow(Controller controller, Flow flow) {
 		//RestProcess.doClientDelete(controller, flow.swtId, flow.toStringOutput());
-		OvsProcess.deleteFlows(controller,flow.swtId,flow.toStringDelete());
+		OvsProcess.deleteFlows(controller, flow.swtId, flow.toStringDelete());
 		// TODO 查看流表下发成功与否
 		return true;
 	}
@@ -45,17 +45,17 @@ public class FlowUtil extends SysInfo {
 		//TODO 这里还要考虑下发到具体哪个流表里，看要执行的动作是 更新流表项 还是 添加新流表项
 		// action == "Add" "update"
 		//RestProcess.doClientPost(controller, flow.swtId, flow.toStringOutput());
-		String dumpResult = OvsProcess.dumpFlows(controller,flow.swtId,flow.toStringDelete());
+		String dumpResult = OvsProcess.dumpFlows(controller, flow.swtId, flow.toStringDelete());
 		if (dumpResult.split("\n").length < 2) {
 			OvsProcess.addFlow(controller, flow.swtId, flow.toStringOutput());
-		}else {
+		} else {
 			String outPort = ",";
-			for (int i = 0; i < dumpResult.split("\n").length; i ++) {
+			for (int i = 0; i < dumpResult.split("\n").length; i++) {
 				String singleflow = dumpResult.split("\n")[i];
 				singleflow = singleflow.substring(singleflow.indexOf("actions="));
-				singleflow = singleflow.substring(singleflow.indexOf("=")+1);
-				for (int j = 0; j < singleflow.split(",").length; j ++)
-					outPort += singleflow.split(",")[j].charAt(singleflow.split(",")[j].length()-1);
+				singleflow = singleflow.substring(singleflow.indexOf("=") + 1);
+				for (int j = 0; j < singleflow.split(",").length; j++)
+					outPort += singleflow.split(",")[j].charAt(singleflow.split(",")[j].length() - 1);
 			}
 			outPort = outPort.substring(1);
 			flow.out = outPort;
@@ -86,7 +86,7 @@ public class FlowUtil extends SysInfo {
 			v6Addr = notifyTopicAddrMap.get(topic);
 		}
 
-		flowcount ++;
+		flowcount++;
 
 		Flow flow = new Flow();
 		flow.swtId = swtId;

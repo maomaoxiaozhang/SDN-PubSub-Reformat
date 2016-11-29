@@ -61,7 +61,7 @@ public class Dijkstra {
 				//dis_3记录当前节点到nearest节点的距离
 				int dis_3 = 0;
 				Map<String, DevInfo> neighbors = nearest.neighbors;
-				for(String st : neighbors.keySet()){
+				for (String st : neighbors.keySet()) {
 					DevInfo dev = neighbors.get(st);
 					if (dev instanceof Switch) {
 						Switch swi = (Switch) dev;
@@ -94,7 +94,7 @@ public class Dijkstra {
 		}
 		ArrayList<String> across = new ArrayList<>();
 		across.add(startSwtId);
-		if(!(path.get(endSwtId) == null)){
+		if (!(path.get(endSwtId) == null)) {
 			across.addAll(path.get(endSwtId));
 		}
 		across.add(endSwtId);

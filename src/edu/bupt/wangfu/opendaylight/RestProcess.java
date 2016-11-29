@@ -1,13 +1,10 @@
 package edu.bupt.wangfu.opendaylight;
 
-import edu.bupt.wangfu.info.device.Controller;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,13 +21,13 @@ public class RestProcess {
 			httpclient.getState().setCredentials(AuthScope.ANY, cred);
 
 			PostMethod postMethod = new PostMethod(new_url);
-			postMethod.setRequestHeader("Content-Type","application/xml");
+			postMethod.setRequestHeader("Content-Type", "application/xml");
 			postMethod.setRequestBody(body);
 
 			postMethod.setDoAuthentication(true);
 
 			status = httpclient.executeMethod(postMethod);
-			System.out.println("Post Status:"+status);
+			System.out.println("Post Status:" + status);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -55,13 +52,13 @@ public class RestProcess {
 			httpclient.getState().setCredentials(AuthScope.ANY, cred);
 
 			PostMethod postMethod = new PostMethod(new_url);
-			postMethod.setRequestHeader("Content-Type","application/xml");
+			postMethod.setRequestHeader("Content-Type", "application/xml");
 			postMethod.setRequestBody(body);
 
 			postMethod.setDoAuthentication(true);
 
 			status = httpclient.executeMethod(postMethod);
-			System.out.println("Delete Status:"+status);
+			System.out.println("Delete Status:" + status);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -80,13 +77,13 @@ public class RestProcess {
 			httpclient.getState().setCredentials(AuthScope.ANY, cred);
 
 			PostMethod postMethod = new PostMethod(url);
-			postMethod.setRequestHeader("Content-Type","application/xml");
+			postMethod.setRequestHeader("Content-Type", "application/xml");
 			postMethod.setRequestBody(body);
 
 			postMethod.setDoAuthentication(true);
 
 			status = httpclient.executeMethod(postMethod);
-			System.out.println("Update Status:"+status);
+			System.out.println("Update Status:" + status);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -115,24 +112,5 @@ public class RestProcess {
 		return null;
 	}
 
-	public static String getBrNameByTpid(Controller ctrl, String tpid) {
-		String brName = "";
-		String url = ctrl.url + "/restconf/operational/opendaylight-inventory:nodes/node/" + tpid;
-		String body = RestProcess.doClientGet(url);
-		assert body != null;
-		try {
-			JSONObject json = new JSONObject(body);
-			JSONArray node = json.getJSONArray("node");
-			JSONArray node_connector = node.getJSONObject(0).getJSONArray("node-connector");
-			for (int i = 0; i < node_connector.length(); i++) {
-				JSONObject term = node_connector.getJSONObject(i);
-				String portName = term.getString("flow-node-inventory:name");
-				if (portName.startsWith("br")) {
-					brName = portName;
-					break;
-				}
-			}
-		}catch (Exception e) { e.printStackTrace(); }
-		return brName;
-	}
+
 }

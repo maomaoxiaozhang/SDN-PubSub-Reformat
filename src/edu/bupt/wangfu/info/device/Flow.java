@@ -1,6 +1,6 @@
 package edu.bupt.wangfu.info.device;
 
-import java.io.*;
+import java.io.Serializable;
 
 public class Flow implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -26,6 +26,6 @@ public class Flow implements Serializable {
 	}
 
 	public String toStringDelete() {
-		return String.format("table=%d in_port=%s dl_dst=%s action=output:%s",table_id,in,dl_dst,out);
+		return String.format("table=%d in_port=%s dl_dst=%s action=output:%s", table_id, in, dl_dst, out);
 	}
 }

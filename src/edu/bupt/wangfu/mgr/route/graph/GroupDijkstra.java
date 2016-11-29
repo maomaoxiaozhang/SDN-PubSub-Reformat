@@ -8,11 +8,11 @@ import java.util.*;
  * Created by lenovo on 2016/11/17.
  */
 public class GroupDijkstra {
-	public static List<String> groupdijkstra(String startGrpName, String endGrpName, Map<String, Group> allGroups){
+	public static List<String> groupdijkstra(String startGrpName, String endGrpName, Map<String, Group> allGroups) {
 		Set<Group> op = new HashSet<>();
 		Set<String> open = new HashSet<>();
 		//將所有group存儲在op中，所有Group集群名存儲在open中
-		for(String st : allGroups.keySet()){
+		for (String st : allGroups.keySet()) {
 			op.add(allGroups.get(st));
 			open.add(allGroups.get(st).groupName);
 		}
@@ -28,19 +28,19 @@ public class GroupDijkstra {
 		Map<String, List<String>> path = new HashMap<>();
 
 		//初始化distance，與startGrp集群不相鄰則設為-1
-		for(String st : open){
+		for (String st : open) {
 			distance.put(st, -1);
 		}
 		//設置path信息
-		for(String st : startGrp.dist2NbrGrps.keySet()){
-			if(open.contains(st)){
+		for (String st : startGrp.dist2NbrGrps.keySet()) {
+			if (open.contains(st)) {
 				distance.put(st, startGrp.dist2NbrGrps.get(st));
 				path.put(st, null);
 			}
 		}
 
 		Group nearest = startGrp;
-		while (nearest != endGrp){
+		while (nearest != endGrp) {
 			//查詢與startGrp距離最近的集群
 			nearest = getNearestGroup(distance, op);
 			op.remove(nearest);
@@ -48,16 +48,16 @@ public class GroupDijkstra {
 			//dis_1記錄最近集群到startGrp集群的距離
 			int dis_1 = distance.get(nearest.groupName);
 			//更新distance中的信息
-			for(Group gr : op){
+			for (Group gr : op) {
 				//dis_2存儲當前集群到startGrp集群的距離
 				int dis_2 = distance.get(gr.groupName);
 				//dis_3記錄當前集群到nearest集群的距離
 				int dis_3 = 0;
-				if(nearest.dist2NbrGrps.containsKey(gr.groupName)){
+				if (nearest.dist2NbrGrps.containsKey(gr.groupName)) {
 					dis_3 = nearest.dist2NbrGrps.get(gr.groupName);
 				}
 
-				if(dis_2 == -1 || dis_2 > dis_1 + dis_3){
+				if (dis_2 == -1 || dis_2 > dis_1 + dis_3) {
 					//当前集群没有与startGrp集群相邻或者通过nearest集群的距离更短，更新
 					distance.put(gr.groupName, dis_1 + dis_3);
 
@@ -75,7 +75,7 @@ public class GroupDijkstra {
 		}
 		ArrayList<String> across = new ArrayList<String>();
 		across.add(startGrpName);
-		if(!(path.get(endGrpName) == null)){
+		if (!(path.get(endGrpName) == null)) {
 			across.addAll(path.get(endGrpName));
 		}
 		across.add(endGrpName);

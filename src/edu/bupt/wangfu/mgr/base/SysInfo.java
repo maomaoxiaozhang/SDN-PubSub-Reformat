@@ -25,7 +25,7 @@ public abstract class SysInfo {
 	public static String localSwtId;//wsn连接的switch的id
 	public static String portWsn2Swt;//wsn连接switch，switch上的的端口
 	public static Set<Edge> groupEdges;//集群内所有swt连接的边的集合
-	public static Map<String,Switch> outSwitches; //key是swtId，本集群所有拥有对外端口的swt的集合
+	public static Map<String, Switch> outSwitches; //key是swtId，本集群所有拥有对外端口的swt的集合
 	public static Set<Route> groupRoutes;//集群内所有计算过的路径
 	public static Map<String, Host> hostMap;//当前集群所有host，key是mac
 	public static Map<String, Switch> switchMap;//当前集群所有switch，key是id
