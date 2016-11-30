@@ -16,7 +16,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * Created by lenovo on 2016-10-16.
+ * @ Created by lenovo on 2016-10-16.
  */
 public class GroupUtil extends SysInfo {
 	private static RefreshGroup refreshTask = new RefreshGroup();
@@ -46,6 +46,7 @@ public class GroupUtil extends SysInfo {
 		outSwitches.clear();
 
 		String body = RestProcess.doClientGet(url);
+		assert body != null;
 		JSONObject json = new JSONObject(body);
 		JSONObject net_topology = json.getJSONObject("network-topology");
 		JSONArray topology = net_topology.getJSONArray("topology");
@@ -250,20 +251,18 @@ public class GroupUtil extends SysInfo {
 			for (Switch swt : switchMap.values()) {
 				String id = swt.id;
 				//可以不匹配端口，直接匹配v4_dst和v6_dst(topic)
-				Flow fromGroupCtlFlow = FlowUtil.getInstance().generateRestFlow(id, "flood", 1, 10);
-//			TODO fromGroupCtlFlow.setV4Src(localAddr);
+				String v4Addr = localAddr;
+				Flow fromGroupCtlFlow = FlowUtil.getInstance().generateRestFlow(id, "flood", 1, 10, "src:"+v4Addr);
 				FlowUtil.downFlow(groupCtl, fromGroupCtlFlow, "add");
 
-				Flow toGroupCtlFlow = FlowUtil.getInstance().generateRestFlow(id, "flood", 1, 10);
-//			TODO toGroupCtlFlow.setV4Dst(localAddr);
+				Flow toGroupCtlFlow = FlowUtil.getInstance().generateRestFlow(id, "flood", 1, 10, "dst:"+v4Addr);
 				FlowUtil.downFlow(groupCtl, toGroupCtlFlow, "add");
 			}
 		}
 
 		//localCtl下发本地swt上flood流表
 		private void downRegFlow() {
-			Flow toGroupCtlFlow = FlowUtil.getInstance().generateFlow(localSwtId, portWsn2Swt, "flood", "rest", "sys", 1, 10);//TODO 优先级是越大越靠后吗？
-//		TODO fromGroupCtlFlow.setV4Dst(groupCtl.url);
+			Flow toGroupCtlFlow = FlowUtil.getInstance().generateRestFlow(localSwtId, "flood", 1, 10, "dst:"+groupCtl.url);
 			FlowUtil.downFlow(groupCtl, toGroupCtlFlow, "add");
 		}
 	}
