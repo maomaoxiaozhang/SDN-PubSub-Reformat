@@ -25,8 +25,9 @@ public class Config extends SysInfo {
 		setParams();
 
 		Host node = new Host(localAddr);
-		localMac = node.getMac();
+//		localMac = node.getMac();
 		localSwtId = getLinkedSwtId(localMac);
+		System.out.println("localSwtId = " + localSwtId);
 
 		//初始化topic和对应的编码
 		WsnUtil.initSysTopicMap();
@@ -76,6 +77,7 @@ public class Config extends SysInfo {
 		localGroupName = props.getProperty("localGroupName");
 		groupCtl = new Controller(props.getProperty("groupCtl"));
 		localAddr = props.getProperty("localAddress");
+		localMac = props.getProperty("localMac");
 		tPort = Integer.valueOf(props.getProperty("tPort"));
 		uPort = Integer.valueOf(props.getProperty("uPort"));
 
@@ -105,5 +107,7 @@ public class Config extends SysInfo {
 
 		localCtl = new Controller(localAddr);
 		groupRoutes = Collections.synchronizedSet(new HashSet<Route>());
+
+		System.out.println("config complete");
 	}
 }

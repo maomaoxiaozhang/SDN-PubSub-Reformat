@@ -214,7 +214,7 @@ public class GroupUtil extends SysInfo {
 
 		private void spreadAllGrps() {
 			for (Switch swt : switchMap.values()) {
-				Flow floodFlow = FlowUtil.getInstance().generateFlow(swt.id, "flood", "lsa", "sys", 1, 10);//TODO 优先级是越大越靠后吗？
+				Flow floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swt.id, "flood", "lsa", "sys", 1, 10);//TODO 优先级是越大越靠后吗？
 				FlowUtil.downFlow(groupCtl, floodFlow, "add");
 			}
 
@@ -226,9 +226,9 @@ public class GroupUtil extends SysInfo {
 		private void downSubPubFlow() {
 			for (Switch swt : switchMap.values()) {
 				//这里也是不需要定义in_port，只需要出现这样的消息，就全网flood
-				Flow floodFlow = FlowUtil.getInstance().generateFlow(swt.id, "flood", "sub", "sys", 1, 10);//TODO 优先级是越大越靠后吗？
+				Flow floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swt.id, "flood", "sub", "sys", 1, 10);//TODO 优先级是越大越靠后吗？
 				FlowUtil.downFlow(groupCtl, floodFlow, "add");
-				floodFlow = FlowUtil.getInstance().generateFlow(swt.id, "flood", "pub", "sys", 1, 10);
+				floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swt.id, "flood", "pub", "sys", 1, 10);
 				FlowUtil.downFlow(groupCtl, floodFlow, "add");
 			}
 		}

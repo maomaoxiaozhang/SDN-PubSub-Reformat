@@ -16,7 +16,7 @@ import java.util.Properties;
  */
 public class WsnUtil extends SysInfo {
 	public static void initNotifyTopicMap() {
-		Flow fromAdmin = FlowUtil.getInstance().generateFlow(localSwtId, portWsn2Swt, "admin", "sys", 1, 10);
+		Flow fromAdmin = FlowUtil.getInstance().generateNoInPortFlow(localSwtId, portWsn2Swt, "admin", "sys", 1, 10);
 		FlowUtil.downFlow(groupCtl, fromAdmin, "add");
 		Flow toAdmin = FlowUtil.getInstance().generateFlow(localSwtId, portWsn2Swt, "flood", "admin", "sys", 1, 10);
 		FlowUtil.downFlow(groupCtl, toAdmin, "add");
