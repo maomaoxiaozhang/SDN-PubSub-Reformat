@@ -34,12 +34,6 @@ public class GroupUtil extends SysInfo {
 	private static void getGrpTopo(Controller controller) {
 		String url = controller.url + "/restconf/operational/network-topology:network-topology/";
 
-		//测试用
-//		HashMap<String, Host> hostMap = new HashMap<>();
-//		HashMap<String, Switch> switchMap = new HashMap<>();
-//		HashSet<Edge> groupEdges = new HashSet<>();
-//		HashMap<String, Switch> outSwitches = new HashMap<>();
-		//结束
 		hostMap.clear();
 		switchMap.clear();
 		groupEdges.clear();
@@ -172,8 +166,11 @@ public class GroupUtil extends SysInfo {
 			}
 		}
 
-		System.out.println("test to see hostMap and switchMap");
-
+		for (String id : switchMap.keySet()) {
+			Switch swt = switchMap.get(id);
+			System.out.println("Switch " + id + " has " + (swt.portSet.size() - 1) + " port(s) connected to other " +
+					"group(s), and " + swt.neighbors.keySet().size() + " port(s) connected to in group device(s)");
+		}
 	}
 
 	private static boolean isGrpLinked(GroupLink gl) {
@@ -206,11 +203,9 @@ public class GroupUtil extends SysInfo {
 			//下发同步流表，使wsn计算出来的新route可以在集群内同步
 			downSynGrpRtFlow();
 			//下发访问groupCtl的flood流表
-			if (localCtl.equals(groupCtl)) {
-				downRepFlow();
-			} else {
-				downRegFlow();
-			}
+			if (localCtl.equals(groupCtl))
+				downRestFlow();
+
 		}
 
 		private void spreadAllGrps() {
@@ -247,7 +242,7 @@ public class GroupUtil extends SysInfo {
 		}
 
 		//groupCtl下发全集群各swt上flood流表
-		private void downRepFlow() {
+		private void downRestFlow() {
 			for (Switch swt : switchMap.values()) {
 				String id = swt.id;
 				//可以不匹配端口，直接匹配v4_dst和v6_dst(topic)
@@ -258,12 +253,6 @@ public class GroupUtil extends SysInfo {
 				Flow toGroupCtlFlow = FlowUtil.getInstance().generateRestFlow(id, "flood", 1, 10, "dst:"+v4Addr);
 				FlowUtil.downFlow(groupCtl, toGroupCtlFlow, "add");
 			}
-		}
-
-		//localCtl下发本地swt上flood流表
-		private void downRegFlow() {
-			Flow toGroupCtlFlow = FlowUtil.getInstance().generateRestFlow(localSwtId, "flood", 1, 10, "dst:"+groupCtl.url);
-			FlowUtil.downFlow(groupCtl, toGroupCtlFlow, "add");
 		}
 	}
 }

@@ -61,7 +61,7 @@ public class HelloReceiver extends SysInfo implements Runnable {
 						re_hello.endOutPort = out;
 						re_hello.allGroups = allGroups;
 
-						//依次发送re_hello到每一个outPort，中间的时延保证对面有足够的时间反应第一条收到的信息
+						//把re_hello发送到每一个outPort，中间的时延保证对面有足够的时间反应第一条收到的信息
 						MultiHandler handler = new MultiHandler(uPort, "re_hello", "sys");
 						handler.v6Send(re_hello);
 

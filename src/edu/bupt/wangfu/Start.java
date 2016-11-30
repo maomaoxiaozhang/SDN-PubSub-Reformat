@@ -9,9 +9,7 @@ import edu.bupt.wangfu.mgr.topology.GroupUtil;
  */
 public class Start {
 	public static void main(String[] args) {
-		Config config = new Config();
-		config.configure();//这里进行配置，配置文件的内容写到SysInfo里
-
+		Config.configure();//这里进行配置，配置文件的内容写到SysInfo里
 		GroupUtil.initGroup();//初始化本地关于集群的hostMap，switchMap还有outPorts
 
 		new Thread(new mgrInstance()).start();

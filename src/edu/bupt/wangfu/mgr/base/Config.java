@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by lenovo on 2016-6-22.
  */
 public class Config extends SysInfo {
-	public void configure() {
+	public static void configure() {
 		setParams();
 
 		Host node = new Host(localAddr);
@@ -34,7 +34,7 @@ public class Config extends SysInfo {
 		WsnUtil.initNotifyTopicMap();
 	}
 
-	private String getLinkedSwtId(String hostMac) {
+	private static String getLinkedSwtId(String hostMac) {
 		//返回wsn程序所在主机所连Switch的odl_id
 		String url = groupCtl.url + "/restconf/operational/network-topology:network-topology/";
 		String body = RestProcess.doClientGet(url);
@@ -61,7 +61,7 @@ public class Config extends SysInfo {
 		return null;
 	}
 
-	private void setParams() {
+	private static void setParams() {
 		Properties props = new Properties();
 		String propertiesPath = "./resources/RtConfig.properties";
 		try {
