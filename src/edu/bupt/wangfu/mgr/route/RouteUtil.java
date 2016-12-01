@@ -207,9 +207,9 @@ public class RouteUtil extends SysInfo {
 						outPort = e.startPort;
 				}
 			}
-			Flow flow = FlowUtil.getInstance().generateFlow(route.get(i), inPort, outPort, topic, topicType, 1, 10);
+			Flow flow = FlowUtil.getInstance().generateFlow(route.get(i), inPort, outPort, topic, topicType, 0, 20);
 			routeFlows.add(flow);
-			FlowUtil.downFlow(ctl, flow, "update");
+			FlowUtil.downFlow(ctl, flow, "add");
 		}
 		return routeFlows;
 	}

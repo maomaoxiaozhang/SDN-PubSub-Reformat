@@ -196,21 +196,17 @@ public class GroupUtil extends SysInfo {
 					e.printStackTrace();
 				}
 			}
-			//定时广播自己集群的信息，确保每个新增加的节点都有最新的全网集群信息
-			spreadAllGrps();
-			//下发注册流表，之后如果wsn要产生新订阅或新发布，就可以通过它扩散到全网
-			downSubPubFlow();
-			//下发同步流表，使wsn计算出来的新route可以在集群内同步
-			downSynGrpRtFlow();
-			//下发访问groupCtl的flood流表
+			spreadAllGrps();//集群内定时广播自己拥有的allGroups，确保每个新增加的节点都有最新的全网集群信息
+			downSubPubFlow();//下发注册流表，之后如果wsn要产生新订阅或新发布，就可以通过它扩散到全网
+			downSynGrpRtFlow();//下发route同步流表，使wsn计算出来的新route可以在集群内同步
 			if (localCtl.equals(groupCtl))
-				downRestFlow();
+				downRestFlow();//下发访问groupCtl的flood流表
 
 		}
 
 		private void spreadAllGrps() {
 			for (Switch swt : switchMap.values()) {
-				Flow floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swt.id, "flood", "lsa", "sys", 1, 10);//TODO 优先级是越大越靠后吗？
+				Flow floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swt.id, "flood", "lsa", "sys", 0, 50);
 				FlowUtil.downFlow(groupCtl, floodFlow, "add");
 			}
 
@@ -221,37 +217,31 @@ public class GroupUtil extends SysInfo {
 
 		private void downSubPubFlow() {
 			for (Switch swt : switchMap.values()) {
-				//这里也是不需要定义in_port，只需要出现这样的消息，就全网flood
-				Flow floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swt.id, "flood", "sub", "sys", 1, 10);//TODO 优先级是越大越靠后吗？
+				Flow floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swt.id, "flood", "sub", "sys", 0, 50);
 				FlowUtil.downFlow(groupCtl, floodFlow, "add");
-				floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swt.id, "flood", "pub", "sys", 1, 10);
+				floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swt.id, "flood", "pub", "sys", 0, 50);
 				FlowUtil.downFlow(groupCtl, floodFlow, "add");
 			}
 		}
 
 		private void downSynGrpRtFlow() {
-			Flow floodOutFlow = FlowUtil.getInstance().generateFlow(localSwtId, portWsn2Swt, "flood", "route", "sys", 1, 10);
+			Flow floodOutFlow = FlowUtil.getInstance().generateFlow(localSwtId, portWsn2Swt, "flood", "route", "sys", 0, 50);
 			FlowUtil.downFlow(groupCtl, floodOutFlow, "add");
 
 			for (Switch swt : switchMap.values()) {
 				for (String p : swt.neighbors.keySet()) {
-					Flow floodInFlow = FlowUtil.getInstance().generateFlow(localSwtId, p, "flood", "route", "sys", 1, 10);
+					Flow floodInFlow = FlowUtil.getInstance().generateFlow(swt.id, p, "flood", "route", "sys", 0, 50);
 					FlowUtil.downFlow(groupCtl, floodInFlow, "add");
 				}
 			}
 		}
 
-		//groupCtl下发全集群各swt上flood流表
 		private void downRestFlow() {
 			for (Switch swt : switchMap.values()) {
-				String id = swt.id;
-				//可以不匹配端口，直接匹配v4_dst和v6_dst(topic)
-				String v4Addr = localAddr;
-				Flow fromGroupCtlFlow = FlowUtil.getInstance().generateRestFlow(id, "flood", 1, 10, "src:"+v4Addr);
-				FlowUtil.downFlow(groupCtl, fromGroupCtlFlow, "add");
-
-				Flow toGroupCtlFlow = FlowUtil.getInstance().generateRestFlow(id, "flood", 1, 10, "dst:"+v4Addr);
-				FlowUtil.downFlow(groupCtl, toGroupCtlFlow, "add");
+				Flow fromGrpCtlFlow = FlowUtil.getInstance().generateRestFlow(swt.id, "flood", 0, 50, "src:" + localAddr);
+				FlowUtil.downFlow(groupCtl, fromGrpCtlFlow, "add");
+				Flow toGrpCtlFlow = FlowUtil.getInstance().generateRestFlow(swt.id, "flood", 0, 50, "dst:" + localAddr);
+				FlowUtil.downFlow(groupCtl, toGrpCtlFlow, "add");
 			}
 		}
 	}

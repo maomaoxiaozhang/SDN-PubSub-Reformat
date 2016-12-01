@@ -1,6 +1,6 @@
 package edu.bupt.wangfu.info.device;
 
-import java.io.*;
+import java.io.Serializable;
 
 public class Flow implements Serializable {
 	private static final long serialVersionUID = 1L;
@@ -20,11 +20,14 @@ public class Flow implements Serializable {
 	public String toStringOutput() {
 		if (in != null) { // generateFlow
 			return String.format("table=%d priority=%s in_port=%s ipv6_dst=%s action=output:%s", table_id, priority, in, ipv6_dst, out);
-		}if (ipv6_dst != null) { // generateNoInPortFlow
+		}
+		if (ipv6_dst != null) { // generateNoInPortFlow
 			return String.format("table=%d priority=%s ipv6_dst=%s action=output:%s", table_id, priority, ipv6_dst, out);
-		}if (nw_src != null) { // generateRestFlow
+		}
+		if (nw_src != null) { // generateRestFlow
 			return String.format("table=%d priority=%s nw_src=%s action=output:%s", table_id, priority, nw_src, out);
-		}if (nw_dst != null) {
+		}
+		if (nw_dst != null) {
 			return String.format("table=%d priority=%s nw_dst=%s action=output:%s", table_id, priority, nw_dst, out);
 		}
 		return null;
@@ -35,6 +38,6 @@ public class Flow implements Serializable {
 	}
 
 	public String toStringDelete() {
-		return String.format("table=%d in_port=%s ipv6_dst=%s action=output:%s",table_id, in, ipv6_dst,out);
+		return String.format("table=%d in_port=%s ipv6_dst=%s action=output:%s", table_id, in, ipv6_dst, out);
 	}
 }

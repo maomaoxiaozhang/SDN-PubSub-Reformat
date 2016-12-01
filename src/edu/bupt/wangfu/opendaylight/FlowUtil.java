@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- *  @ Created by lenovo on 2016-5-18.
+ * @ Created by lenovo on 2016-5-18.
  */
 public class FlowUtil extends SysInfo {
 	private static FlowUtil ins;
@@ -30,7 +30,6 @@ public class FlowUtil extends SysInfo {
 	}
 
 	public static void downFlow(Controller controller, Flow flow, String action) {
-
 		//这里还要考虑下发到具体哪个流表里，看要执行的动作是 更新流表项 还是 添加新流表项
 		// action == "add" "update"
 		//RestProcess.doClientPost(controller, flow.swtId, flow.toStringOutput());
@@ -51,7 +50,8 @@ public class FlowUtil extends SysInfo {
 				flow.out = (outPort + "," + flow.out);
 				OvsProcess.addFlow(controller, flow.swtId, flow.toStringOutput());
 			}
-		}if (action.equals("add")) {
+		}
+		if (action.equals("add")) {//把旧流表覆盖掉
 			OvsProcess.addFlow(controller, flow.swtId, flow.toStringOutput());
 		}
 	}
@@ -74,7 +74,7 @@ public class FlowUtil extends SysInfo {
 		if (out.equals("flood-in-grp")) {
 			out = "";
 			for (String s : switchMap.get(swtId).neighbors.keySet())
-				out += ( "," + s);
+				out += ("," + s);
 			out = out.substring(1);
 		}
 		String v6Addr = null;
@@ -102,7 +102,8 @@ public class FlowUtil extends SysInfo {
 		return flow;
 	}
 
-	public Flow generateNoInPortFlow(String swtId, String out, String topic, String topicType, int t_id, int pri){
+	public Flow generateNoInPortFlow(String swtId, String out, String topic, String topicType, int t_id, int pri) {
+		//系统类的优先级默认50，普通消息优先级默认20，越高越早匹配
 		// out有一种是flood-in-grp，就是选择这个swt中所有非outPort作为out
 		String v6Addr = null;
 		if (topicType.equals("sys")) {
@@ -114,7 +115,7 @@ public class FlowUtil extends SysInfo {
 		if (out.equals("flood-in-grp")) {
 			out = "";
 			for (String s : switchMap.get(swtId).neighbors.keySet())
-				out += ( "," + s);
+				out += ("," + s);
 			out = out.substring(1);
 		}
 
@@ -140,7 +141,7 @@ public class FlowUtil extends SysInfo {
 		if (out.equals("flood-in-grp")) {
 			out = "";
 			for (String s : switchMap.get(swtId).neighbors.keySet())
-				out += ( "," + s);
+				out += ("," + s);
 			out = out.substring(1);
 		}
 
@@ -152,7 +153,8 @@ public class FlowUtil extends SysInfo {
 		flow.priority = pri;
 		if (v4Addr.startsWith("src")) {
 			flow.nw_src = v4Addr.split(":")[1];
-		}if (v4Addr.startsWith("dst")) {
+		}
+		if (v4Addr.startsWith("dst")) {
 			flow.nw_dst = v4Addr.split(":")[1];
 		}
 		return flow;
