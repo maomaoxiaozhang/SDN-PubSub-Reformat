@@ -5,8 +5,8 @@ import edu.bupt.wangfu.mgr.subpub.SubPubMgr;
 /**
  * @ Created by HanB on 2016/11/29.
  */
-public class WsnRegisterImplement {
-	public String processPubSubRegister(String msg) {
+public class WsnProcessImpl {
+	public String wsnProcess(String msg) {
 		String[] msgSplit = msg.split("#");
 		if (msgSplit.length == 2) {
 			String cation = msgSplit[0];

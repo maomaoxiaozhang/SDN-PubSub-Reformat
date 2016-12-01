@@ -182,6 +182,7 @@ public class GroupUtil extends SysInfo {
 	public static void spreadLocalGrp(Group g) {
 		MultiHandler handler = new MultiHandler(uPort, "lsa", "sys");
 		handler.v6Send(g);
+		System.out.println("spreading updated local group");
 	}
 
 	//更新group拓扑信息
@@ -213,6 +214,7 @@ public class GroupUtil extends SysInfo {
 			MultiHandler handler = new MultiHandler(uPort, "lsa", "sys");
 			AllGrps ags = new AllGrps(allGroups);
 			handler.v6Send(ags);
+			System.out.println("spreading updated allGroups");
 		}
 
 		private void downSubPubFlow() {

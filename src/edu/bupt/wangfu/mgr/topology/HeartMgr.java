@@ -43,6 +43,7 @@ public class HeartMgr extends SysInfo {
 		helloTaskPeriod = Long.parseLong(props.getProperty("helloTaskPeriod"));//hello任务的执行周期
 		nbrGrpExpiration = Long.parseLong(props.getProperty("nbrGrpExpiration"));//邻居集群丢失时间的判断阈值
 
+		System.out.println("starting hello task");
 		helloTimer.schedule(new HelloTask(), 0, helloTaskPeriod);
 	}
 
@@ -60,11 +61,8 @@ public class HeartMgr extends SysInfo {
 				if (!out.equals("LOCAL")) {
 					//这条路径保证outPort进来hello消息可以传到groupCtl
 					List<String> inHello = RouteUtil.calRoute(swt.id, localSwtId);
-					//这条路径保证从groupCtl发出来的re_hello都能到达borderSwt
-					List<String> outRehello = RouteUtil.calRoute(localSwtId, swt.id);
 					//这里流表的out设置为portWsn2Swt，是因为只有在groupCtl == localCtl时才调用这个函数
-					RouteUtil.downRouteFlows(outRehello, portWsn2Swt, out, "re_hello", "sys", groupCtl);
-					RouteUtil.downRouteFlows(inHello, out, portWsn2Swt, "hello", "sys", groupCtl);
+					RouteUtil.downInGrpRtFlows(inHello, out, portWsn2Swt, "hello", "sys", groupCtl);
 				}
 			}
 		}
@@ -84,8 +82,8 @@ public class HeartMgr extends SysInfo {
 
 						List<String> outHello = RouteUtil.calRoute(localSwtId, swt.id);
 						List<String> inRehello = RouteUtil.calRoute(swt.id, localSwtId);
-						List<Flow> ctl2out = RouteUtil.downRouteFlows(outHello, portWsn2Swt, out, "hello", "sys", groupCtl);
-						List<Flow> out2ctl = RouteUtil.downRouteFlows(inRehello, out, portWsn2Swt, "re_hello", "sys", groupCtl);
+						List<Flow> ctl2out = RouteUtil.downInGrpRtFlows(outHello, portWsn2Swt, out, "hello", "sys", groupCtl);
+						List<Flow> out2ctl = RouteUtil.downInGrpRtFlows(inRehello, out, portWsn2Swt, "re_hello", "sys", groupCtl);
 
 						sendHello(out, swt.id);
 						System.out.println("sending hello to switch " + swt.id + " through port " + out);

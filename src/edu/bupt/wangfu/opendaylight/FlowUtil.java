@@ -40,20 +40,20 @@ public class FlowUtil extends SysInfo {
 			} else {
 				String outPort = "";
 				for (int i = 1; i < dumpResult.split("\n").length; i++) {
-					String singleflow = dumpResult.split("\n")[i];
-					singleflow = singleflow.substring(singleflow.indexOf("actions="));
-					singleflow = singleflow.substring(singleflow.indexOf("=") + 1);
-					for (int j = 0; j < singleflow.split(",").length; j++)
-						outPort += ("," + singleflow.split(",")[j].charAt(singleflow.split(",")[j].length() - 1));
+					String singleFlow = dumpResult.split("\n")[i];
+					singleFlow = singleFlow.substring(singleFlow.indexOf("actions="));
+					singleFlow = singleFlow.substring(singleFlow.indexOf("=") + 1);
+					for (int j = 0; j < singleFlow.split(",").length; j++)
+						outPort += ("," + singleFlow.split(",")[j].charAt(singleFlow.split(",")[j].length() - 1));
 				}
 				outPort = outPort.substring(1);
 				flow.out = (outPort + "," + flow.out);
 				OvsProcess.addFlow(controller, flow.swtId, flow.toStringOutput());
 			}
-		}
-		if (action.equals("add")) {//把旧流表覆盖掉
+		} else if (action.equals("add")) {//把旧流表覆盖掉
 			OvsProcess.addFlow(controller, flow.swtId, flow.toStringOutput());
 		}
+		System.out.println("down flow on switch " + flow.swtId + " complete");
 	}
 
 	// 生成函数找韩波

@@ -37,6 +37,7 @@ public class ReHelloReceiver extends SysInfo implements Runnable {
 		gl.dstBorderSwtId = re_hello.endBorderSwtId;
 		gl.dstOutPort = re_hello.endOutPort;
 		nbrGrpLinks.put(gl.dstGroupName, gl);
+		System.out.println("receiving rehello from " + gl.dstGroupName + ", our border switch is " + gl.srcBorderSwtId + ", outPort is " + gl.srcOutPort);
 
 		//同步LSDB，其他集群的连接情况；把对面已知的每个group的信息都替换为最新版本的
 		Map<String, Group> newAllGroup = re_hello.allGroups;
@@ -56,6 +57,7 @@ public class ReHelloReceiver extends SysInfo implements Runnable {
 
 		re_hello.allGroups = allGroups;//之前发来的allGroups是对面集群的，现在给它回复过去，让它存我们这边的
 		handler = new MultiHandler(uPort, "hello", "sys");
-		handler.v6Send(re_hello);//因为现在还在HeartMgr.HelloTask()的sleep()中，因此直接发送就可以
+		handler.v6Send(re_hello);//因为现在还在HeartMgr.HelloTask()长度为helloPeriod的sleep()中，因此直接发送就可以
+		System.out.println("replying rehello msg");
 	}
 }

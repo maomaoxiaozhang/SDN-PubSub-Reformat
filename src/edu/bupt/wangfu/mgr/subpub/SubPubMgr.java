@@ -7,7 +7,7 @@ import edu.bupt.wangfu.mgr.route.RouteUtil;
 import edu.bupt.wangfu.mgr.subpub.rcver.PubReceiver;
 import edu.bupt.wangfu.mgr.subpub.rcver.SubReceiver;
 import edu.bupt.wangfu.mgr.topology.GroupUtil;
-import edu.bupt.wangfu.mgr.wsn.WsnPubSubRegister;
+import edu.bupt.wangfu.mgr.wsn.WsnSPRegister;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 import java.util.HashSet;
@@ -23,8 +23,8 @@ public class SubPubMgr extends SysInfo {
 	private static Timer splitTimer = new Timer();
 
 	public SubPubMgr() {
-		//new Thread(new SubPubRegister(tPort)).start();//接收新发布者和订阅者的注册
-		new Thread(new WsnPubSubRegister()).start(); // webservice方式接收新发布者或订阅者的注册
+//		new Thread(new SocketSPRegister(tPort)).start();//接收新发布者和订阅者的注册
+		new Thread(new WsnSPRegister()).start(); // webservice方式接收新发布者或订阅者的注册
 
 		new Thread(new SubReceiver()).start();
 		new Thread(new PubReceiver()).start();
@@ -34,6 +34,7 @@ public class SubPubMgr extends SysInfo {
 	//本地有新订阅
 	public static boolean localSubscribe(String topic) {
 		//查看是否已订阅该主题的父主题
+		System.out.println("searching for subscribed father topic");
 		String[] topicPath = topic.split(":");
 		String cur = topicPath[0];
 		for (int i = 1; i < topicPath.length; i++) {
@@ -42,20 +43,27 @@ public class SubPubMgr extends SysInfo {
 			else
 				cur += ":" + topicPath[i];
 		}
+		//更新节点上的订阅信息
+		localSubTopic.add(cur);
 		//再判断是否需要聚合
-		if (needUnite(topic)) {
+		if (needjoined(topic)) {
+			System.out.println("new sub topic need to be joined");
 			String father = getTopicFather(topic);
+
 			joinedSubTopics.add(father);
 			localSubscribe(father);
+
+			joinedUnsubTopics.add(topic);
 			unsubAllSons(father);
 			return true;
 		} else {
-			//更新wsn节点上的订阅信息
-			localSubTopic.add(cur);
-			if (joinedSubTopics.contains(cur))
+			if (joinedSubTopics.contains(cur)) {
 				joinedSubTopics.remove(cur);
+				return true;
+			}
 			//更新本集群订阅信息
-			Set<String> groupSub = groupSubMap.get(cur) == null ? new HashSet<String>() : groupSubMap.get(cur);
+			System.out.println("refresh local group sub map");
+			Set<String> groupSub = groupSubMap.get(cur) == null ? new HashSet<>() : groupSubMap.get(cur);
 			groupSub.add(localSwtId + ":" + portWsn2Swt);
 			groupSubMap.put(topic, groupSub);
 			//全网广播
@@ -94,12 +102,6 @@ public class SubPubMgr extends SysInfo {
 		GroupUtil.spreadLocalGrp(g);
 
 		//TODO 应该删除集群内流表和过路流表，重新计算新的流表；但是太复杂了，需要再讨论
-		/*if (groupSubMap.get(topic).size() == 0) {
-			Set<Flow> flows = notifyFlows.get(topic);
-			for (Flow f : flows) {
-				FlowUtil.deleteFlow(groupCtl, f);
-			}
-		}*/
 
 		return true;
 	}
@@ -110,7 +112,7 @@ public class SubPubMgr extends SysInfo {
 			return false;//本地已有这个发布
 		localPubTopic.add(topic);
 
-		Set<String> groupPub = groupPubMap.get(topic) == null ? new HashSet<String>() : groupPubMap.get(topic);
+		Set<String> groupPub = groupPubMap.get(topic) == null ? new HashSet<>() : groupPubMap.get(topic);
 		if (groupPub.contains(localSwtId + ":" + portWsn2Swt))
 			return false;
 		groupPub.add(localSwtId + ":" + portWsn2Swt);
@@ -170,7 +172,7 @@ public class SubPubMgr extends SysInfo {
 		return fatherTopic;
 	}
 
-	private static boolean needUnite(String topic) {
+	private static boolean needjoined(String topic) {
 		int subBros = 0;
 		int level = topic.split(":").length;
 		String father = getTopicFather(topic);
@@ -209,6 +211,7 @@ public class SubPubMgr extends SysInfo {
 		nsp.topic = topic;
 
 		handler.v6Send(nsp);
+		System.out.println("spread updated sub/pub info");
 	}
 
 	private static class CheckSplit extends TimerTask {

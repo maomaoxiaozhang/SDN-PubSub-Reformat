@@ -13,12 +13,12 @@ import java.util.concurrent.Executors;
 /**
  * Created by lenovo on 2016-11-4.
  */
-public class SubPubRegister implements Runnable {
+public class SocketSPRegister implements Runnable {
 	private ServerSocket ss;
 	private ExecutorService executorService;
 
 	//接收从host发来的消息，这里相当于一个接口，提供进程间通信
-	SubPubRegister(int port) {
+	SocketSPRegister(int port) {
 		try {
 			this.ss = new ServerSocket(port);
 			int POOL_SIZE = 4;
