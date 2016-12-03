@@ -10,10 +10,7 @@ import edu.bupt.wangfu.opendaylight.RestProcess;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 /**
  * @ Created by lenovo on 2016-10-16.
@@ -33,6 +30,12 @@ public class GroupUtil extends SysInfo {
 	//初始化hostMap，switchMap，outPorts
 	private static void getGrpTopo(Controller controller) {
 		String url = controller.url + "/restconf/operational/network-topology:network-topology/";
+
+		//测试
+		hostMap = new HashMap<>();
+		switchMap = new HashMap<>();
+		groupEdges = new HashSet<>();
+		outSwitches = new HashMap<>();
 
 		hostMap.clear();
 		switchMap.clear();

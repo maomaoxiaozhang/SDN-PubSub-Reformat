@@ -1,4 +1,4 @@
-package edu.bupt.wangfu.mgr.wsn;
+package edu.bupt.wangfu.mgr.subpub.ws;
 
 import edu.bupt.wangfu.mgr.base.SysInfo;
 
@@ -25,7 +25,7 @@ public class WsnSPRegister extends SysInfo implements Runnable {
 	@Override
 	@WebMethod(exclude = true)
 	public void run() {
-		System.out.println("webservice published on http://" + localAddr + ":1111/WsnRegisterService");
+		System.out.println("ws published on http://" + localAddr + ":1111/WsnRegisterService");
 		Endpoint.publish("http://" + localAddr + ":1111/WsnRegisterService", new WsnSPRegister());
 	}
 }

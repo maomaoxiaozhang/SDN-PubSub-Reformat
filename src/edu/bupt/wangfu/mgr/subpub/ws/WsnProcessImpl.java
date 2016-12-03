@@ -1,4 +1,4 @@
-package edu.bupt.wangfu.mgr.wsn;
+package edu.bupt.wangfu.mgr.subpub.ws;
 
 import edu.bupt.wangfu.mgr.subpub.SubPubMgr;
 

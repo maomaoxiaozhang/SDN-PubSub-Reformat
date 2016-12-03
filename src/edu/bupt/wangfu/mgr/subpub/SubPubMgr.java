@@ -7,7 +7,7 @@ import edu.bupt.wangfu.mgr.route.RouteUtil;
 import edu.bupt.wangfu.mgr.subpub.rcver.PubReceiver;
 import edu.bupt.wangfu.mgr.subpub.rcver.SubReceiver;
 import edu.bupt.wangfu.mgr.topology.GroupUtil;
-import edu.bupt.wangfu.mgr.wsn.WsnSPRegister;
+import edu.bupt.wangfu.mgr.subpub.ws.WsnSPRegister;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 import java.util.HashSet;
@@ -63,7 +63,7 @@ public class SubPubMgr extends SysInfo {
 			}
 			//更新本集群订阅信息
 			System.out.println("refresh local group sub map");
-			Set<String> groupSub = groupSubMap.get(cur) == null ? new HashSet<>() : groupSubMap.get(cur);
+			Set<String> groupSub = groupSubMap.get(cur) == null ? new HashSet<String>() : groupSubMap.get(cur);
 			groupSub.add(localSwtId + ":" + portWsn2Swt);
 			groupSubMap.put(topic, groupSub);
 			//全网广播
@@ -112,7 +112,7 @@ public class SubPubMgr extends SysInfo {
 			return false;//本地已有这个发布
 		localPubTopic.add(topic);
 
-		Set<String> groupPub = groupPubMap.get(topic) == null ? new HashSet<>() : groupPubMap.get(topic);
+		Set<String> groupPub = groupPubMap.get(topic) == null ? new HashSet<String>() : groupPubMap.get(topic);
 		if (groupPub.contains(localSwtId + ":" + portWsn2Swt))
 			return false;
 		groupPub.add(localSwtId + ":" + portWsn2Swt);

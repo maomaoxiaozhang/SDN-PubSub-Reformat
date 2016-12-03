@@ -1,12 +1,8 @@
 package edu.bupt.wangfu.mgr.base;
 
 import edu.bupt.wangfu.info.device.Controller;
-import edu.bupt.wangfu.info.device.Host;
 import edu.bupt.wangfu.info.msg.Route;
-import edu.bupt.wangfu.opendaylight.RestProcess;
 import edu.bupt.wangfu.opendaylight.WsnUtil;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,17 +20,16 @@ public class Config extends SysInfo {
 	public static void configure() {
 		setParams();
 
-		Host node = new Host(localAddr);
-//		localMac = node.getMac();
-		localSwtId = getLinkedSwtId(localMac);
+//		localSwtId = getLinkedSwtId(localMac);
 		System.out.println("localSwtId = " + localSwtId);
 
 		//初始化topic和对应的编码
 		WsnUtil.initSysTopicMap();
-		WsnUtil.initNotifyTopicMap();
+//		WsnUtil.initNotifyTopicMap();//TODO 现在测试的时候没有admin，因此无法连接
 	}
 
-	private static String getLinkedSwtId(String hostMac) {
+	//TODO 本机连接的swt无法groupCtl获取，当前实验环境的问题
+	/*private static String getLinkedSwtId(String hostMac) {
 		//返回wsn程序所在主机所连Switch的odl_id
 		String url = groupCtl.url + "/restconf/operational/network-topology:network-topology/";
 		String body = RestProcess.doClientGet(url);
@@ -59,7 +54,7 @@ public class Config extends SysInfo {
 			}
 		}
 		return null;
-	}
+	}*/
 
 	private static void setParams() {
 		Properties props = new Properties();
@@ -76,6 +71,8 @@ public class Config extends SysInfo {
 		adminPort = Integer.valueOf(props.getProperty("adminPort"));
 		localGroupName = props.getProperty("localGroupName");
 		groupCtl = new Controller(props.getProperty("groupCtl"));
+		localSwtId = props.getProperty("localSwtId");
+
 		localAddr = props.getProperty("localAddress");
 		localMac = props.getProperty("localMac");
 		tPort = Integer.valueOf(props.getProperty("tPort"));

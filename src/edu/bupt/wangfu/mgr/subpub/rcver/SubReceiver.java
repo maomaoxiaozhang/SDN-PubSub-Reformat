@@ -42,7 +42,7 @@ public class SubReceiver extends SysInfo implements Runnable {
 				if (sub.action.equals(Action.SUB)) {
 					System.out.println("new suber in group, sub topic is " + sub.topic);
 
-					Set<String> groupSub = groupSubMap.get(sub.topic) == null ? new HashSet<>() : groupSubMap.get(sub.topic);
+					Set<String> groupSub = groupSubMap.get(sub.topic) == null ? new HashSet<String>() : groupSubMap.get(sub.topic);
 					groupSub.add(sub.swtId + ":" + sub.port);
 					groupSubMap.put(sub.topic, groupSub);
 				} else if (sub.action.equals(Action.UNSUB)) {
@@ -56,7 +56,7 @@ public class SubReceiver extends SysInfo implements Runnable {
 				if (sub.action.equals(Action.SUB)) {
 					System.out.println("new suber from neighbor, sub topic is " + sub.topic);
 
-					Set<String> outerSub = outerSubMap.get(sub.topic) == null ? new HashSet<>() : outerSubMap.get(sub.topic);
+					Set<String> outerSub = outerSubMap.get(sub.topic) == null ? new HashSet<String>() : outerSubMap.get(sub.topic);
 					outerSub.add(sub.group);
 					outerSubMap.put(sub.topic, outerSub);
 
