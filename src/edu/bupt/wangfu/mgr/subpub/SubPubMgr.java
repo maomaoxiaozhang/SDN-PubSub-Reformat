@@ -6,8 +6,8 @@ import edu.bupt.wangfu.mgr.base.SysInfo;
 import edu.bupt.wangfu.mgr.route.RouteUtil;
 import edu.bupt.wangfu.mgr.subpub.rcver.PubReceiver;
 import edu.bupt.wangfu.mgr.subpub.rcver.SubReceiver;
-import edu.bupt.wangfu.mgr.topology.GroupUtil;
 import edu.bupt.wangfu.mgr.subpub.ws.WsnSPRegister;
+import edu.bupt.wangfu.mgr.topology.GroupUtil;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 import java.util.HashSet;
@@ -226,9 +226,11 @@ public class SubPubMgr extends SysInfo {
 			for (String father : joinedSubTopics) {
 				if (getCurFlowStatus(father) > splitThreshold) {
 					localUnsubscribe(father);
+					joinedSubTopics.remove(father);
 					for (String son : joinedUnsubTopics) {
 						if (son.contains(father)) {
 							localSubscribe(son);
+							joinedUnsubTopics.remove(son);
 						}
 					}
 				}
