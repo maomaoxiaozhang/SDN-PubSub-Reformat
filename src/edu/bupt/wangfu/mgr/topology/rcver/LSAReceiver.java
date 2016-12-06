@@ -12,6 +12,7 @@ public class LSAReceiver extends SysInfo implements Runnable {
 	private MultiHandler handler;
 
 	public LSAReceiver() {
+		System.out.println("lsa receiver start");
 		handler = new MultiHandler(uPort, "lsa", "sys");
 	}
 
@@ -21,8 +22,8 @@ public class LSAReceiver extends SysInfo implements Runnable {
 			Object msg = handler.v6Receive();
 			if (msg instanceof Group) {
 				Group lsa = (Group) msg;
-				Group g = allGroups.get(lsa.groupName);
-				if (g == null || g.updateTime < lsa.updateTime) {
+				Group localGrpInfo = allGroups.get(lsa.groupName);
+				if (localGrpInfo == null || localGrpInfo.updateTime < lsa.updateTime) {
 					allGroups.put(lsa.groupName, lsa);
 				}
 			} else if (msg instanceof AllGrps) {

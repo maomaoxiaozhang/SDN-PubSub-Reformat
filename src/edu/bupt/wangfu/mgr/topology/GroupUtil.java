@@ -32,10 +32,14 @@ public class GroupUtil extends SysInfo {
 		String url = controller.url + "/restconf/operational/network-topology:network-topology/";
 
 		//测试
-		hostMap = new HashMap<>();
-		switchMap = new HashMap<>();
-		groupEdges = new HashSet<>();
-		outSwitches = new HashMap<>();
+//		hostMap = new HashMap<>();
+//		switchMap = new HashMap<>();
+//		groupEdges = new HashSet<>();
+//		outSwitches = new HashMap<>();
+//		groupSubMap = new HashMap<>();
+//		groupPubMap = new HashMap<>();
+//		localGroupName = "g1";
+//		allGroups = new HashMap<>();
 
 		hostMap.clear();
 		switchMap.clear();

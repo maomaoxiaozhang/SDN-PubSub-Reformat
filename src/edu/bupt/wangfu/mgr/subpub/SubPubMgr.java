@@ -23,6 +23,7 @@ public class SubPubMgr extends SysInfo {
 	private static Timer splitTimer = new Timer();
 
 	public SubPubMgr() {
+		System.out.println("sub pub mgr start");
 //		new Thread(new SocketSPRegister(tPort)).start();//接收新发布者和订阅者的注册
 		new Thread(new WsnSPRegister()).start(); // webservice方式接收新发布者或订阅者的注册
 
@@ -218,6 +219,7 @@ public class SubPubMgr extends SysInfo {
 		int splitThreshold = 1;//TODO 需要动态设置？
 
 		public CheckSplit(int splitThreshold) {
+			System.out.println("checking split");
 			this.splitThreshold = splitThreshold;
 		}
 

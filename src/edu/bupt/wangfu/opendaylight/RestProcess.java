@@ -1,6 +1,7 @@
 package edu.bupt.wangfu.opendaylight;
 
 import edu.bupt.wangfu.info.device.Controller;
+import edu.bupt.wangfu.mgr.base.SysInfo;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
@@ -12,9 +13,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RestProcess {
+public class RestProcess extends SysInfo {
 
 	public static List<String> doClientPost(String url, String body) {
+		System.out.println("sending POST to " + url);
 		if (!url.startsWith("http://")) url = "http://" + url;
 		String new_url = url + "/restconf/operations/sal-flow:add-flow";
 		int status = 0;
@@ -45,6 +47,7 @@ public class RestProcess {
 	 * new modify by HanB
 	 */
 	public static List<String> doClientDelete(String url, String body) {
+		System.out.println("sending DELETE to " + url);
 		if (!url.startsWith("http://")) url = "http://" + url;
 		String new_url = url + "/restconf/operations/sal-flow:remove-flow";
 		List<String> result = new ArrayList<>();
@@ -71,6 +74,7 @@ public class RestProcess {
 	}
 
 	public static List<String> doClientUpdate(String url, String body) {
+		System.out.println("sending UPDATE to " + url);
 		if (!url.startsWith("http://")) url = "http://" + url;
 		url += "/restconf/operations/sal-flow:update-flow";
 		int status = 0;
@@ -97,6 +101,7 @@ public class RestProcess {
 	}
 
 	public static String doClientGet(String url) {//nll 用户名密码认证方式
+		System.out.println("sending GET to " + url);
 		try {
 			HttpClient httpclient = new HttpClient();
 			UsernamePasswordCredentials creds = new UsernamePasswordCredentials("admin", "admin");
@@ -116,8 +121,10 @@ public class RestProcess {
 	}
 
 	public static String getBrNameByTpid(Controller ctrl, String tpid) {
+		if (id2NameMap.containsKey(tpid))
+			return id2NameMap.get(tpid);
 		String brName = "";
-		String url = ctrl.url + "/restconf/operational/opendaylight-inventory:nodes/node/" + tpid;
+		String url = ctrl.url + "/restconf/operational/opendaylight-inventory:nodes/node/openflow:" + tpid;
 		String body = RestProcess.doClientGet(url);
 		assert body != null;
 		try {
@@ -135,6 +142,8 @@ public class RestProcess {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		System.out.println("got br name with tpid: " + tpid + ", and the name is " + brName);
+		id2NameMap.put(tpid, brName);
 		return brName;
 	}
 

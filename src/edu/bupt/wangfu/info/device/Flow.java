@@ -33,6 +33,10 @@ public class Flow implements Serializable {
 		return null;
 	}
 
+	public String toString() {
+		return "topic: " + topic + ", swtId: " + swtId + ", out port: " + out;
+	}
+
 	public String toStringEnQueue() {
 		return String.format("table=%d priority=%s in_port=%s ipv6_dst=%s action=enqueue:%s", table_id, priority, in, ipv6_dst, out);
 	}

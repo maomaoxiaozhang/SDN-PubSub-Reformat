@@ -17,6 +17,7 @@ public class PubReceiver extends SysInfo implements Runnable {
 	private MultiHandler handler;
 
 	public PubReceiver() {
+		System.out.println("pub receiver start");
 		handler = new MultiHandler(uPort, "pub", "sys");
 	}
 

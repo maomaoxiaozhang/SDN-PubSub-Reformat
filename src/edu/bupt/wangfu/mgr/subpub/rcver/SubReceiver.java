@@ -17,6 +17,7 @@ public class SubReceiver extends SysInfo implements Runnable {
 	private MultiHandler handler;
 
 	public SubReceiver() {
+		System.out.println("sub receiver start");
 		handler = new MultiHandler(uPort, "sub", "sys");
 	}
 

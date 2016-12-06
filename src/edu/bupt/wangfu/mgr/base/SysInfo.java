@@ -31,6 +31,7 @@ public abstract class SysInfo {
 	public static Map<String, Switch> switchMap;//当前集群所有switch，key是id
 	public static Map<String, GroupLink> nbrGrpLinks;//key是对面group的groupName，本集群与其邻居集群的连接情况
 	public static Map<String, Group> allGroups;//key是groupName，当前网络中所有集群的连接情况
+	public static Map<String, String> id2NameMap;//key是swt的openflow id，value是网桥的名字（如br0）
 	//订阅信息
 	public static Map<String, String> notifyTopicAddrMap;//主题树-->编码树，key是主题名，value是对应这个主题的v6地址
 	public static Map<String, String> sysTopicAddrMap;//系统消息对应的编码

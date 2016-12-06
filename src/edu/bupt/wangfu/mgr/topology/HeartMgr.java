@@ -25,8 +25,9 @@ public class HeartMgr extends SysInfo {
 	private static Timer helloTimer = new Timer();
 
 	public HeartMgr() {
+		System.out.println("heart mgr starting");
 		addSelf2Allgrps();
-		downRcvHelloRehelloFlow();
+		downRcvHelloRehelloFlow();//TODO 这个应该是定时更新的
 
 		new Thread(new HelloReceiver()).start();
 		new Thread(new ReHelloReceiver()).start();

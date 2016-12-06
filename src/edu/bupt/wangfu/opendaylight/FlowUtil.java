@@ -53,17 +53,16 @@ public class FlowUtil extends SysInfo {
 		} else if (action.equals("add")) {//把旧流表覆盖掉
 			OvsProcess.addFlow(controller, flow.swtId, flow.toStringOutput());
 		}
-		System.out.println("down flow on switch " + flow.swtId + " complete");
+		System.out.println("down flow \"" + flow.toString() + "\" complete");
 	}
 
-	// 生成函数找韩波
 	//这里使用单例模式是为了方便计数flowcount，每条流表的编号必须不一样
 	public Flow generateFlow(String swtId, String in, String out, String topic, String topicType, int t_id, int pri) {
 		//将route中的每一段flow都添加到set中，保证后面不用重复下发，控制flowcount
 		Set<Flow> topicFlowSet = notifyFlows.get(topic) == null ? new HashSet<Flow>() : notifyFlows.get(topic);
 		for (Flow flow : topicFlowSet) {
 			if (flow.swtId.equals(swtId)
-					&& flow.in.equals(in)
+					&& (flow.in == null || flow.in.equals(in))
 					&& flow.out.equals(out)
 					&& flow.topic.equals(topic)) {
 				return flow;
@@ -94,7 +93,7 @@ public class FlowUtil extends SysInfo {
 		flow.table_id = t_id;
 		flow.flow_id = flowcount;
 		flow.priority = pri;
-		flow.ipv6_dst = v6Addr;
+		flow.ipv6_dst = v6Addr + "/" + "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 		//生成后，将其添加到notifyFlows里，以备后面调用查看
 		topicFlowSet.add(flow);
 		notifyFlows.put(topic, topicFlowSet);
@@ -128,7 +127,7 @@ public class FlowUtil extends SysInfo {
 		flow.table_id = t_id;
 		flow.flow_id = flowcount;
 		flow.priority = pri;
-		flow.ipv6_dst = v6Addr;
+		flow.ipv6_dst = v6Addr + "/" + "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
 		return flow;
 	}
 

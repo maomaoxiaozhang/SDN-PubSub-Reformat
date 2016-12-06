@@ -40,15 +40,31 @@ public class WsnUtil extends SysInfo {
 			String key = (String) e.nextElement();
 			int value = Integer.valueOf(props.getProperty(key));
 
-			String topicAddr = "11111111"//prefix ff 8bit
+			String binStr = "11111111"//prefix ff 8bit
 					+ "0000"//flag 0 4bit
 					+ "1110"//global_scope e 4bit
 					+ "00"//event_type sys 00 2bit
-					+ "0000111"//topic_length 7 7bit
-					+ "001"//queue_NO 1 3bit
+					+ "0000001"//topic_length 7 7bit
+					+ "000"//queue_NO 1 3bit
 					+ getFullLengthTopicCode(value);//topic_code 100bit
-			sysTopicAddrMap.put(key, topicAddr);
+
+			sysTopicAddrMap.put(key, binStr2TopicAddr(binStr));
 		}
+	}
+
+	public static String binStr2TopicAddr(String binStr){
+		String topicAddr = "";
+		for (int i = 0, count = 0; i < binStr.length(); i += 4) {
+			String oldPart = binStr.substring(i, i + 4);
+			Integer tmp = Integer.parseInt(oldPart, 2);
+			topicAddr += Integer.toHexString(tmp);
+			count++;
+			if (count % 4 == 0) {
+				count = 0;
+				topicAddr += ":";
+			}
+		}
+		return topicAddr.substring(0, topicAddr.length() - 1);
 	}
 
 	private static String getFullLengthTopicCode(int newTopicCode) {

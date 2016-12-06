@@ -8,7 +8,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
@@ -88,6 +87,7 @@ public class Config extends SysInfo {
 		switchMap = new ConcurrentHashMap<>();
 		nbrGrpLinks = new ConcurrentHashMap<>();
 		allGroups = new ConcurrentHashMap<>();
+		id2NameMap = new ConcurrentHashMap<>();
 
 		sysTopicAddrMap = new ConcurrentHashMap<>();
 		notifyTopicAddrMap = new ConcurrentHashMap<>();
@@ -100,7 +100,7 @@ public class Config extends SysInfo {
 		outerPubMap = new ConcurrentHashMap<>();
 		joinedSubTopics = new HashSet<>();
 		joinedUnsubTopics = new HashSet<>();
-		notifyFlows = new HashMap<>();
+		notifyFlows = new ConcurrentHashMap<>();
 
 		localCtl = new Controller(localAddr);
 		groupRoutes = Collections.synchronizedSet(new HashSet<Route>());

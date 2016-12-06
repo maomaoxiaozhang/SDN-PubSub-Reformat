@@ -14,6 +14,7 @@ public class WsnMgr extends SysInfo {
 	private SubPubMgr spMgr;//订阅与发布管模块
 
 	private WsnMgr() {
+		System.out.println("wsn mgr start");
 		if (groupCtl.equals(localCtl)) {
 			dt = new HeartMgr();
 		}
