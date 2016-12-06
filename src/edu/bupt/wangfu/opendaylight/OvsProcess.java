@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 public class OvsProcess {
 	public static void addFlow(Controller ctrl, String tpid, String body) {
 		String brName = RestProcess.getBrNameByTpid(ctrl, tpid);
-		String cmd = "ovs-ofctl add-flow " + brName + " \"" + body + "\"";
+		String cmd = "ovs-ofctl add-flow " + brName + " " + body;
 		try {
 			Runtime.getRuntime().exec(cmd);
 		} catch (Exception e) {
@@ -21,7 +21,7 @@ public class OvsProcess {
 
 	public static void deleteFlows(Controller ctrl, String tpid, String body) {
 		String brName = RestProcess.getBrNameByTpid(ctrl, tpid);
-		String cmd = "ovs-ofctl del-flows " + brName + " \"" + body + "\"";
+		String cmd = "ovs-ofctl del-flows " + brName + " " + body;
 		try {
 			Runtime.getRuntime().exec(cmd);
 		} catch (Exception e) {
@@ -31,7 +31,7 @@ public class OvsProcess {
 
 	public static String dumpFlows(Controller ctrl, String tpid, String body) {
 		String brName = RestProcess.getBrNameByTpid(ctrl, tpid);
-		String cmd = "ovs-ofctl dump-flows " + brName + " \"" + body + "\"";
+		String cmd = "ovs-ofctl dump-flows " + brName + " " + body;
 		BufferedReader br = null;
 		StringBuilder sb = new StringBuilder();
 		try {
