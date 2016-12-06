@@ -93,7 +93,7 @@ public class FlowUtil extends SysInfo {
 		flow.table_id = t_id;
 		flow.flow_id = flowcount;
 		flow.priority = pri;
-		flow.ipv6_dst = v6Addr + "/" + "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+		flow.ipv6_dst = v6Addr + "/" + "128";
 		//生成后，将其添加到notifyFlows里，以备后面调用查看
 		topicFlowSet.add(flow);
 		notifyFlows.put(topic, topicFlowSet);
@@ -127,7 +127,7 @@ public class FlowUtil extends SysInfo {
 		flow.table_id = t_id;
 		flow.flow_id = flowcount;
 		flow.priority = pri;
-		flow.ipv6_dst = v6Addr + "/" + "FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
+		flow.ipv6_dst = v6Addr + "/" + "128";
 		return flow;
 	}
 
