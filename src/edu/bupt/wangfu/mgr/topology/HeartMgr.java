@@ -114,7 +114,7 @@ public class HeartMgr extends SysInfo {
 
 		private void sendHello(String out, String swtId) {
 			Hello hello = new Hello();
-			MultiHandler handler = new MultiHandler(uPort, "hello", "sys");
+			MultiHandler handler = new MultiHandler(sysPort, "hello", "sys");
 
 			hello.startGroup = localGroupName;
 			hello.startOutPort = out;

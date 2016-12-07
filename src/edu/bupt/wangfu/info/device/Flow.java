@@ -22,10 +22,10 @@ public class Flow implements Serializable {
 			return String.format("table=%d,priority=%d,dl_type=%s,in_port=%s,ipv6_dst=%s,action=output:%s", table_id, priority, "0x86DD", in, ipv6_dst, out);
 		}
 		if (ipv6_dst != null) { // generateNoInPortFlow
-			return String.format("table=%d,priority=%d,dl_type=%s,ipv6_dst=%s,action=output:%s", table_id, priority,"0x86DD", ipv6_dst, out);
+			return String.format("table=%d,priority=%d,dl_type=%s,ipv6_dst=%s,action=output:%s", table_id, priority, "0x86DD", ipv6_dst, out);
 		}
 		if (nw_src != null) { // generateRestFlow
-			return String.format("table=%d,priority=%d,dl_type=%s,nw_src=%s,action=output:%s", table_id, priority,"0x0800", nw_src, out);
+			return String.format("table=%d,priority=%d,dl_type=%s,nw_src=%s,action=output:%s", table_id, priority, "0x0800", nw_src, out);
 		}
 		if (nw_dst != null) {
 			return String.format("table=%d,priority=%d,dl_type=%s,nw_dst=%s,action=output:%s", table_id, priority, "0x0800", nw_dst, out);

@@ -16,7 +16,7 @@ public class ReHelloReceiver extends SysInfo implements Runnable {
 	private MultiHandler handler;
 
 	public ReHelloReceiver() {
-		handler = new MultiHandler(uPort, "re_hello", "sys");
+		handler = new MultiHandler(sysPort, "re_hello", "sys");
 	}
 
 	@Override
@@ -56,7 +56,7 @@ public class ReHelloReceiver extends SysInfo implements Runnable {
 		GroupUtil.spreadLocalGrp(g);
 
 		re_hello.allGroups = allGroups;//之前发来的allGroups是对面集群的，现在给它回复过去，让它存我们这边的
-		handler = new MultiHandler(uPort, "hello", "sys");
+		handler = new MultiHandler(sysPort, "hello", "sys");
 		handler.v6Send(re_hello);//因为现在还在HeartMgr.HelloTask()长度为helloPeriod的sleep()中，因此直接发送就可以
 		System.out.println("replying rehello msg");
 	}

@@ -70,12 +70,15 @@ public class Config extends SysInfo {
 		adminPort = Integer.valueOf(props.getProperty("adminPort"));
 		localGroupName = props.getProperty("localGroupName");
 		groupCtl = new Controller(props.getProperty("groupCtl"));
+
 		localSwtId = props.getProperty("localSwtId");
+		portWsn2Swt = props.getProperty("portWsn2Swt");
 
 		localAddr = props.getProperty("localAddress");
 		localMac = props.getProperty("localMac");
 		tPort = Integer.valueOf(props.getProperty("tPort"));
-		uPort = Integer.valueOf(props.getProperty("uPort"));
+		sysPort = Integer.valueOf(props.getProperty("sysPort"));
+		notifyPort = Integer.valueOf(props.getProperty("notifyPort"));
 
 		refreshPeriod = Long.parseLong(props.getProperty("refreshPeriod"));
 		checkSplitPeriod = Long.parseLong(props.getProperty("checkSplitPeriod"));
@@ -92,7 +95,7 @@ public class Config extends SysInfo {
 		sysTopicAddrMap = new ConcurrentHashMap<>();
 		notifyTopicAddrMap = new ConcurrentHashMap<>();
 
-		localSubTopic = new HashSet<>();
+		localSubTopics = new HashSet<>();
 		localPubTopic = new HashSet<>();
 		groupSubMap = new ConcurrentHashMap<>();
 		outerSubMap = new ConcurrentHashMap<>();
@@ -102,7 +105,7 @@ public class Config extends SysInfo {
 		joinedUnsubTopics = new HashSet<>();
 		notifyFlows = new ConcurrentHashMap<>();
 
-		localCtl = new Controller(localAddr);
+		localCtl = new Controller(localAddr + ":8181");
 		groupRoutes = Collections.synchronizedSet(new HashSet<Route>());
 
 		System.out.println("config complete");

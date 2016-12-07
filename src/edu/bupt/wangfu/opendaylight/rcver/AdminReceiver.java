@@ -15,7 +15,7 @@ public class AdminReceiver extends SysInfo implements Runnable {
 	private MultiHandler handler;
 
 	public AdminReceiver() {
-		handler = new MultiHandler(uPort, "admin", "sys");
+		handler = new MultiHandler(sysPort, "admin", "sys");
 	}
 
 	@Override

@@ -21,6 +21,10 @@ public class MultiHandler extends SysInfo {
 		this.port = port;
 		if (topicType.equals("sys")) {
 			this.v6addr = sysTopicAddrMap.get(topic);
+
+			String[] tmp = this.v6addr.split("");
+			this.port += Integer.valueOf(tmp[tmp.length - 1]);
+
 		} else if (topicType.equals("notify")) {
 			this.v6addr = notifyTopicAddrMap.get(topic);
 		}

@@ -18,7 +18,7 @@ public class SubReceiver extends SysInfo implements Runnable {
 
 	public SubReceiver() {
 		System.out.println("sub receiver start");
-		handler = new MultiHandler(uPort, "sub", "sys");
+		handler = new MultiHandler(sysPort, "sub", "sys");
 	}
 
 	@Override
@@ -52,6 +52,8 @@ public class SubReceiver extends SysInfo implements Runnable {
 					Set<String> groupSub = groupSubMap.get(sub.topic);
 					groupSub.remove(sub.swtId + ":" + sub.port);
 					groupSubMap.put(sub.topic, groupSub);
+
+					//TODO 删除Route路由流表
 				}
 			} else {//邻居集群产生的订阅
 				if (sub.action.equals(Action.SUB)) {
@@ -66,7 +68,7 @@ public class SubReceiver extends SysInfo implements Runnable {
 					g.updateTime = System.currentTimeMillis();
 					allGroups.put(g.groupName, g);
 
-					if (localCtl.equals(groupCtl)) {//因为sub信息会全网广播，集群中只要有一个人计算本集群该做什么就可以了
+					if (localCtl.url.equals(groupCtl.url)) {//因为sub信息会全网广播，集群中只要有一个人计算本集群该做什么就可以了
 						RouteUtil.newSuber(sub.group, "", "", sub.topic);
 					}
 				} else if (sub.action.equals(Action.UNSUB)) {
@@ -78,7 +80,7 @@ public class SubReceiver extends SysInfo implements Runnable {
 						outerSub.remove(sub.group);
 						outerSubMap.put(sub.topic, outerSub);
 
-						if (localCtl.equals(groupCtl)) {//因为sub信息会全网广播，集群中只要有一个人计算本集群该做什么就可以了
+						if (localCtl.url.equals(groupCtl.url)) {//因为sub信息会全网广播，集群中只要有一个人计算本集群该做什么就可以了
 							RouteUtil.updateNbrChange(sub.topic);
 						}
 					}

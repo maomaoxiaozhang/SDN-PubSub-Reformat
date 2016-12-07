@@ -192,7 +192,7 @@ public class RouteUtil extends SysInfo {
 
 
 	private static void spreadRoute(Route r) {
-		MultiHandler handler = new MultiHandler(uPort, "route", "sys");
+		MultiHandler handler = new MultiHandler(sysPort, "route", "sys");
 		handler.v6Send(r);
 		System.out.println("spreading newly calculated route");
 	}

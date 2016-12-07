@@ -15,7 +15,8 @@ public class WsnMgr extends SysInfo {
 
 	private WsnMgr() {
 		System.out.println("wsn mgr start");
-		if (groupCtl.equals(localCtl)) {
+		System.out.println(localCtl.url + "***" + groupCtl.url);
+		if (localCtl.url.equals(groupCtl.url)) {
 			dt = new HeartMgr();
 		}
 		new Thread(new LSAReceiver()).start();

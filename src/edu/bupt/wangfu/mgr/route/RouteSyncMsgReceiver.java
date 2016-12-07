@@ -12,7 +12,7 @@ public class RouteSyncMsgReceiver extends SysInfo implements Runnable {
 
 	public RouteSyncMsgReceiver() {
 		System.out.println("route sync receiver start");
-		handler = new MultiHandler(uPort, "route", "sys");
+		handler = new MultiHandler(sysPort, "route", "sys");
 	}
 
 	@Override

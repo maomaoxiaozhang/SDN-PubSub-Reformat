@@ -1,6 +1,7 @@
 package edu.bupt.wangfu.mgr.subpub;
 
 import edu.bupt.wangfu.info.device.Group;
+import edu.bupt.wangfu.info.msg.NotifyObj;
 import edu.bupt.wangfu.info.msg.SPInfo;
 import edu.bupt.wangfu.mgr.base.SysInfo;
 import edu.bupt.wangfu.mgr.route.RouteUtil;
@@ -39,13 +40,13 @@ public class SubPubMgr extends SysInfo {
 		String[] topicPath = topic.split(":");
 		String cur = topicPath[0];
 		for (int i = 1; i < topicPath.length; i++) {
-			if (localSubTopic.contains(cur))
+			if (localSubTopics.contains(cur))
 				return false;
 			else
 				cur += ":" + topicPath[i];
 		}
 		//更新节点上的订阅信息
-		localSubTopic.add(cur);
+		localSubTopics.add(cur);
 		//再判断是否需要聚合
 		if (needjoined(topic)) {
 			System.out.println("new sub topic need to be joined");
@@ -76,6 +77,8 @@ public class SubPubMgr extends SysInfo {
 			allGroups.put(g.groupName, g);
 			GroupUtil.spreadLocalGrp(g);
 
+			new Thread(new SubMsgReciver(topic)).start();
+
 			RouteUtil.newSuber(localGroupName, localSwtId, portWsn2Swt, cur);
 			return true;
 		}
@@ -85,10 +88,10 @@ public class SubPubMgr extends SysInfo {
 	public static boolean localUnsubscribe(String topic) {
 		if (joinedSubTopics.contains(topic))//若这个订阅是聚合而成的，那么不能取消，因为并不是真实订阅
 			return false;
-		if (!localSubTopic.contains(topic))
+		if (!localSubTopics.contains(topic))
 			return false;//本地没有这个订阅
 
-		localSubTopic.remove(topic);
+		localSubTopics.remove(topic);
 
 		Set<String> groupSub = groupSubMap.get(topic);
 		groupSub.remove(localSwtId + ":" + portWsn2Swt);
@@ -155,7 +158,7 @@ public class SubPubMgr extends SysInfo {
 	}
 
 	private static void unsubAllSons(String father) {
-		for (String topic : localSubTopic) {
+		for (String topic : localSubTopics) {
 			if (topic.contains(father) && topic.length() > father.length()) {
 				localUnsubscribe(topic);
 				joinedUnsubTopics.add(topic);
@@ -178,7 +181,7 @@ public class SubPubMgr extends SysInfo {
 		int level = topic.split(":").length;
 		String father = getTopicFather(topic);
 		int totalDirectSons = totalDirectSons(father);
-		for (String lst : localSubTopic) {
+		for (String lst : localSubTopics) {
 			if (lst.contains(father) && lst.split(":").length == level) {//lst是topic的兄弟主题
 				subBros++;
 			}
@@ -200,7 +203,7 @@ public class SubPubMgr extends SysInfo {
 
 	private static void spreadSPInfo(String topic, String type, Action action) {
 		SPInfo nsp = new SPInfo();
-		MultiHandler handler = new MultiHandler(uPort, type, "sys");
+		MultiHandler handler = new MultiHandler(sysPort, type, "sys");
 
 		nsp.action = action;
 		nsp.group = localGroupName;
@@ -242,6 +245,30 @@ public class SubPubMgr extends SysInfo {
 		private int getCurFlowStatus(String father) {
 			//TODO 需要查询groupCtl，逻辑要问牛琳琳
 			return 1;//TODO 返回的是百分比？20/100就返回20？
+		}
+	}
+
+	private static class SubMsgReciver implements Runnable {
+		String topic;
+		MultiHandler handler;
+
+		public SubMsgReciver(String topic) {
+			this.topic = topic;
+			this.handler = new MultiHandler(notifyPort, topic, "notify");
+		}
+
+		@Override
+		public void run() {
+			NotifyObj obj = (NotifyObj) handler.v6Receive();
+			processNotifyObj(obj);
+		}
+
+		private void processNotifyObj(NotifyObj obj) {
+			if (localSubTopics.contains(obj.topic)
+					|| joinedUnsubTopics.contains(obj.topic)) {
+
+				//TODO 查找本地订阅者，把这条消息用原来的webservice或者什么东东，发给本地订阅者
+			}
 		}
 	}
 }

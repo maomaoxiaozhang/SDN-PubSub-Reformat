@@ -10,7 +10,10 @@ import edu.bupt.wangfu.opendaylight.RestProcess;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * @ Created by lenovo on 2016-10-16.
@@ -50,32 +53,35 @@ public class GroupUtil extends SysInfo {
 		assert body != null;
 		JSONObject json = new JSONObject(body);
 		JSONObject net_topology = json.getJSONObject("network-topology");
-		JSONArray topology = net_topology.getJSONArray("topology");
-		JSONArray nodes = topology.getJSONObject(0).getJSONArray("node");
-		for (int j = 0; j < nodes.length(); j++) {
-			String node_id = nodes.getJSONObject(j).getString("node-id");
-			if (node_id.contains("host")) {
-				String swt = nodes.getJSONObject(j).getJSONArray("host-tracker-service:attachment-points").getJSONObject(0).getString("tp-id");
-				String port = swt.split(":")[2];
-				String swtId = swt.split(":")[1];
-				String ip = nodes.getJSONObject(j).getJSONArray("host-tracker-service:addresses").getJSONObject(0).getString("ip");
-				String mac = node_id.substring(5, node_id.length());
+		JSONObject topology = net_topology.getJSONArray("topology").getJSONObject(0);
 
-				Host host = new Host(ip);
-				host.mac = mac;
-				host.swtId = swtId;
-				host.port = port;
-				hostMap.put(mac, host);
-			} else if (node_id.contains("openflow")) {
-				String swtId = node_id.split(":")[1];
-				Switch swt = new Switch(swtId);
-				swt.portSet = new HashSet<>();
-				JSONArray nbs = nodes.getJSONObject(j).getJSONArray("termination-point");
-				for (int i = 0; i < nbs.length(); i++) {
-					String port = nbs.getJSONObject(i).getString("tp-id").split(":")[2];
-					swt.portSet.add(port);
+		if (topology.has("node")) {
+			JSONArray nodes = topology.getJSONArray("node");
+			for (int i = 0; i < nodes.length(); i++) {
+				String node_id = nodes.getJSONObject(i).getString("node-id");
+				if (node_id.contains("host")) {
+					String swt = nodes.getJSONObject(i).getJSONArray("host-tracker-service:attachment-points").getJSONObject(0).getString("tp-id");
+					String port = swt.split(":")[2];
+					String swtId = swt.split(":")[1];
+					String ip = nodes.getJSONObject(i).getJSONArray("host-tracker-service:addresses").getJSONObject(0).getString("ip");
+					String mac = node_id.substring(5, node_id.length());
+
+					Host host = new Host(ip);
+					host.mac = mac;
+					host.swtId = swtId;
+					host.port = port;
+					hostMap.put(mac, host);
+				} else if (node_id.contains("openflow")) {
+					String swtId = node_id.split(":")[1];
+					Switch swt = new Switch(swtId);
+					swt.portSet = new HashSet<>();
+					JSONArray nbs = nodes.getJSONObject(i).getJSONArray("termination-point");
+					for (int j = 0; j < nbs.length(); j++) {
+						String port = nbs.getJSONObject(j).getString("tp-id").split(":")[2];
+						swt.portSet.add(port);
+					}
+					switchMap.put(swtId, swt);
 				}
-				switchMap.put(swtId, swt);
 			}
 		}
 
@@ -100,12 +106,12 @@ public class GroupUtil extends SysInfo {
 		localGrp.updateTime = System.currentTimeMillis();
 		spreadLocalGrp(localGrp);
 
-		for (int i = 0; i < topology.length(); i++) {
-			JSONArray links = topology.getJSONObject(i).getJSONArray("link");
-			for (int j = 0; j < links.length(); j++) {
-				String link_id = links.getJSONObject(j).getString("link-id");
-				String dest = links.getJSONObject(j).getJSONObject("destination").getString("dest-tp");
-				String src = links.getJSONObject(j).getJSONObject("source").getString("source-tp");
+		if (topology.has("link")) {
+			JSONArray links = topology.getJSONArray("link");
+			for (int i = 0; i < links.length(); i++) {
+				String link_id = links.getJSONObject(i).getString("link-id");
+				String dest = links.getJSONObject(i).getJSONObject("destination").getString("dest-tp");
+				String src = links.getJSONObject(i).getJSONObject("source").getString("source-tp");
 				String hostMac = null, swtId1, port1, swtId2 = null, port2 = null;
 				//获取连接关系
 				if (link_id.contains("host")) {
@@ -132,19 +138,16 @@ public class GroupUtil extends SysInfo {
 					s2.portSet.remove(port2);
 				}
 			}
-		}
 
-		for (int i = 0; i < topology.length(); i++) {
-			JSONArray links = topology.getJSONObject(i).getJSONArray("link");
-			for (int j = 0; j < links.length(); j++) {
-				String link_id = links.getJSONObject(j).getString("link-id");
+			for (int i = 0; i < links.length(); i++) {
+				String link_id = links.getJSONObject(i).getString("link-id");
 				if (!link_id.contains("host")) {//这说明这个连接是一个swt--swt的连接
 					Edge e = new Edge();
-					String[] s = links.getJSONObject(j).getJSONObject("destination").getString("dest-tp").split(":");
+					String[] s = links.getJSONObject(i).getJSONObject("destination").getString("dest-tp").split(":");
 					e.setStart(s[1]);
 					e.startPort = s[2];
 
-					String[] f = links.getJSONObject(j).getJSONObject("source").getString("source-tp").split(":");
+					String[] f = links.getJSONObject(i).getJSONObject("source").getString("source-tp").split(":");
 					e.setFinish(f[1]);
 					e.finishPort = f[2];
 
@@ -187,7 +190,7 @@ public class GroupUtil extends SysInfo {
 	}
 
 	public static void spreadLocalGrp(Group g) {
-		MultiHandler handler = new MultiHandler(uPort, "lsa", "sys");
+		MultiHandler handler = new MultiHandler(sysPort, "lsa", "sys");
 		handler.v6Send(g);
 		System.out.println("spreading updated local group");
 	}
@@ -207,7 +210,7 @@ public class GroupUtil extends SysInfo {
 			spreadAllGrps();//集群内定时广播自己拥有的allGroups，确保每个新增加的节点都有最新的全网集群信息
 			downSubPubFlow();//下发注册流表，之后如果wsn要产生新订阅或新发布，就可以通过它扩散到全网
 			downSynGrpRtFlow();//下发route同步流表，使wsn计算出来的新route可以在集群内同步
-			if (localCtl.equals(groupCtl))
+			if (localCtl.url.equals(groupCtl.url))
 				downRestFlow();//下发访问groupCtl的flood流表
 
 		}
@@ -218,7 +221,7 @@ public class GroupUtil extends SysInfo {
 				FlowUtil.downFlow(groupCtl, floodFlow, "add");
 			}
 
-			MultiHandler handler = new MultiHandler(uPort, "lsa", "sys");
+			MultiHandler handler = new MultiHandler(sysPort, "lsa", "sys");
 			AllGrps ags = new AllGrps(allGroups);
 			handler.v6Send(ags);
 			System.out.println("spreading updated allGroups");

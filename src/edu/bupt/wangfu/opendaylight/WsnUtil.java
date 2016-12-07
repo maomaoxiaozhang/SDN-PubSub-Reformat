@@ -52,7 +52,7 @@ public class WsnUtil extends SysInfo {
 		}
 	}
 
-	public static String binStr2TopicAddr(String binStr){
+	public static String binStr2TopicAddr(String binStr) {
 		String topicAddr = "";
 		for (int i = 0, count = 0; i < binStr.length(); i += 4) {
 			String oldPart = binStr.substring(i, i + 4);

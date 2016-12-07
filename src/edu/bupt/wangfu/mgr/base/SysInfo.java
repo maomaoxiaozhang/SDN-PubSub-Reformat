@@ -17,7 +17,8 @@ public abstract class SysInfo {
 	public static String localGroupName;//本集群的名字
 	public static String localAddr;//本系统的地址
 	//	public static String multiAddr;//群内组播地址
-	public static int uPort;//UDP端口号，同时也是组播端口号
+	public static int sysPort;//控制消息端口号的起点
+	public static int notifyPort;//转发消息端口号
 	public static int tPort;//TCP端口号，接收本机内的发布者和订阅者的注册消息
 	public static Controller localCtl;//节点控制器
 	public static Controller groupCtl;//集群控制器
@@ -34,9 +35,9 @@ public abstract class SysInfo {
 	public static Map<String, String> id2NameMap;//key是swt的openflow id，value是网桥的名字（如br0）
 	//订阅信息
 	public static Map<String, String> notifyTopicAddrMap;//主题树-->编码树，key是主题名，value是对应这个主题的v6地址
-	public static Map<String, String> sysTopicAddrMap;//系统消息对应的编码
+	public static Map<String, String> sysTopicAddrMap;//系统消息对应的编码，key是topic的名字，value是topic对应的v6地址
 	//订阅表
-	public static Set<String> localSubTopic;//本地订阅表，value是本地的订阅主题
+	public static Set<String> localSubTopics;//本地订阅表，value是本地的订阅主题
 	public static Set<String> localPubTopic;//本地发布表，value是本地的发布主题
 	public static Map<String, Set<String>> groupSubMap;//本集群的订阅信息，key是topic，value是swtId:port的集合
 	public static Map<String, Set<String>> outerSubMap;//全网的订阅信息，key是topic，value是groupName的集合

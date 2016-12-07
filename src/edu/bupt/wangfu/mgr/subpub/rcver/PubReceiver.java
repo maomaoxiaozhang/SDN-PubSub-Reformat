@@ -18,7 +18,7 @@ public class PubReceiver extends SysInfo implements Runnable {
 
 	public PubReceiver() {
 		System.out.println("pub receiver start");
-		handler = new MultiHandler(uPort, "pub", "sys");
+		handler = new MultiHandler(sysPort, "pub", "sys");
 	}
 
 	@Override
@@ -52,6 +52,8 @@ public class PubReceiver extends SysInfo implements Runnable {
 					Set<String> groupPub = groupPubMap.get(pub.topic);
 					groupPub.remove(pub.swtId + ":" + pub.port);
 					groupPubMap.put(pub.topic, groupPub);
+
+					//TODO 删除Route路由流表
 				}
 			} else {
 				if (pub.action.equals(Action.PUB)) {
@@ -66,7 +68,7 @@ public class PubReceiver extends SysInfo implements Runnable {
 					g.updateTime = System.currentTimeMillis();
 					allGroups.put(g.groupName, g);
 
-					if (localCtl.equals(groupCtl)) {
+					if (localCtl.url.equals(groupCtl.url)) {
 						RouteUtil.newPuber(pub.group, "", "", pub.topic);
 					}
 				} else if (pub.action.equals(Action.UNPUB)) {
@@ -77,7 +79,7 @@ public class PubReceiver extends SysInfo implements Runnable {
 						outerPub.remove(pub.group);
 						outerPubMap.put(pub.topic, outerPub);
 
-						if (localCtl.equals(groupCtl)) {
+						if (localCtl.url.equals(groupCtl.url)) {
 							RouteUtil.updateNbrChange(pub.topic);
 						}
 					}

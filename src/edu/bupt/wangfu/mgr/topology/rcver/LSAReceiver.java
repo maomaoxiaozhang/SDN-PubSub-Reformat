@@ -13,7 +13,7 @@ public class LSAReceiver extends SysInfo implements Runnable {
 
 	public LSAReceiver() {
 		System.out.println("lsa receiver start");
-		handler = new MultiHandler(uPort, "lsa", "sys");
+		handler = new MultiHandler(sysPort, "lsa", "sys");
 	}
 
 	@Override

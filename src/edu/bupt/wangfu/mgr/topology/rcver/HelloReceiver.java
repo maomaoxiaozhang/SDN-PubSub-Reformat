@@ -20,7 +20,7 @@ public class HelloReceiver extends SysInfo implements Runnable {
 	private MultiHandler handler;
 
 	public HelloReceiver() {
-		handler = new MultiHandler(uPort, "hello", "sys");
+		handler = new MultiHandler(sysPort, "hello", "sys");
 	}
 
 	@Override
@@ -71,7 +71,7 @@ public class HelloReceiver extends SysInfo implements Runnable {
 						System.out.println("down rehello flow from local switch to switch " + swt.id + ", port " + out + " complete");
 
 						//把re_hello发送到每一个outPort，中间的时延保证对面有足够的时间反应第一条收到的信息
-						MultiHandler handler = new MultiHandler(uPort, "re_hello", "sys");
+						MultiHandler handler = new MultiHandler(sysPort, "re_hello", "sys");
 						handler.v6Send(re_hello);
 						System.out.println("sending rehello through " + swt.id + ", port " + out);
 
