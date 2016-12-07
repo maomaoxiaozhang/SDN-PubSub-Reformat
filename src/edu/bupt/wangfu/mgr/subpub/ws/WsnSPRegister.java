@@ -13,11 +13,12 @@ import javax.xml.ws.Endpoint;
 public class WsnSPRegister extends SysInfo implements Runnable {
 
 	public static void main(String[] args) {
-		Endpoint.publish("http://localhost:1111/WsnRegisterService", new WsnSPRegister());
+		Endpoint.publish("http://localhost:"+ 30001 +"/WsnRegisterService", new WsnSPRegister());
 	}
 
 	// 发布的服务方法处理发布者订阅者的注册，并返回处理结果
 	public String wsnServerMethod(String msg) {
+		System.out.println("new webservice register: " + msg);
 		WsnProcessImpl wsnProcessImpl = new WsnProcessImpl();
 		return wsnProcessImpl.wsnProcess(msg);
 	}
@@ -25,7 +26,7 @@ public class WsnSPRegister extends SysInfo implements Runnable {
 	@Override
 	@WebMethod(exclude = true)
 	public void run() {
-		System.out.println("ws published on http://" + localAddr + ":1111/WsnRegisterService");
-		Endpoint.publish("http://" + localAddr + ":1111/WsnRegisterService", new WsnSPRegister());
+		System.out.println("ws published on http://" + localAddr + ":"+ SysInfo.tPort + "/WsnRegisterService");
+		Endpoint.publish("http://" + localAddr + ":" + SysInfo.tPort + "/WsnRegisterService", new WsnSPRegister());
 	}
 }

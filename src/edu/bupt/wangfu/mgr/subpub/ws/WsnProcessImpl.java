@@ -29,7 +29,7 @@ public class WsnProcessImpl extends SysInfo {
 					NotifyObj no = new NotifyObj(topic, content);
 					MultiHandler handler = new MultiHandler(notifyPort, topic, "notify");
 					handler.v6Send(no);
-					return "success";
+					return topic + "#" + "success";
 				default:
 					return topic + "#" + "fail";
 			}
