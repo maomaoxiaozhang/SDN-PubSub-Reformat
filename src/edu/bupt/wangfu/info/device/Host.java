@@ -52,4 +52,13 @@ public class Host extends DevInfo {
 		}
 		return this.mac;
 	}
+
+	@Override
+	public String toString() {
+		return "Host{" +
+				"ip='" + ip + '\'' +
+				", swtId='" + swtId + '\'' +
+				", port='" + port + '\'' +
+				'}';
+	}
 }

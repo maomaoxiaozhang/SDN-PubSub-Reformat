@@ -45,13 +45,11 @@ public class PubReceiver extends SysInfo implements Runnable {
 				if (pub.action.equals(Action.PUB)) {
 					Set<String> groupPub = groupPubMap.get(pub.topic) == null ? new HashSet<String>() : groupPubMap.get(pub.topic);
 					groupPub.add(pub.swtId + ":" + pub.port);
-					groupPubMap.put(pub.topic, groupPub);
 				} else if (pub.action.equals(Action.UNPUB)) {
 					System.out.println("new unpub in group, topic is " + pub.topic);
 
 					Set<String> groupPub = groupPubMap.get(pub.topic);
 					groupPub.remove(pub.swtId + ":" + pub.port);
-					groupPubMap.put(pub.topic, groupPub);
 
 					//TODO 删除Route路由流表
 				}

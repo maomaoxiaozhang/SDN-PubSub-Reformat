@@ -2,6 +2,7 @@ package edu.bupt.wangfu.mgr.topology;
 
 import edu.bupt.wangfu.info.device.*;
 import edu.bupt.wangfu.info.msg.AllGrps;
+import edu.bupt.wangfu.mgr.base.Config;
 import edu.bupt.wangfu.mgr.base.SysInfo;
 import edu.bupt.wangfu.mgr.route.graph.Edge;
 import edu.bupt.wangfu.opendaylight.FlowUtil;
@@ -15,6 +16,8 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static edu.bupt.wangfu.mgr.subpub.SubPubMgr.cloneSetMap;
+
 /**
  * @ Created by lenovo on 2016-10-16.
  */
@@ -23,6 +26,7 @@ public class GroupUtil extends SysInfo {
 	private static Timer refreshTimer = new Timer();
 
 	public static void main(String[] args) {
+		Config.configure();
 		getGrpTopo(new Controller("10.108.165.188:8181"));
 	}
 
@@ -33,16 +37,6 @@ public class GroupUtil extends SysInfo {
 	//初始化hostMap，switchMap，outPorts
 	private static void getGrpTopo(Controller controller) {
 		String url = controller.url + "/restconf/operational/network-topology:network-topology/";
-
-		//测试
-//		hostMap = new HashMap<>();
-//		switchMap = new HashMap<>();
-//		groupEdges = new HashSet<>();
-//		outSwitches = new HashMap<>();
-//		groupSubMap = new HashMap<>();
-//		groupPubMap = new HashMap<>();
-//		localGroupName = "g1";
-//		allGroups = new HashMap<>();
 
 		hostMap.clear();
 		switchMap.clear();
@@ -101,8 +95,8 @@ public class GroupUtil extends SysInfo {
 			}
 		}
 		Group localGrp = allGroups.get(localGroupName) == null ? new Group(localGroupName) : allGroups.get(localGroupName);
-		localGrp.subMap = groupSubMap;
-		localGrp.pubMap = groupPubMap;
+		localGrp.subMap = cloneSetMap(groupSubMap);
+		localGrp.pubMap = cloneSetMap(groupPubMap);
 		localGrp.updateTime = System.currentTimeMillis();
 		spreadLocalGrp(localGrp);
 
@@ -176,10 +170,14 @@ public class GroupUtil extends SysInfo {
 			}
 		}
 
-		for (String id : switchMap.keySet()) {
-			Switch swt = switchMap.get(id);
-			System.out.println("Switch " + id + " has " + (swt.portSet.size() - 1) + " port(s) connected to other " +
-					"group(s), and " + swt.neighbors.keySet().size() + " port(s) connected to in group device(s)");
+		System.out.println("集群内OpenFlow交换机信息：");
+		for (Switch swt : switchMap.values()) {
+			System.out.println(swt.toString() + "; ");
+		}
+
+		System.out.println("集群内连接信息：");
+		for (Edge e : groupEdges) {
+			System.out.println(e.toString() + "; ");
 		}
 	}
 
@@ -192,7 +190,7 @@ public class GroupUtil extends SysInfo {
 	public static void spreadLocalGrp(Group g) {
 		MultiHandler handler = new MultiHandler(sysPort, "lsa", "sys");
 		handler.v6Send(g);
-		System.out.println("spreading updated local group");
+		System.out.println("spreading updated local group" + g.toString());
 	}
 
 	//更新group拓扑信息

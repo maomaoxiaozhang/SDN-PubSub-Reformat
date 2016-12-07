@@ -45,13 +45,11 @@ public class SubReceiver extends SysInfo implements Runnable {
 
 					Set<String> groupSub = groupSubMap.get(sub.topic) == null ? new HashSet<String>() : groupSubMap.get(sub.topic);
 					groupSub.add(sub.swtId + ":" + sub.port);
-					groupSubMap.put(sub.topic, groupSub);
 				} else if (sub.action.equals(Action.UNSUB)) {
 					System.out.println("new unsub from group, topic is " + sub.topic);
 
 					Set<String> groupSub = groupSubMap.get(sub.topic);
 					groupSub.remove(sub.swtId + ":" + sub.port);
-					groupSubMap.put(sub.topic, groupSub);
 
 					//TODO 删除Route路由流表
 				}

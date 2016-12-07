@@ -17,4 +17,14 @@ public class Switch extends DevInfo {
 	public Switch(String id) {
 		this.id = id;
 	}
+
+	@Override
+	public String toString() {
+		return "Switch{" +
+				"LOCAL and outPorts=" + portSet +
+				", id='" + id + '\'' +
+				", load=" + load +
+				", neighbors count=" + neighbors.size() +
+				'}';
+	}
 }

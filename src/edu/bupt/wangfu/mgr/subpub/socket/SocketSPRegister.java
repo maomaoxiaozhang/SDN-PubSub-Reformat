@@ -59,7 +59,7 @@ public class SocketSPRegister implements Runnable {
 					SPRegister spr = (SPRegister) obj;
 					switch (spr.type) {
 						case SUB:
-							SubPubMgr.localSubscribe(spr.topic);
+							SubPubMgr.localSubscribe(spr.topic, false);
 							spr.success = true;
 							oos.writeObject(spr);
 							break;

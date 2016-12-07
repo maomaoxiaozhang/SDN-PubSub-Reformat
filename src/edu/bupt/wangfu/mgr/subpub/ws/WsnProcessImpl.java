@@ -17,13 +17,13 @@ public class WsnProcessImpl extends SysInfo {
 			String content = msgSplit[2];
 			switch (action) {
 				case "SUB":
-					return topic + "#" + (SubPubMgr.localSubscribe(topic) ? "success" : "fail");
+					return topic + "#" + (SubPubMgr.localSubscribe(topic, false) ? "success" : "fail");
 				case "PUB":
-					return topic + "#" + (SubPubMgr.localSubscribe(topic) ? "success" : "fail");
+					return topic + "#" + (SubPubMgr.localPublish(topic) ? "success" : "fail");
 				case "UNSUB":
-					return topic + "#" + (SubPubMgr.localSubscribe(topic) ? "success" : "fail");
+					return topic + "#" + (SubPubMgr.localUnsubscribe(topic) ? "success" : "fail");
 				case "UNPUB":
-					return topic + "#" + (SubPubMgr.localSubscribe(topic) ? "success" : "fail");
+					return topic + "#" + (SubPubMgr.localUnpublish(topic) ? "success" : "fail");
 				case "NOTIFY":
 					//TODO 想加切包、安全加密？都在这里！
 					NotifyObj no = new NotifyObj(topic, content);

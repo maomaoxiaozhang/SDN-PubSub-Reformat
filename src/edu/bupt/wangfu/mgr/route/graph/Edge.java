@@ -25,6 +25,17 @@ public class Edge implements Comparable {
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "Edge{" +
+				"start='" + start + '\'' +
+				", startPort='" + startPort + '\'' +
+				", finish='" + finish + '\'' +
+				", finishPort='" + finishPort + '\'' +
+				", value=" + value +
+				'}';
+	}
+
 	public String getStart() {
 		return this.start;
 	}

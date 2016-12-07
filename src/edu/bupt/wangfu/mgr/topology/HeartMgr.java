@@ -17,6 +17,8 @@ import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static edu.bupt.wangfu.mgr.subpub.SubPubMgr.cloneSetMap;
+
 /**
  * Created by lenovo on 2016-6-22.
  */
@@ -51,8 +53,8 @@ public class HeartMgr extends SysInfo {
 	private void addSelf2Allgrps() {
 		Group g = new Group(localGroupName);
 		g.updateTime = System.currentTimeMillis();
-		g.subMap = groupSubMap;
-		g.pubMap = groupPubMap;
+		g.subMap = cloneSetMap(groupSubMap);
+		g.pubMap = cloneSetMap(groupPubMap);
 		allGroups.put(localGroupName, g);
 	}
 

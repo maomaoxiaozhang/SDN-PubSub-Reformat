@@ -26,7 +26,7 @@ public class WsnSPRegister extends SysInfo implements Runnable {
 	@Override
 	@WebMethod(exclude = true)
 	public void run() {
-		System.out.println("ws published on http://" + localAddr + ":"+ SysInfo.tPort + "/WsnRegisterService");
-		Endpoint.publish("http://" + localAddr + ":" + SysInfo.tPort + "/WsnRegisterService", new WsnSPRegister());
+		System.out.println("ws published on http://" + localAddr + ":"+ tPort + "/WsnRegisterService");
+		Endpoint.publish("http://" + localAddr + ":" + tPort + "/WsnRegisterService", new WsnSPRegister());
 	}
 }

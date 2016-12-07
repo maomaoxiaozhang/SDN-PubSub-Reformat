@@ -3,6 +3,7 @@ package edu.bupt.wangfu.mgr.subpub;
 import edu.bupt.wangfu.info.device.Group;
 import edu.bupt.wangfu.info.msg.NotifyObj;
 import edu.bupt.wangfu.info.msg.SPInfo;
+import edu.bupt.wangfu.mgr.base.Config;
 import edu.bupt.wangfu.mgr.base.SysInfo;
 import edu.bupt.wangfu.mgr.route.RouteUtil;
 import edu.bupt.wangfu.mgr.subpub.rcver.PubReceiver;
@@ -11,10 +12,8 @@ import edu.bupt.wangfu.mgr.subpub.ws.WsnSPRegister;
 import edu.bupt.wangfu.mgr.topology.GroupUtil;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by LCW on 2016-7-19.
@@ -33,55 +32,83 @@ public class SubPubMgr extends SysInfo {
 		splitTimer.schedule(splitTask, checkSplitPeriod, checkSplitPeriod);
 	}
 
+	public static void main(String[] args) {
+		Config.configure();
+		notifyTopicAddrMap.put("All", "1");
+		notifyTopicAddrMap.put("All:a", "2");
+		notifyTopicAddrMap.put("All:a:1", "3");
+		notifyTopicAddrMap.put("All:a:2", "4");
+		notifyTopicAddrMap.put("All:a:3", "5");
+
+		localSubscribe("All:a:1", false);
+		localSubscribe("All:a:2", false);
+		localSubscribe("All:a:3", false);
+	}
+
 	//本地有新订阅
-	public static boolean localSubscribe(String topic) {
-		//查看是否已订阅该主题的父主题
-		System.out.println("searching for subscribed father topic");
-		String[] topicPath = topic.split(":");
-		String cur = topicPath[0];
-		for (int i = 1; i < topicPath.length; i++) {
-			if (localSubTopics.contains(cur))
-				return false;
-			else
-				cur += ":" + topicPath[i];
+	public static boolean localSubscribe(String topic, boolean isJoinedSub) {
+		if (!isJoinedSub) {
+			//查看是否已订阅该主题的父主题或更高层的主题
+			System.out.println("searching for subscribed father topic");
+			String[] topicPath = topic.split(":");
+			String cur = topicPath[0];
+			for (int i = 1; i < topicPath.length; i++) {
+				if (localSubTopics.contains(cur))
+					return false;
+				else
+					cur += ":" + topicPath[i];
+			}
 		}
 		//更新节点上的订阅信息
-		localSubTopics.add(cur);
+		localSubTopics.add(topic);
 		//再判断是否需要聚合
-		if (needjoined(topic)) {
+		if (needjoined(topic) && !isJoinedSub) {
 			System.out.println("new sub topic need to be joined");
 			String father = getTopicFather(topic);
 
 			joinedSubTopics.add(father);
-			localSubscribe(father);
+			localSubscribe(father, true);
 
 			joinedUnsubTopics.add(topic);
 			unsubAllSons(father);
 			return true;
 		} else {
-			if (joinedSubTopics.contains(cur)) {
-				joinedSubTopics.remove(cur);
+			if (joinedSubTopics.contains(topic) && !isJoinedSub) {
+				joinedSubTopics.remove(topic);
 				return true;
 			}
 			//更新本集群订阅信息
 			System.out.println("refresh local group sub map");
-			Set<String> groupSub = groupSubMap.get(cur) == null ? new HashSet<String>() : groupSubMap.get(cur);
+			Set<String> groupSub = groupSubMap.get(topic) == null ? new HashSet<String>() : groupSubMap.get(topic);
 			groupSub.add(localSwtId + ":" + portWsn2Swt);
-			groupSubMap.put(topic, groupSub);
 			//全网广播
-			spreadSPInfo(cur, "sub", Action.SUB);
+			spreadSPInfo(topic, "sub", Action.SUB);
 			//更新全网所有集群信息
-			Group g = allGroups.get(localGroupName);
-			g.subMap = groupSubMap;
+//			Group g = allGroups.get(localGroupName);!!!
+			Group g = new Group("g1");
+			g.subMap = cloneSetMap(groupSubMap);
 			g.updateTime = System.currentTimeMillis();
 			allGroups.put(g.groupName, g);
 			GroupUtil.spreadLocalGrp(g);
 
 			new Thread(new SubMsgReciver(topic)).start();
 
-			RouteUtil.newSuber(localGroupName, localSwtId, portWsn2Swt, cur);
+			RouteUtil.newSuber(localGroupName, localSwtId, portWsn2Swt, topic);
 			return true;
 		}
+
+	}
+
+	public static Map<String, Set<String>> cloneSetMap(Map<String, Set<String>> map) {
+		Map<String, Set<String>> res = new ConcurrentHashMap<>();
+		for (String key : map.keySet()) {
+			Set<String> set = new HashSet<>();
+			for (String inSet : map.get(key)) {
+				set.add(inSet);
+			}
+			res.put(key, set);
+		}
+		return res;
 	}
 
 	//本地有取消订阅
@@ -91,16 +118,16 @@ public class SubPubMgr extends SysInfo {
 		if (!localSubTopics.contains(topic))
 			return false;//本地没有这个订阅
 
-		localSubTopics.remove(topic);
+//		localSubTopics.remove(topic);
 
 		Set<String> groupSub = groupSubMap.get(topic);
 		groupSub.remove(localSwtId + ":" + portWsn2Swt);
-		groupSubMap.put(topic, groupSub);
 
 		spreadSPInfo(topic, "sub", Action.UNSUB);
 
-		Group g = allGroups.get(localGroupName);
-		g.subMap = groupSubMap;
+//		Group g = allGroups.get(localGroupName);!!!
+		Group g = new Group("g1");
+		g.subMap = cloneSetMap(groupSubMap);
 		g.updateTime = System.currentTimeMillis();
 		allGroups.put(g.groupName, g);
 		GroupUtil.spreadLocalGrp(g);
@@ -120,12 +147,11 @@ public class SubPubMgr extends SysInfo {
 		if (groupPub.contains(localSwtId + ":" + portWsn2Swt))
 			return false;
 		groupPub.add(localSwtId + ":" + portWsn2Swt);
-		groupPubMap.put(topic, groupPub);
 
 		spreadSPInfo(topic, "pub", Action.PUB);
 
 		Group g = allGroups.get(localGroupName);
-		g.subMap = groupPubMap;
+		g.pubMap = cloneSetMap(groupPubMap);
 		g.updateTime = System.currentTimeMillis();
 		allGroups.put(g.groupName, g);
 		GroupUtil.spreadLocalGrp(g);
@@ -142,12 +168,11 @@ public class SubPubMgr extends SysInfo {
 
 		Set<String> groupPub = groupPubMap.get(topic);
 		groupPub.remove(localSwtId + ":" + portWsn2Swt);
-		groupPubMap.put(topic, groupPub);
 
 		spreadSPInfo(topic, "pub", Action.UNPUB);
 
 		Group g = allGroups.get(localGroupName);
-		g.subMap = groupPubMap;
+		g.pubMap = cloneSetMap(groupPubMap);
 		g.updateTime = System.currentTimeMillis();
 		allGroups.put(g.groupName, g);
 		GroupUtil.spreadLocalGrp(g);
@@ -158,8 +183,11 @@ public class SubPubMgr extends SysInfo {
 	}
 
 	private static void unsubAllSons(String father) {
-		for (String topic : localSubTopics) {
+		Iterator<String> iterator = localSubTopics.iterator();
+		while (iterator.hasNext()) {
+			String topic = iterator.next();
 			if (topic.contains(father) && topic.length() > father.length()) {
+				iterator.remove();//用这个删除localSubTopics中的值，而不是localSubTopics.remove(topic)，因为在遍历时会出现ConcurrentModificationException
 				localUnsubscribe(topic);
 				joinedUnsubTopics.add(topic);
 			}
@@ -182,7 +210,7 @@ public class SubPubMgr extends SysInfo {
 		String father = getTopicFather(topic);
 		int totalDirectSons = totalDirectSons(father);
 		for (String lst : localSubTopics) {
-			if (lst.contains(father) && lst.split(":").length == level) {//lst是topic的兄弟主题
+			if (lst.contains(father) && lst.split(":").length == level && !lst.equals(topic)) {//lst是topic的兄弟主题
 				subBros++;
 			}
 		}
@@ -234,7 +262,7 @@ public class SubPubMgr extends SysInfo {
 					joinedSubTopics.remove(father);
 					for (String son : joinedUnsubTopics) {
 						if (son.contains(father)) {
-							localSubscribe(son);
+							localSubscribe(son, false);
 							joinedUnsubTopics.remove(son);
 						}
 					}
