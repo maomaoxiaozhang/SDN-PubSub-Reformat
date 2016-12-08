@@ -54,7 +54,8 @@ public class RouteUtil extends SysInfo {
 	public static void newPuber(String newPuberGrp, String puberSwtId, String in, String topic) {
 		if (newPuberGrp.equals(localGroupName)) {
 			Flow floodFlow = FlowUtil.getInstance().generateFlow(puberSwtId, in, "flood-in-grp", topic, "notify", 0, 20);
-			FlowUtil.downFlow(groupCtl, floodFlow, "update");
+			if (floodFlow != null)
+				FlowUtil.downFlow(groupCtl, floodFlow, "update");
 			downGrpFlows(topic);
 		}
 		updateInGrpChange(newPuberGrp, topic, Action.PUB);
@@ -67,7 +68,8 @@ public class RouteUtil extends SysInfo {
 				FlowUtil.downFlow(groupCtl, floodFlow, "update");
 			} else {
 				Flow floodInFlow = FlowUtil.getInstance().generateNoInPortFlow(swtId, "flood-in-grp", topic, "notify", 0, 20);
-				FlowUtil.downFlow(groupCtl, floodInFlow, "update");
+				if (floodInFlow != null)
+					FlowUtil.downFlow(groupCtl, floodInFlow, "update");
 			}
 		}
 	}

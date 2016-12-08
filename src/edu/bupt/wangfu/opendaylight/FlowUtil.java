@@ -71,6 +71,8 @@ public class FlowUtil extends SysInfo {
 		//之前没生成过这条流表，需要重新生成
 		// 非outport flood流表
 		if (out.equals("flood-in-grp")) {
+			if (switchMap.get(swtId).neighbors.keySet().isEmpty())
+				return null;
 			out = "";
 			for (String s : switchMap.get(swtId).neighbors.keySet())
 				out += ("," + s);
@@ -112,6 +114,8 @@ public class FlowUtil extends SysInfo {
 		}
 
 		if (out.equals("flood-in-grp")) {
+			if (switchMap.get(swtId).neighbors.keySet().isEmpty())
+				return null;
 			out = "";
 			for (String s : switchMap.get(swtId).neighbors.keySet())
 				out += ("," + s);
@@ -135,7 +139,7 @@ public class FlowUtil extends SysInfo {
 	public Flow generateRestFlow(String swtId, String out, int t_id, int pri, String v4Addr) {
 		flowcount++;
 		String table_id = String.valueOf(t_id);
-		String priority = String.valueOf(pri);//TODO 优先级是数字越大越靠前吗？ // 不是，越小越靠前
+		String priority = String.valueOf(pri);//TODO 优先级是数字越大越靠前吗？
 
 		if (out.equals("flood-in-grp")) {
 			out = "";
