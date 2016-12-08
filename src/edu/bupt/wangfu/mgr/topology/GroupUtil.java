@@ -190,7 +190,7 @@ public class GroupUtil extends SysInfo {
 	public static void spreadLocalGrp(Group g) {
 		MultiHandler handler = new MultiHandler(sysPort, "lsa", "sys");
 		handler.v6Send(g);
-		System.out.println("spreading updated local group" + g.toString());
+		System.out.println("spreading updated local group " + g.toString());
 	}
 
 	//更新group拓扑信息

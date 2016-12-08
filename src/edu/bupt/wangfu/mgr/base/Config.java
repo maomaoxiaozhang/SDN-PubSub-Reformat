@@ -25,6 +25,12 @@ public class Config extends SysInfo {
 		//初始化topic和对应的编码
 		WsnUtil.initSysTopicMap();
 //		WsnUtil.initNotifyTopicMap();//TODO 现在测试的时候没有admin，因此无法连接
+		//测试
+		notifyTopicAddrMap.put("all", "ff0e:0080:0000:0000:0000:0000:1111:0006");
+		notifyTopicAddrMap.put("all:a", "ff0e:0080:0000:0000:0000:0000:2222:0006");
+		notifyTopicAddrMap.put("all:a:1", "ff0e:0080:0000:0000:0000:0000:3333:0006");
+		notifyTopicAddrMap.put("all:a:2", "ff0e:0080:0000:0000:0000:0000:4444:0006");
+		notifyTopicAddrMap.put("all:a:3", "ff0e:0080:0000:0000:0000:0000:5555:0006");
 	}
 
 	//TODO 本机连接的swt无法groupCtl获取，当前实验环境的问题

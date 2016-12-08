@@ -34,15 +34,15 @@ public class SubPubMgr extends SysInfo {
 
 	public static void main(String[] args) {
 		Config.configure();
-		notifyTopicAddrMap.put("All", "1");
-		notifyTopicAddrMap.put("All:a", "2");
-		notifyTopicAddrMap.put("All:a:1", "3");
-		notifyTopicAddrMap.put("All:a:2", "4");
-		notifyTopicAddrMap.put("All:a:3", "5");
+		notifyTopicAddrMap.put("All", "ff0e:0080:0000:0000:0000:0000:1111:0006");
+		notifyTopicAddrMap.put("All:a", "ff0e:0080:0000:0000:0000:0000:2222:0006");
+		notifyTopicAddrMap.put("All:a:1", "ff0e:0080:0000:0000:0000:0000:3333:0006");
+		notifyTopicAddrMap.put("All:a:2", "ff0e:0080:0000:0000:0000:0000:4444:0006");
+		notifyTopicAddrMap.put("All:a:3", "ff0e:0080:0000:0000:0000:0000:5555:0006");
 
-		localSubscribe("All:a:1", false);
-		localSubscribe("All:a:2", false);
-		localSubscribe("All:a:3", false);
+		localSubscribe("All", false);
+//		localSubscribe("All:a:2", false);
+//		localSubscribe("All:a:3", false);
 	}
 
 	//本地有新订阅
@@ -62,7 +62,7 @@ public class SubPubMgr extends SysInfo {
 		//更新节点上的订阅信息
 		localSubTopics.add(topic);
 		//再判断是否需要聚合
-		if (needjoined(topic) && !isJoinedSub) {
+		if (needJoin(topic) && !isJoinedSub) {
 			System.out.println("new sub topic need to be joined");
 			String father = getTopicFather(topic);
 
@@ -84,8 +84,8 @@ public class SubPubMgr extends SysInfo {
 			//全网广播
 			spreadSPInfo(topic, "sub", Action.SUB);
 			//更新全网所有集群信息
-//			Group g = allGroups.get(localGroupName);!!!
-			Group g = new Group("g1");
+			Group g = allGroups.get(localGroupName);//实际使用
+//			Group g = new Group("g1");//测试
 			g.subMap = cloneSetMap(groupSubMap);
 			g.updateTime = System.currentTimeMillis();
 			allGroups.put(g.groupName, g);
@@ -125,8 +125,8 @@ public class SubPubMgr extends SysInfo {
 
 		spreadSPInfo(topic, "sub", Action.UNSUB);
 
-//		Group g = allGroups.get(localGroupName);!!!
-		Group g = new Group("g1");
+		Group g = allGroups.get(localGroupName);//真实使用
+//		Group g = new Group("g1");//测试
 		g.subMap = cloneSetMap(groupSubMap);
 		g.updateTime = System.currentTimeMillis();
 		allGroups.put(g.groupName, g);
@@ -204,7 +204,10 @@ public class SubPubMgr extends SysInfo {
 		return fatherTopic;
 	}
 
-	private static boolean needjoined(String topic) {
+	private static boolean needJoin(String topic) {
+		if (topic.toLowerCase().equals("all"))
+			return false;
+
 		int subBros = 0;
 		int level = topic.split(":").length;
 		String father = getTopicFather(topic);
@@ -282,7 +285,7 @@ public class SubPubMgr extends SysInfo {
 
 		public SubMsgReciver(String topic) {
 			this.topic = topic;
-			this.handler = new MultiHandler(notifyPort, topic, "notify");
+			this.handler = new MultiHandler(notifyPort, topic.toLowerCase(), "notify");
 		}
 
 		@Override
@@ -294,7 +297,7 @@ public class SubPubMgr extends SysInfo {
 		private void processNotifyObj(NotifyObj obj) {
 			if (localSubTopics.contains(obj.topic)
 					|| joinedUnsubTopics.contains(obj.topic)) {
-
+				System.out.println();
 				//TODO 查找本地订阅者，把这条消息用原来的webservice或者什么东东，发给本地订阅者
 			}
 		}

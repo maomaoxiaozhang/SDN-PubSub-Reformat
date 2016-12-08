@@ -14,8 +14,7 @@ public class WsnMgr extends SysInfo {
 	private SubPubMgr spMgr;//订阅与发布管模块
 
 	private WsnMgr() {
-		System.out.println("wsn mgr start");
-		System.out.println(localCtl.url + "***" + groupCtl.url);
+		System.out.println("wsnMgr启动，本地地址" + localAddr + "，本地控制器" + localCtl.url + "，集群控制器" + groupCtl.url);
 		if (localCtl.url.equals(groupCtl.url)) {
 			dt = new HeartMgr();
 		}

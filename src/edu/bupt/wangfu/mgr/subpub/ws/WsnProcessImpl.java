@@ -17,17 +17,17 @@ public class WsnProcessImpl extends SysInfo {
 			String content = msgSplit[2];
 			switch (action) {
 				case "SUB":
-					return topic + "#" + (SubPubMgr.localSubscribe(topic, false) ? "success" : "fail");
+					return topic + "#" + (SubPubMgr.localSubscribe(topic.toLowerCase(), false) ? "success" : "fail");
 				case "PUB":
-					return topic + "#" + (SubPubMgr.localPublish(topic) ? "success" : "fail");
+					return topic + "#" + (SubPubMgr.localPublish(topic.toLowerCase()) ? "success" : "fail");
 				case "UNSUB":
-					return topic + "#" + (SubPubMgr.localUnsubscribe(topic) ? "success" : "fail");
+					return topic + "#" + (SubPubMgr.localUnsubscribe(topic.toLowerCase()) ? "success" : "fail");
 				case "UNPUB":
-					return topic + "#" + (SubPubMgr.localUnpublish(topic) ? "success" : "fail");
+					return topic + "#" + (SubPubMgr.localUnpublish(topic.toLowerCase()) ? "success" : "fail");
 				case "NOTIFY":
 					//TODO 想加切包、安全加密？都在这里！
-					NotifyObj no = new NotifyObj(topic, content);
-					MultiHandler handler = new MultiHandler(notifyPort, topic, "notify");
+					NotifyObj no = new NotifyObj(topic.toLowerCase(), content);
+					MultiHandler handler = new MultiHandler(notifyPort, topic.toLowerCase(), "notify");
 					handler.v6Send(no);
 					return topic + "#" + "success";
 				default:

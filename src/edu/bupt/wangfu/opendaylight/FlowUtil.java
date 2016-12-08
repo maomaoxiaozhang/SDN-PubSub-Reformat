@@ -50,10 +50,11 @@ public class FlowUtil extends SysInfo {
 				flow.out = (outPort + "," + flow.out);
 				OvsProcess.addFlow(controller, flow.swtId, flow.toStringOutput());
 			}
+			System.out.println("update flow \"" + flow.toStringOutput() + "\" complete");
 		} else if (action.equals("add")) {//把旧流表覆盖掉
 			OvsProcess.addFlow(controller, flow.swtId, flow.toStringOutput());
+			System.out.println("add flow \"" + flow.toStringOutput() + "\" complete");
 		}
-		System.out.println("down flow \"" + flow.toStringOutput() + "\" complete");
 	}
 
 	//这里使用单例模式是为了方便计数flowcount，每条流表的编号必须不一样
