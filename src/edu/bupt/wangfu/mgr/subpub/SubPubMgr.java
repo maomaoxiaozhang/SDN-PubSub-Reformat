@@ -13,7 +13,8 @@ import edu.bupt.wangfu.mgr.topology.GroupUtil;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+
+import static edu.bupt.wangfu.mgr.base.WsnMgr.cloneSetMap;
 
 /**
  * Created by LCW on 2016-7-19.
@@ -97,18 +98,6 @@ public class SubPubMgr extends SysInfo {
 			return true;
 		}
 
-	}
-
-	public static Map<String, Set<String>> cloneSetMap(Map<String, Set<String>> map) {
-		Map<String, Set<String>> res = new ConcurrentHashMap<>();
-		for (String key : map.keySet()) {
-			Set<String> set = new HashSet<>();
-			for (String inSet : map.get(key)) {
-				set.add(inSet);
-			}
-			res.put(key, set);
-		}
-		return res;
 	}
 
 	//本地有取消订阅

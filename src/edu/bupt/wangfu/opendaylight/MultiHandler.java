@@ -40,7 +40,7 @@ public class MultiHandler extends SysInfo {
 			ByteArrayInputStream bais;
 			ObjectInputStream ois;
 
-			byte[] data = new byte[4096];
+			byte[] data = new byte[409600];
 			bais = new ByteArrayInputStream(data);
 			DatagramPacket datagramPacket = new DatagramPacket(data, data.length);//创建一个用于接收数据的数据包
 			multicastSocket.receive(datagramPacket);//接收数据包

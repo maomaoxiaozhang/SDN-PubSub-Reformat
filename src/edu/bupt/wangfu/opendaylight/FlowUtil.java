@@ -59,6 +59,8 @@ public class FlowUtil extends SysInfo {
 
 	//这里使用单例模式是为了方便计数flowcount，每条流表的编号必须不一样
 	public Flow generateFlow(String swtId, String in, String out, String topic, String topicType, int t_id, int pri) {
+		System.out.println("生成流表中，参数为：swtId=" + swtId + "；in=" + in + "；out=" + out + "；topic=" + topic);
+
 		//将route中的每一段flow都添加到set中，保证后面不用重复下发，控制flowcount
 		Set<Flow> topicFlowSet = notifyFlows.get(topic) == null ? new HashSet<Flow>() : notifyFlows.get(topic);
 		for (Flow flow : topicFlowSet) {
@@ -139,9 +141,6 @@ public class FlowUtil extends SysInfo {
 	//生成向groupCtl发送REST请求的专用流表
 	public Flow generateRestFlow(String swtId, String out, int t_id, int pri, String v4Addr) {
 		flowcount++;
-		String table_id = String.valueOf(t_id);
-		String priority = String.valueOf(pri);//TODO 优先级是数字越大越靠前吗？
-
 		if (out.equals("flood-in-grp")) {
 			out = "";
 			for (String s : switchMap.get(swtId).neighbors.keySet())

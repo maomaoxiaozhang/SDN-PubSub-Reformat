@@ -10,6 +10,11 @@ import java.util.*;
  */
 public class Dijkstra {
 	public static List<String> dijkstra(String startSwtId, String endSwtId, Map<String, Switch> switchMap) {
+		if (startSwtId.equals(endSwtId)) {
+			List<String> res = new ArrayList<>();
+			res.add(startSwtId);
+			return res;
+		}
 		Set<Switch> op = new HashSet<>();
 		//将所有switch存储在op集合中
 		for (String st : switchMap.keySet()) {

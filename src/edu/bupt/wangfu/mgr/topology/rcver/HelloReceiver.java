@@ -13,6 +13,8 @@ import edu.bupt.wangfu.opendaylight.MultiHandler;
 import java.util.List;
 import java.util.Map;
 
+import static edu.bupt.wangfu.mgr.base.WsnMgr.cloneGrpMap;
+
 /**
  * Created by lenovo on 2016-6-23.
  */
@@ -38,13 +40,15 @@ public class HelloReceiver extends SysInfo implements Runnable {
 	}
 
 	public void onHello(Hello mh) throws InterruptedException {
-		if (mh.endGroup.equals(localGroupName)) {
-			//第三次握手，携带这个跨集群连接的全部信息
-			new Thread(new onFinalHello(mh)).start();
-		} else {
-			//第一次握手，只携带发起方的信息，需要补完接收方的信息，也就是当前节点
-			new Thread(new ReHello(mh)).start();
-			System.out.println("receiving first hello");
+		if (!mh.startGroup.equals(localGroupName)) {
+			if (mh.endGroup.equals(localGroupName)) {
+				//第三次握手，携带这个跨集群连接的全部信息
+				new Thread(new onFinalHello(mh)).start();
+			} else {
+				//第一次握手，只携带发起方的信息，需要补完接收方的信息，也就是当前节点
+				new Thread(new ReHello(mh)).start();
+				System.out.println("收到Hello消息");
+			}
 		}
 	}
 
@@ -63,7 +67,7 @@ public class HelloReceiver extends SysInfo implements Runnable {
 					if (!out.equals("LOCAL")) {
 						re_hello.endBorderSwtId = swt.id;
 						re_hello.endOutPort = out;
-						re_hello.allGroups = allGroups;
+						re_hello.allGroups = cloneGrpMap(allGroups);
 
 						//这条路径保证从groupCtl发出来的re_hello能到达borderSwt
 						List<String> outRehello = RouteUtil.calRoute(localSwtId, swt.id);
@@ -73,7 +77,7 @@ public class HelloReceiver extends SysInfo implements Runnable {
 						//把re_hello发送到每一个outPort，中间的时延保证对面有足够的时间反应第一条收到的信息
 						MultiHandler handler = new MultiHandler(sysPort, "re_hello", "sys");
 						handler.v6Send(re_hello);
-						System.out.println("sending rehello through " + swt.id + ", port " + out);
+						System.out.println("通过" + swt.id + "交换机的" + out + "端口发送ReHello消息");
 
 						try {
 							Thread.sleep(re_hello.reHelloPeriod);
@@ -106,7 +110,7 @@ public class HelloReceiver extends SysInfo implements Runnable {
 			gl.dstBorderSwtId = finalHello.startBorderSwtId;
 			gl.dstOutPort = finalHello.startOutPort;
 			nbrGrpLinks.put(gl.dstGroupName, gl);
-			System.out.println("receiving fianlHello from " + gl.srcGroupName + ", our border switch is " + gl.dstBorderSwtId + ", outPort is " + gl.dstOutPort);
+			System.out.println("从" + gl.srcGroupName + "集群获得了FinallHello消息，此连接中我方边界交换机为" + gl.dstBorderSwtId + "，对外端口为" + gl.dstOutPort);
 
 			//同步LSDB，其他集群的连接情况；把对面已知的每个group的信息都替换为最新版本的
 			Map<String, Group> newAllGroup = finalHello.allGroups;

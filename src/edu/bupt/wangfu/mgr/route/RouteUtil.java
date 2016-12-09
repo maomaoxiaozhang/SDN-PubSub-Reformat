@@ -15,6 +15,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static edu.bupt.wangfu.mgr.base.WsnMgr.cloneStrList;
+
 /**
  * Created by LCW on 2016-7-16.
  */
@@ -25,13 +27,16 @@ public class RouteUtil extends SysInfo {
 				return r.route;
 			}
 		}
+		System.out.println("计算集群内路径中，起点为" + startSwtId + "，终点为" + endSwtId);
 		List<String> route = Dijkstra.dijkstra(startSwtId, endSwtId, switchMap);
+		System.out.println("集群内路径结算结果为");
+		printRoute(route);
 
 		Route r = new Route();
 		r.group = localGroupName;
 		r.startSwtId = startSwtId;
 		r.endSwtId = endSwtId;
-		r.route = route;
+		r.route = cloneStrList(route);
 
 		groupRoutes.add(r);
 		spreadRoute(r);//在集群内广播这条路径，后面再需要就不用重复计算了
@@ -76,7 +81,7 @@ public class RouteUtil extends SysInfo {
 
 	//集群中新添元素，重新计算路由
 	private static void updateInGrpChange(String grpName, String topic, Action action) {
-		System.out.println("calculating route across whole network");
+		System.out.println("集群内订阅发布状态发生变化，正在重新计算路由");
 		if (action.equals(Action.SUB)) {
 			Set<Group> puberGrps = new HashSet<>();
 			//找到所有发送这个主题以及它孩子主题的集群
@@ -108,9 +113,11 @@ public class RouteUtil extends SysInfo {
 				downBridgeFlow(route, topic);
 			}
 		}
+		System.out.println("路由重新计算完毕");
 	}
 
 	public static void updateNbrChange(String topic) {
+		System.out.println("集群间链路状态发生变化，正在重新计算路由");
 		Set<Group> suberGrps = new HashSet<>();
 		for (Group grp : allGroups.values()) {
 			for (String grpSub : grp.subMap.keySet()) {
@@ -136,6 +143,7 @@ public class RouteUtil extends SysInfo {
 				downBridgeFlow(route, topic);
 			}
 		}
+		System.out.println("路由重新计算完毕");
 	}
 
 	private static void downBridgeFlow(List<String> route, String topic) {
@@ -183,10 +191,10 @@ public class RouteUtil extends SysInfo {
 	}
 
 	private static void printRoute(List<String> route) {
-		System.out.println("new route from " + route.get(0) + " to " + route.get(route.size() - 1) + ": ");
+		System.out.println("从" + route.get(0) + "到" + route.get(route.size() - 1) + "的路由为：");
 		for (int i = 0; i < route.size(); i++) {
 			if (i != route.size() - 1)
-				System.out.println(route.get(i) + "-->");
+				System.out.print(route.get(i) + "-->");
 			else
 				System.out.println(route.get(i));
 		}
@@ -196,11 +204,17 @@ public class RouteUtil extends SysInfo {
 	private static void spreadRoute(Route r) {
 		MultiHandler handler = new MultiHandler(sysPort, "route", "sys");
 		handler.v6Send(r);
-		System.out.println("spreading newly calculated route");
+		System.out.println("广播新计算出的路由信息");
 	}
 
 	public static List<Flow> downInGrpRtFlows(List<String> route, String in, String out, String topic, String topicType, Controller ctl) {
 		List<Flow> routeFlows = new ArrayList<>();
+		if (route.size() == 1) {
+			Flow flow = FlowUtil.getInstance().generateFlow(route.get(0), in, out, topic, topicType, 0, 20);
+			routeFlows.add(flow);
+			FlowUtil.downFlow(ctl, flow, "update");
+			return routeFlows;
+		}
 		for (int i = 0; i < route.size(); i++) {
 			Switch pre;
 			Switch cur;

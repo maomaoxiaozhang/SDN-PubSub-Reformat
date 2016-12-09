@@ -4,6 +4,7 @@ import edu.bupt.wangfu.info.device.*;
 import edu.bupt.wangfu.info.msg.AllGrps;
 import edu.bupt.wangfu.mgr.base.Config;
 import edu.bupt.wangfu.mgr.base.SysInfo;
+import edu.bupt.wangfu.mgr.route.RouteUtil;
 import edu.bupt.wangfu.mgr.route.graph.Edge;
 import edu.bupt.wangfu.opendaylight.FlowUtil;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
@@ -11,12 +12,10 @@ import edu.bupt.wangfu.opendaylight.RestProcess;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
-import static edu.bupt.wangfu.mgr.subpub.SubPubMgr.cloneSetMap;
+import static edu.bupt.wangfu.mgr.base.WsnMgr.cloneSetMap;
+
 
 /**
  * @ Created by lenovo on 2016-10-16.
@@ -205,12 +204,27 @@ public class GroupUtil extends SysInfo {
 					e.printStackTrace();
 				}
 			}
+			downRcvHelloFlow();//接收Hello消息的流表
 			spreadAllGrps();//集群内定时广播自己拥有的allGroups，确保每个新增加的节点都有最新的全网集群信息
 			downSubPubFlow();//下发注册流表，之后如果wsn要产生新订阅或新发布，就可以通过它扩散到全网
 			downSynGrpRtFlow();//下发route同步流表，使wsn计算出来的新route可以在集群内同步
 			if (localCtl.url.equals(groupCtl.url))
 				downRestFlow();//下发访问groupCtl的flood流表
 
+		}
+
+		private void downRcvHelloFlow() {
+			for (Switch swt : outSwitches.values()) {
+				for (String out : swt.portSet) {
+					if (!out.equals("LOCAL")) {
+						//这条路径保证outPort进来hello消息可以传到groupCtl
+						List<String> inHello = RouteUtil.calRoute(swt.id, localSwtId);
+						//这里流表的out设置为portWsn2Swt，是因为只有在groupCtl == localCtl时才调用这个函数
+						RouteUtil.downInGrpRtFlows(inHello, out, portWsn2Swt, "hello", "sys", groupCtl);
+					}
+				}
+			}
+			System.out.println("down heart flows complete");
 		}
 
 		private void spreadAllGrps() {

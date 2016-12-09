@@ -17,7 +17,9 @@ import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static edu.bupt.wangfu.mgr.subpub.SubPubMgr.cloneSetMap;
+import static edu.bupt.wangfu.mgr.base.WsnMgr.cloneGrpMap;
+import static edu.bupt.wangfu.mgr.base.WsnMgr.cloneSetMap;
+
 
 /**
  * Created by lenovo on 2016-6-22.
@@ -27,9 +29,8 @@ public class HeartMgr extends SysInfo {
 	private static Timer helloTimer = new Timer();
 
 	public HeartMgr() {
-		System.out.println("heart mgr starting");
+		System.out.println("heartMgr启动");
 		addSelf2Allgrps();
-		downRcvHelloRehelloFlow();//TODO 这个应该是定时更新的
 
 		new Thread(new HelloReceiver()).start();
 		new Thread(new ReHelloReceiver()).start();
@@ -46,7 +47,7 @@ public class HeartMgr extends SysInfo {
 		helloTaskPeriod = Long.parseLong(props.getProperty("helloTaskPeriod"));//hello任务的执行周期
 		nbrGrpExpiration = Long.parseLong(props.getProperty("nbrGrpExpiration"));//邻居集群丢失时间的判断阈值
 
-		System.out.println("starting hello task");
+		System.out.println("开始心跳任务");
 		helloTimer.schedule(new HelloTask(), 0, helloTaskPeriod);
 	}
 
@@ -56,20 +57,6 @@ public class HeartMgr extends SysInfo {
 		g.subMap = cloneSetMap(groupSubMap);
 		g.pubMap = cloneSetMap(groupPubMap);
 		allGroups.put(localGroupName, g);
-	}
-
-	private void downRcvHelloRehelloFlow() {
-		for (Switch swt : outSwitches.values()) {
-			for (String out : swt.portSet) {
-				if (!out.equals("LOCAL")) {
-					//这条路径保证outPort进来hello消息可以传到groupCtl
-					List<String> inHello = RouteUtil.calRoute(swt.id, localSwtId);
-					//这里流表的out设置为portWsn2Swt，是因为只有在groupCtl == localCtl时才调用这个函数
-					RouteUtil.downInGrpRtFlows(inHello, out, portWsn2Swt, "hello", "sys", groupCtl);
-				}
-			}
-		}
-		System.out.println("down heart flows complete");
 	}
 
 	//依次向每个outPort发送Hello信息
@@ -122,7 +109,7 @@ public class HeartMgr extends SysInfo {
 			hello.startOutPort = out;
 			hello.startBorderSwtId = swtId;
 			hello.reHelloPeriod = reHelloPeriod;
-			hello.allGroups = allGroups;
+			hello.allGroups = cloneGrpMap(allGroups);
 
 			handler.v6Send(hello);
 		}

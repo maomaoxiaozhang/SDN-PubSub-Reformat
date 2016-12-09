@@ -21,4 +21,7 @@ public class Hello implements Serializable {
 
 	public Map<String, Group> allGroups;//当前已知的所有集群的信息，key是groupName
 
+	public Hello() {
+		this.endGroup = "";
+	}
 }
