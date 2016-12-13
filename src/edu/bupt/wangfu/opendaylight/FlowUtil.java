@@ -46,9 +46,13 @@ public class FlowUtil extends SysInfo {
 					singleFlow = singleFlow.substring(singleFlow.indexOf("=") + 1);
 					ArrayList<String> list = new ArrayList<>();
 					for (int j = 0; j < singleFlow.split(",").length; j++) {
-						String str = singleFlow.split(",")[j].split(":")[1];
-						if (!list.contains(str))
-							list.add(str);
+						if (singleFlow.split(",")[j].equals("LOCAL") && !list.contains("LOCAL"))
+							list.add("LOCAL");
+						if (singleFlow.split(",")[j].contains(":")) {
+							 String str = singleFlow.split(",")[j].split(":")[1];
+							if (!list.contains(str))
+								list.add(str);
+						}
 					}
 					if (!list.contains(flow.out))
 						list.add(flow.out);
