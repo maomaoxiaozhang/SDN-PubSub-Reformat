@@ -24,7 +24,7 @@ public class SubPubMgr extends SysInfo {
 	private static Timer splitTimer = new Timer();
 
 	public SubPubMgr() {
-		System.out.println("sub pub mgr start");
+		System.out.println("发布/订阅监听处理器启动");
 //		new Thread(new SocketSPRegister(tPort)).start();//接收新发布者和订阅者的注册
 		new Thread(new WsnSPRegister()).start(); // webservice方式接收新发布者或订阅者的注册
 
@@ -48,23 +48,27 @@ public class SubPubMgr extends SysInfo {
 
 	//本地有新订阅
 	public static boolean localSubscribe(String topic, boolean isJoinedSub) {
+		System.out.println("判定是否为聚合订阅：" + isJoinedSub);
 		if (!isJoinedSub) {
 			//查看是否已订阅该主题的父主题或更高层的主题
-			System.out.println("searching for subscribed father topic");
+			System.out.println("搜索当前订阅表中有无订阅过" + topic + "主题的父亲主题");
 			String[] topicPath = topic.split(":");
 			String cur = topicPath[0];
 			for (int i = 1; i < topicPath.length; i++) {
-				if (localSubTopics.contains(cur))
+				if (localSubTopics.contains(cur)) {
+					System.out.println("有订阅过更早期的主题，取消订阅流程");
 					return false;
-				else
+				} else
 					cur += ":" + topicPath[i];
 			}
 		}
 		//更新节点上的订阅信息
+		System.out.println("更新本地订阅表localSubTopics");
 		localSubTopics.add(topic);
 		//再判断是否需要聚合
+		System.out.println("判定新订阅是否需要聚合");
 		if (needJoin(topic) && !isJoinedSub) {
-			System.out.println("new sub topic need to be joined");
+			System.out.println("新订阅需要聚合");
 			String father = getTopicFather(topic);
 
 			joinedSubTopics.add(father);
@@ -74,12 +78,17 @@ public class SubPubMgr extends SysInfo {
 			unsubAllSons(father);
 			return true;
 		} else {
+			System.out.println("新订阅不需要聚合，判定新订阅是否为之前聚合而成的订阅");
+
 			if (joinedSubTopics.contains(topic) && !isJoinedSub) {
+				System.out.println("新订阅是聚合而成的订阅，更新订阅状态");
+
 				joinedSubTopics.remove(topic);
 				return true;
 			}
+			System.out.println("新订阅是全新订阅，更新本集群订阅信息groupSubMap");
+
 			//更新本集群订阅信息
-			System.out.println("refresh local group sub map");
 			Set<String> groupSub = groupSubMap.get(topic) == null ? new HashSet<String>() : groupSubMap.get(topic);
 			groupSub.add(localSwtId + ":" + portWsn2Swt);
 			//全网广播
@@ -235,7 +244,7 @@ public class SubPubMgr extends SysInfo {
 		nsp.topic = topic;
 
 		handler.v6Send(nsp);
-		System.out.println("spread updated sub/pub info");
+		System.out.println("全网广播集群内订阅情况变更，变更类型为" + action.toString() + "，相关主题是" + topic);
 	}
 
 	private static class CheckSplit extends TimerTask {

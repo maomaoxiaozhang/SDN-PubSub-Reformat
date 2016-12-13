@@ -44,6 +44,7 @@ public class RouteUtil extends SysInfo {
 	}
 
 	public static void newSuber(String newSuberGrp, String suberSwtId, String out, String topic) {
+		System.out.println("新增订阅主题" + topic + "，新订阅集群为" + newSuberGrp + "，订阅者所在OpenFlow交换机为" + suberSwtId);
 		if (newSuberGrp.equals(localGroupName)) {
 			//订阅者直接相连的swt，主要是为了预防订阅swt是一个边界swt
 			Flow inFlow = FlowUtil.getInstance().generateNoInPortFlow(suberSwtId, out, topic, "notify", 0, 20);
@@ -81,8 +82,9 @@ public class RouteUtil extends SysInfo {
 
 	//集群中新添元素，重新计算路由
 	private static void updateInGrpChange(String grpName, String topic, Action action) {
-		System.out.println("集群内订阅发布状态发生变化，正在重新计算路由");
 		if (action.equals(Action.SUB)) {
+			System.out.println("集群内订阅状态发生变化，正在重新计算路由");
+
 			Set<Group> puberGrps = new HashSet<>();
 			//找到所有发送这个主题以及它孩子主题的集群
 			for (Group grp : allGroups.values()) {
@@ -98,6 +100,8 @@ public class RouteUtil extends SysInfo {
 				downBridgeFlow(route, topic);
 			}
 		} else if (action.equals(Action.PUB)) {
+			System.out.println("集群内发布状态发生变化，正在重新计算路由");
+
 			Set<Group> suberGrps = new HashSet<>();
 			//找到所有订阅这个主题以及它父亲主题的集群
 			for (Group grp : allGroups.values()) {
