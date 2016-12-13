@@ -40,13 +40,13 @@ public class PubReceiver extends SysInfo implements Runnable {
 		@Override
 		public void run() {
 			if (pub.group.equals(localGroupName)) {
-				System.out.println("new puber in group, pub topic is " + pub.topic);
+				System.out.println("集群内有新发布，主题为" + pub.topic);
 
 				if (pub.action.equals(Action.PUB)) {
 					Set<String> groupPub = groupPubMap.get(pub.topic) == null ? new HashSet<String>() : groupPubMap.get(pub.topic);
 					groupPub.add(pub.swtId + ":" + pub.port);
 				} else if (pub.action.equals(Action.UNPUB)) {
-					System.out.println("new unpub in group, topic is " + pub.topic);
+					System.out.println("集群内有新的取消发布，主题为" + pub.topic);
 
 					Set<String> groupPub = groupPubMap.get(pub.topic);
 					groupPub.remove(pub.swtId + ":" + pub.port);
@@ -55,7 +55,7 @@ public class PubReceiver extends SysInfo implements Runnable {
 				}
 			} else {
 				if (pub.action.equals(Action.PUB)) {
-					System.out.println("new pub from neighbor, pub topic is " + pub.topic);
+					System.out.println("其他集群有新发布，主题为" + pub.topic);
 
 					Set<String> outerPub = outerPubMap.get(pub.topic) == null ? new HashSet<String>() : outerPubMap.get(pub.topic);
 					outerPub.add(pub.group);
@@ -70,7 +70,7 @@ public class PubReceiver extends SysInfo implements Runnable {
 						RouteUtil.newPuber(pub.group, "", "", pub.topic);
 					}
 				} else if (pub.action.equals(Action.UNPUB)) {
-					System.out.println("new unpub from neighbor, topic is " + pub.topic);
+					System.out.println("其他集群有新的取消发布，主题为" + pub.topic);
 
 					if (allGroups.get(pub.group).pubMap.get(pub.topic).size() == 1) {
 						Set<String> outerPub = outerPubMap.get(pub.topic);

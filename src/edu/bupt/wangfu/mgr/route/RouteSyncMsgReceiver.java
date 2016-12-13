@@ -11,7 +11,7 @@ public class RouteSyncMsgReceiver extends SysInfo implements Runnable {
 	private MultiHandler handler;
 
 	public RouteSyncMsgReceiver() {
-		System.out.println("route sync receiver start");
+		System.out.println("集群内路径同步监听启动，监听route主题");
 		handler = new MultiHandler(sysPort, "route", "sys");
 	}
 

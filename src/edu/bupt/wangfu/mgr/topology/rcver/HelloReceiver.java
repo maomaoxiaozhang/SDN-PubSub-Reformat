@@ -43,19 +43,19 @@ public class HelloReceiver extends SysInfo implements Runnable {
 		if (!mh.startGroup.equals(localGroupName)) {
 			if (mh.endGroup.equals(localGroupName)) {
 				//第三次握手，携带这个跨集群连接的全部信息
-				new Thread(new onFinalHello(mh)).start();
+				new Thread(new OnFinalHello(mh)).start();
 			} else {
 				//第一次握手，只携带发起方的信息，需要补完接收方的信息，也就是当前节点
-				new Thread(new ReHello(mh)).start();
+				new Thread(new OnHello(mh)).start();
 				System.out.println("收到Hello消息");
 			}
 		}
 	}
 
-	private class ReHello implements Runnable {
+	private class OnHello implements Runnable {
 		Hello re_hello;
 
-		ReHello(Hello mh) {
+		OnHello(Hello mh) {
 			mh.endGroup = localGroupName;
 			this.re_hello = mh;
 		}
@@ -74,7 +74,7 @@ public class HelloReceiver extends SysInfo implements Runnable {
 						//这条路径保证从groupCtl发出来的re_hello能到达borderSwt
 						List<String> outRehello = RouteUtil.calRoute(localSwtId, swt.id);
 						List<Flow> rs = RouteUtil.downInGrpRtFlows(outRehello, portWsn2Swt, out, "re_hello", "sys", groupCtl);
-						System.out.println("down rehello flow from local switch to switch " + swt.id + ", port " + out + " complete");
+						System.out.println("下发从本地交换机到" + swt.id + "交换机的" + out + "端口的ReHello消息流表");
 
 						//把re_hello发送到每一个outPort，中间的时延保证对面有足够的时间反应第一条收到的信息
 						MultiHandler handler = new MultiHandler(sysPort, "re_hello", "sys");
@@ -94,10 +94,10 @@ public class HelloReceiver extends SysInfo implements Runnable {
 		}
 	}
 
-	private class onFinalHello implements Runnable {
+	private class OnFinalHello implements Runnable {
 		Hello finalHello;
 
-		onFinalHello(Hello mh) {
+		OnFinalHello(Hello mh) {
 			this.finalHello = mh;
 		}
 

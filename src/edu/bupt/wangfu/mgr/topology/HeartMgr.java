@@ -76,7 +76,7 @@ public class HeartMgr extends SysInfo {
 						List<Flow> out2ctl = RouteUtil.downInGrpRtFlows(inRehello, out, portWsn2Swt, "re_hello", "sys", groupCtl);
 
 						sendHello(out, swt.id);
-						System.out.println("sending hello to switch " + swt.id + " through port " + out);
+						System.out.println("向交换机" + swt.id + "通过" + out + "端口发送Hello消息");
 						//发送后阻塞线程，这期间：对面收到hello，回复re_hello，最后再发送一条最终版的hello
 						//这之后（无论之前是否回复），都继续发下一条
 						try {

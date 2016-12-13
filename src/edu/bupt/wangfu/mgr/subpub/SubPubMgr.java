@@ -273,6 +273,7 @@ public class SubPubMgr extends SysInfo {
 		MultiHandler handler;
 
 		public SubMsgReciver(String topic) {
+			System.out.println("新监听启动中，监听主题为" + topic);
 			this.topic = topic;
 			this.handler = new MultiHandler(notifyPort, topic.toLowerCase(), "notify");
 		}

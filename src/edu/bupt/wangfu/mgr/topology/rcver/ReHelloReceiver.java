@@ -62,6 +62,6 @@ public class ReHelloReceiver extends SysInfo implements Runnable {
 		re_hello.allGroups = cloneGrpMap(allGroups);//之前发来的allGroups是对面集群的，现在给它回复过去，让它存我们这边的
 		handler = new MultiHandler(sysPort, "hello", "sys");
 		handler.v6Send(re_hello);//因为现在还在HeartMgr.HelloTask()长度为helloPeriod的sleep()中，因此直接发送就可以
-		System.out.println("回复ReHello消息");
+		System.out.println("向集群" + re_hello.endGroup + "回复FinalHello消息");
 	}
 }
