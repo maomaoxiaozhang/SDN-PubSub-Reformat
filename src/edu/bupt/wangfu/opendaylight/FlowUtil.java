@@ -4,6 +4,7 @@ import edu.bupt.wangfu.info.device.Controller;
 import edu.bupt.wangfu.info.device.Flow;
 import edu.bupt.wangfu.mgr.base.SysInfo;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -43,11 +44,19 @@ public class FlowUtil extends SysInfo {
 					String singleFlow = dumpResult.split("\n")[i];
 					singleFlow = singleFlow.substring(singleFlow.indexOf("actions="));
 					singleFlow = singleFlow.substring(singleFlow.indexOf("=") + 1);
-					for (int j = 0; j < singleFlow.split(",").length; j++)
-						outPort += ("," + singleFlow.split(",")[j].charAt(singleFlow.split(",")[j].length() - 1));
+					ArrayList<String> list = new ArrayList<>();
+					for (int j = 0; j < singleFlow.split(",").length; j++) {
+						String str = singleFlow.split(",")[j].split(":")[1];
+						if (!list.contains(str))
+							list.add(str);
+					}
+					if (!list.contains(flow.out))
+						list.add(flow.out);
+					for (String s : list)
+						outPort += ("," + s);
 				}
 				outPort = outPort.substring(1);
-				flow.out = (outPort + "," + flow.out);
+				flow.out = outPort;
 				OvsProcess.addFlow(controller, flow.swtId, flow.toStringOutput());
 			}
 			System.out.println("update flow \"" + flow.toStringOutput() + "\" complete");

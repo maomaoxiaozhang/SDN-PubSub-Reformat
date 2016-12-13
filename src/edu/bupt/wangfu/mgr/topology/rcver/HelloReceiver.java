@@ -69,6 +69,8 @@ public class HelloReceiver extends SysInfo implements Runnable {
 						re_hello.endOutPort = out;
 						re_hello.allGroups = cloneGrpMap(allGroups);
 
+						System.out.println("收到来自" + re_hello.startGroup + "的Hello消息");
+
 						//这条路径保证从groupCtl发出来的re_hello能到达borderSwt
 						List<String> outRehello = RouteUtil.calRoute(localSwtId, swt.id);
 						List<Flow> rs = RouteUtil.downInGrpRtFlows(outRehello, portWsn2Swt, out, "re_hello", "sys", groupCtl);

@@ -114,6 +114,22 @@ public class Config extends SysInfo {
 		localCtl = new Controller(localAddr + ":8181");
 		groupRoutes = Collections.synchronizedSet(new HashSet<Route>());
 
+		System.out.print("adminAddress: " + adminAddr);
+		System.out.println(", adminPort: " + adminPort);
+
+		System.out.print("localGroupName: " + localGroupName);
+		//System.out.print(", groupCtl: " + groupCtl);
+		System.out.print(", localSwtId: " + localSwtId);
+		System.out.print(", localAddr: " + localAddr);
+		System.out.print(", localMac: " + localMac);
+		System.out.print(", tPort: " + tPort);
+		System.out.print(", sysPort: " + sysPort);
+		System.out.println(", notifyPort: " + notifyPort);
+
+		System.out.print("refreshPeriod: " + refreshPeriod);
+		System.out.print(", checkSplitPeriod: " + checkSplitPeriod);
+		System.out.println(", splitThreshold: " + splitThreshold);
+
 		System.out.println("config complete");
 	}
 }
