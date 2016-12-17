@@ -1,10 +1,10 @@
-package edu.bupt.wangfu.mgr.subpub.rcver;
+package edu.bupt.wangfu.module.subpub.rcver;
 
 import edu.bupt.wangfu.info.device.Group;
 import edu.bupt.wangfu.info.msg.SPInfo;
-import edu.bupt.wangfu.mgr.base.SysInfo;
-import edu.bupt.wangfu.mgr.route.RouteUtil;
-import edu.bupt.wangfu.mgr.subpub.Action;
+import edu.bupt.wangfu.module.base.SysInfo;
+import edu.bupt.wangfu.module.route.RouteUtil;
+import edu.bupt.wangfu.module.subpub.Action;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 import java.util.HashSet;
@@ -17,7 +17,7 @@ public class PubReceiver extends SysInfo implements Runnable {
 	private MultiHandler handler;
 
 	public PubReceiver() {
-		System.out.println("pub receiver start");
+		System.out.println("发布及取消发布消息（pub）监听线程启动");
 		handler = new MultiHandler(sysPort, "pub", "sys");
 	}
 

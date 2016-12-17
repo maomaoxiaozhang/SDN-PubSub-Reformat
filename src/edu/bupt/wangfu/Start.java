@@ -1,8 +1,8 @@
 package edu.bupt.wangfu;
 
-import edu.bupt.wangfu.mgr.base.Config;
-import edu.bupt.wangfu.mgr.base.WsnMgr;
-import edu.bupt.wangfu.mgr.topology.GroupUtil;
+import edu.bupt.wangfu.module.base.Config;
+import edu.bupt.wangfu.module.base.WsnMgr;
+import edu.bupt.wangfu.module.topology.GroupUtil;
 
 /**
  * Created by LCW on 2016-6-19.

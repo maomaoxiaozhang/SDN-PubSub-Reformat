@@ -1,8 +1,8 @@
-package edu.bupt.wangfu.mgr.base;
+package edu.bupt.wangfu.module.base;
 
 import edu.bupt.wangfu.info.device.*;
 import edu.bupt.wangfu.info.msg.Route;
-import edu.bupt.wangfu.mgr.route.graph.Edge;
+import edu.bupt.wangfu.module.route.graph.Edge;
 
 import java.util.Map;
 import java.util.Set;

@@ -1,7 +1,7 @@
-package edu.bupt.wangfu.mgr.route;
+package edu.bupt.wangfu.module.route;
 
 import edu.bupt.wangfu.info.msg.Route;
-import edu.bupt.wangfu.mgr.base.SysInfo;
+import edu.bupt.wangfu.module.base.SysInfo;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 /**
@@ -11,7 +11,7 @@ public class RouteSyncMsgReceiver extends SysInfo implements Runnable {
 	private MultiHandler handler;
 
 	public RouteSyncMsgReceiver() {
-		System.out.println("集群内路径同步监听启动，监听route主题");
+		System.out.println("集群内路径同步（RouteSync）监听线程启动");
 		handler = new MultiHandler(sysPort, "route", "sys");
 	}
 

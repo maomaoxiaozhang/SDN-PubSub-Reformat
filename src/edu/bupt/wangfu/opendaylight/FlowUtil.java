@@ -2,7 +2,7 @@ package edu.bupt.wangfu.opendaylight;
 
 import edu.bupt.wangfu.info.device.Controller;
 import edu.bupt.wangfu.info.device.Flow;
-import edu.bupt.wangfu.mgr.base.SysInfo;
+import edu.bupt.wangfu.module.base.SysInfo;
 
 import java.util.ArrayList;
 import java.util.HashSet;

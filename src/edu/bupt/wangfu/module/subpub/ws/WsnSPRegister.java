@@ -1,6 +1,6 @@
-package edu.bupt.wangfu.mgr.subpub.ws;
+package edu.bupt.wangfu.module.subpub.ws;
 
-import edu.bupt.wangfu.mgr.base.SysInfo;
+import edu.bupt.wangfu.module.base.SysInfo;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
@@ -13,12 +13,11 @@ import javax.xml.ws.Endpoint;
 public class WsnSPRegister extends SysInfo implements Runnable {
 
 	public static void main(String[] args) {
-		Endpoint.publish("http://localhost:"+ 30001 +"/WsnRegisterService", new WsnSPRegister());
+		Endpoint.publish("http://localhost:" + 30001 + "/WsnRegisterService", new WsnSPRegister());
 	}
 
 	// 发布的服务方法处理发布者订阅者的注册，并返回处理结果
 	public String wsnServerMethod(String msg) {
-		System.out.println("new webservice register: " + msg);
 		WsnProcessImpl wsnProcessImpl = new WsnProcessImpl();
 		return wsnProcessImpl.wsnProcess(msg);
 	}
@@ -26,7 +25,7 @@ public class WsnSPRegister extends SysInfo implements Runnable {
 	@Override
 	@WebMethod(exclude = true)
 	public void run() {
-		System.out.println("ws published on http://" + localAddr + ":"+ tPort + "/WsnRegisterService");
+		System.out.println("WebService启动成功，地址为：http://" + localAddr + ":" + tPort + "/WsnRegisterService");
 		Endpoint.publish("http://" + localAddr + ":" + tPort + "/WsnRegisterService", new WsnSPRegister());
 	}
 }

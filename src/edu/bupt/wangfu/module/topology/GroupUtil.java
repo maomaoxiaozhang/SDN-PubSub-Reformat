@@ -1,11 +1,11 @@
-package edu.bupt.wangfu.mgr.topology;
+package edu.bupt.wangfu.module.topology;
 
 import edu.bupt.wangfu.info.device.*;
 import edu.bupt.wangfu.info.msg.AllGrps;
-import edu.bupt.wangfu.mgr.base.Config;
-import edu.bupt.wangfu.mgr.base.SysInfo;
-import edu.bupt.wangfu.mgr.route.RouteUtil;
-import edu.bupt.wangfu.mgr.route.graph.Edge;
+import edu.bupt.wangfu.module.base.Config;
+import edu.bupt.wangfu.module.base.SysInfo;
+import edu.bupt.wangfu.module.route.RouteUtil;
+import edu.bupt.wangfu.module.route.graph.Edge;
 import edu.bupt.wangfu.opendaylight.FlowUtil;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 import edu.bupt.wangfu.opendaylight.RestProcess;
@@ -14,7 +14,7 @@ import org.json.JSONObject;
 
 import java.util.*;
 
-import static edu.bupt.wangfu.mgr.base.WsnMgr.cloneSetMap;
+import static edu.bupt.wangfu.module.base.WsnMgr.cloneSetMap;
 
 
 /**
@@ -149,6 +149,7 @@ public class GroupUtil extends SysInfo {
 			}
 		}
 
+		//把switchMap中有outPort的swt放到outSwitches中
 		for (Switch swt : switchMap.values()) {
 			if (swt.portSet.size() > 1) {
 				outSwitches.put(swt.id, swt);
@@ -169,15 +170,7 @@ public class GroupUtil extends SysInfo {
 			}
 		}
 
-		System.out.println("集群内OpenFlow交换机信息：");
-		for (Switch swt : switchMap.values()) {
-			System.out.println(swt.toString() + "; ");
-		}
 
-		System.out.println("集群内连接信息：");
-		for (Edge e : groupEdges) {
-			System.out.println(e.toString() + "; ");
-		}
 	}
 
 	private static boolean isGrpLinked(GroupLink gl) {

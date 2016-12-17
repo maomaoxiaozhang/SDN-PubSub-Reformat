@@ -1,4 +1,4 @@
-package edu.bupt.wangfu.mgr.route.graph;
+package edu.bupt.wangfu.module.route.graph;
 
 import edu.bupt.wangfu.info.device.Group;
 

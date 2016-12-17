@@ -1,15 +1,15 @@
-package edu.bupt.wangfu.mgr.topology.rcver;
+package edu.bupt.wangfu.module.topology.rcver;
 
 import edu.bupt.wangfu.info.device.Group;
 import edu.bupt.wangfu.info.device.GroupLink;
 import edu.bupt.wangfu.info.msg.Hello;
-import edu.bupt.wangfu.mgr.base.SysInfo;
-import edu.bupt.wangfu.mgr.topology.GroupUtil;
+import edu.bupt.wangfu.module.base.SysInfo;
+import edu.bupt.wangfu.module.topology.GroupUtil;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 import java.util.Map;
 
-import static edu.bupt.wangfu.mgr.base.WsnMgr.cloneGrpMap;
+import static edu.bupt.wangfu.module.base.WsnMgr.cloneGrpMap;
 
 /**
  * Created by lenovo on 2016-6-23.
@@ -18,6 +18,7 @@ public class ReHelloReceiver extends SysInfo implements Runnable {
 	private MultiHandler handler;
 
 	public ReHelloReceiver() {
+		System.out.println("ReHello监听线程启动");
 		handler = new MultiHandler(sysPort, "re_hello", "sys");
 	}
 

@@ -1,6 +1,6 @@
 package edu.bupt.wangfu.info.msg;
 
-import edu.bupt.wangfu.mgr.subpub.Action;
+import edu.bupt.wangfu.module.subpub.Action;
 
 import java.io.Serializable;
 

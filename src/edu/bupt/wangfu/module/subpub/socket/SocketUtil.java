@@ -1,4 +1,4 @@
-package edu.bupt.wangfu.mgr.subpub.socket;
+package edu.bupt.wangfu.module.subpub.socket;
 
 import java.io.*;
 import java.net.Socket;

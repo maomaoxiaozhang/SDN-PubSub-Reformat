@@ -1,8 +1,8 @@
-package edu.bupt.wangfu.mgr.subpub.ws;
+package edu.bupt.wangfu.module.subpub.ws;
 
 import edu.bupt.wangfu.info.msg.NotifyObj;
-import edu.bupt.wangfu.mgr.base.SysInfo;
-import edu.bupt.wangfu.mgr.subpub.SubPubMgr;
+import edu.bupt.wangfu.module.base.SysInfo;
+import edu.bupt.wangfu.module.subpub.SubPubMgr;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 /**
@@ -15,6 +15,8 @@ public class WsnProcessImpl extends SysInfo {
 			String action = msgSplit[0];
 			String topic = msgSplit[1];
 			String content = msgSplit[2];
+
+			System.out.println("收到新消息，动作为" + action + "，主题为" + "，内容为" + content);
 			switch (action) {
 				case "SUB":
 					return topic + "#" + (SubPubMgr.localSubscribe(topic.toLowerCase(), false) ? "success" : "fail");

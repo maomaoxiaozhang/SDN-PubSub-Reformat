@@ -1,7 +1,7 @@
 package edu.bupt.wangfu.opendaylight.rcver;
 
 import edu.bupt.wangfu.info.msg.NotifyTopics;
-import edu.bupt.wangfu.mgr.base.SysInfo;
+import edu.bupt.wangfu.module.base.SysInfo;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 import java.util.Map;

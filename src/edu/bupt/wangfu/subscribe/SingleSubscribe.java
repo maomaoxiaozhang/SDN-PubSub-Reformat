@@ -20,8 +20,8 @@ public class SingleSubscribe {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        Service s = Service.create(wsdlUrl, new QName("http://ws.subpub.mgr.wangfu.bupt.edu/","WsnSPRegisterService"));
-        WsnSPRegister hs = s.getPort(new QName("http://ws.subpub.mgr.wangfu.bupt.edu/","WsnSPRegisterPort"), WsnSPRegister.class);
+        Service s = Service.create(wsdlUrl, new QName("http://ws.subpub.module.wangfu.bupt.edu/","WsnSPRegisterService"));
+        WsnSPRegister hs = s.getPort(new QName("http://ws.subpub.module.wangfu.bupt.edu/","WsnSPRegisterPort"), WsnSPRegister.class);
         String ret = hs.wsnServerMethod("SUB#all:a#123");
         System.out.println(ret);
     }

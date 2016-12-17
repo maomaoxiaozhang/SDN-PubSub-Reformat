@@ -1,8 +1,8 @@
-package edu.bupt.wangfu.mgr.topology.rcver;
+package edu.bupt.wangfu.module.topology.rcver;
 
 import edu.bupt.wangfu.info.device.Group;
 import edu.bupt.wangfu.info.msg.AllGrps;
-import edu.bupt.wangfu.mgr.base.SysInfo;
+import edu.bupt.wangfu.module.base.SysInfo;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 /**
@@ -12,7 +12,7 @@ public class LSAReceiver extends SysInfo implements Runnable {
 	private MultiHandler handler;
 
 	public LSAReceiver() {
-		System.out.println("LSA监听启动");
+		System.out.println("LSA监听线程启动");
 		handler = new MultiHandler(sysPort, "lsa", "sys");
 	}
 

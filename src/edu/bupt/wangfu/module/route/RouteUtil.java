@@ -1,12 +1,12 @@
-package edu.bupt.wangfu.mgr.route;
+package edu.bupt.wangfu.module.route;
 
 import edu.bupt.wangfu.info.device.*;
 import edu.bupt.wangfu.info.msg.Route;
-import edu.bupt.wangfu.mgr.base.SysInfo;
-import edu.bupt.wangfu.mgr.route.graph.Dijkstra;
-import edu.bupt.wangfu.mgr.route.graph.Edge;
-import edu.bupt.wangfu.mgr.route.graph.GroupDijkstra;
-import edu.bupt.wangfu.mgr.subpub.Action;
+import edu.bupt.wangfu.module.base.SysInfo;
+import edu.bupt.wangfu.module.route.graph.Dijkstra;
+import edu.bupt.wangfu.module.route.graph.Edge;
+import edu.bupt.wangfu.module.route.graph.GroupDijkstra;
+import edu.bupt.wangfu.module.subpub.Action;
 import edu.bupt.wangfu.opendaylight.FlowUtil;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static edu.bupt.wangfu.mgr.base.WsnMgr.cloneStrList;
+import static edu.bupt.wangfu.module.base.WsnMgr.cloneStrList;
 
 /**
  * Created by LCW on 2016-7-16.

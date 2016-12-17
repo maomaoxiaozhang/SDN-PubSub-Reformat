@@ -2,7 +2,7 @@ package edu.bupt.wangfu.opendaylight;
 
 
 import edu.bupt.wangfu.info.device.Flow;
-import edu.bupt.wangfu.mgr.base.SysInfo;
+import edu.bupt.wangfu.module.base.SysInfo;
 import edu.bupt.wangfu.opendaylight.rcver.AdminReceiver;
 
 import java.io.FileInputStream;

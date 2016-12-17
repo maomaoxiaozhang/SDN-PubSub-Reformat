@@ -1,10 +1,10 @@
-package edu.bupt.wangfu.mgr.subpub.rcver;
+package edu.bupt.wangfu.module.subpub.rcver;
 
 import edu.bupt.wangfu.info.device.Group;
 import edu.bupt.wangfu.info.msg.SPInfo;
-import edu.bupt.wangfu.mgr.base.SysInfo;
-import edu.bupt.wangfu.mgr.route.RouteUtil;
-import edu.bupt.wangfu.mgr.subpub.Action;
+import edu.bupt.wangfu.module.base.SysInfo;
+import edu.bupt.wangfu.module.route.RouteUtil;
+import edu.bupt.wangfu.module.subpub.Action;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 import java.util.HashSet;
@@ -17,7 +17,7 @@ public class SubReceiver extends SysInfo implements Runnable {
 	private MultiHandler handler;
 
 	public SubReceiver() {
-		System.out.println("sub receiver start");
+		System.out.println("订阅及取消订阅消息（sub）监听线程启动");
 		handler = new MultiHandler(sysPort, "sub", "sys");
 	}
 

@@ -5,7 +5,7 @@ import edu.bupt.wangfu.info.device.Group;
 import java.io.Serializable;
 import java.util.Map;
 
-import static edu.bupt.wangfu.mgr.base.WsnMgr.cloneGrpMap;
+import static edu.bupt.wangfu.module.base.WsnMgr.cloneGrpMap;
 
 /**
  * Created by lenovo on 2016-11-13.
