@@ -55,9 +55,8 @@ public class ReHelloReceiver extends SysInfo implements Runnable {
 		Group g = allGroups.get(localGroupName);
 		g.updateTime = System.currentTimeMillis();
 		g.dist2NbrGrps.put(re_hello.endGroup, 1);//TODO 初始化邻居集群间距离为1
-		allGroups.put(localGroupName, g);
 		//全网广播自己的集群信息
-		GroupUtil.spreadLocalGrp(g);
+		GroupUtil.spreadLocalGrp();
 
 		re_hello.allGroups.clear();
 		re_hello.allGroups = cloneGrpMap(allGroups);//之前发来的allGroups是对面集群的，现在给它回复过去，让它存我们这边的

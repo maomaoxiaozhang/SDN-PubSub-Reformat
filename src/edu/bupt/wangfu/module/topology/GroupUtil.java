@@ -78,7 +78,7 @@ public class GroupUtil extends SysInfo {
 			}
 		}
 
-		//清理本集群内失效的swt
+		//从groupSub和groupPub中清理本集群内失效的swt
 		for (Set<String> subSwts : groupSubMap.values()) {
 			for (String swt_Port : subSwts) {
 				if (!switchMap.keySet().contains(swt_Port.split(":")[0])) {//说明原本有订阅的这个swt丢失了，那么就要在subMap里面把它清除
@@ -93,11 +93,12 @@ public class GroupUtil extends SysInfo {
 				}
 			}
 		}
-		Group localGrp = allGroups.get(localGroupName) == null ? new Group(localGroupName) : allGroups.get(localGroupName);
+
+		Group localGrp = new Group(localGroupName);
 		localGrp.subMap = cloneSetMap(groupSubMap);
 		localGrp.pubMap = cloneSetMap(groupPubMap);
 		localGrp.updateTime = System.currentTimeMillis();
-		spreadLocalGrp(localGrp);
+		allGroups.put(localGroupName, localGrp);
 
 		if (topology.has("link")) {
 			JSONArray links = topology.getJSONArray("link");
@@ -179,7 +180,8 @@ public class GroupUtil extends SysInfo {
 				&& outSwitches.get(gl.srcBorderSwtId).portSet.contains(gl.srcOutPort);
 	}
 
-	public static void spreadLocalGrp(Group g) {
+	public static void spreadLocalGrp() {
+		Group g = allGroups.get(localGroupName);
 		MultiHandler handler = new MultiHandler(sysPort, "lsa", "sys");
 		handler.v6Send(g);
 		System.out.println("广播当前集群LSA" + g.toString());
@@ -198,6 +200,7 @@ public class GroupUtil extends SysInfo {
 				}
 			}
 			downRcvHelloFlow();//接收Hello消息的流表
+			spreadLocalGrp();//全网定时广播本集群内容更新
 			spreadAllGrps();//集群内定时广播自己拥有的allGroups，确保每个新增加的节点都有最新的全网集群信息
 			downSubPubFlow();//下发注册流表，之后如果wsn要产生新订阅或新发布，就可以通过它扩散到全网
 			downSynGrpRtFlow();//下发route同步流表，使wsn计算出来的新route可以在集群内同步

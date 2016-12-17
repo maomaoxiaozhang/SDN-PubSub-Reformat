@@ -49,7 +49,7 @@ public class FlowUtil extends SysInfo {
 						if (singleFlow.split(",")[j].equals("LOCAL") && !list.contains("LOCAL"))
 							list.add("LOCAL");
 						if (singleFlow.split(",")[j].contains(":")) {
-							 String str = singleFlow.split(",")[j].split(":")[1];
+							String str = singleFlow.split(",")[j].split(":")[1];
 							if (!list.contains(str))
 								list.add(str);
 						}
@@ -73,16 +73,20 @@ public class FlowUtil extends SysInfo {
 	//这里使用单例模式是为了方便计数flowcount，每条流表的编号必须不一样
 	public Flow generateFlow(String swtId, String in, String out, String topic, String topicType, int t_id, int pri) {
 		System.out.println("生成流表中，参数为：swtId=" + swtId + "；in=" + in + "；out=" + out + "；topic=" + topic);
-
+		Set<Flow> topicFlowSet;
 		//将route中的每一段flow都添加到set中，保证后面不用重复下发，控制flowcount
-		Set<Flow> topicFlowSet = notifyFlows.get(topic) == null ? new HashSet<Flow>() : notifyFlows.get(topic);
-		for (Flow flow : topicFlowSet) {
-			if (flow.swtId.equals(swtId)
-					&& (flow.in == null || flow.in.equals(in))
-					&& flow.out.equals(out)
-					&& flow.topic.equals(topic)) {
-				return flow;
+		if (notifyFlows.get(topic) != null) {
+			topicFlowSet = notifyFlows.get(topic);
+			for (Flow flow : topicFlowSet) {
+				if (flow.swtId.equals(swtId)
+						&& (flow.in == null || flow.in.equals(in))
+						&& flow.out.equals(out)
+						&& flow.topic.equals(topic)) {
+					return flow;
+				}
 			}
+		} else {
+			topicFlowSet = new HashSet<>();
 		}
 		//之前没生成过这条流表，需要重新生成
 		// 非outport flood流表

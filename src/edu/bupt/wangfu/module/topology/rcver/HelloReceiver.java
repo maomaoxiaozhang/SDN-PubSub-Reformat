@@ -127,9 +127,8 @@ public class HelloReceiver extends SysInfo implements Runnable {
 			Group g = allGroups.get(localGroupName);
 			g.updateTime = System.currentTimeMillis();
 			g.dist2NbrGrps.put(finalHello.startGroup, 1);
-			allGroups.put(localGroupName, g);
 			//全网广播自己的集群信息
-			GroupUtil.spreadLocalGrp(g);
+			GroupUtil.spreadLocalGrp();
 		}
 	}
 }

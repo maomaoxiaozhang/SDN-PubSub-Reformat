@@ -91,6 +91,7 @@ public class SubPubMgr extends SysInfo {
 			//更新本集群订阅信息
 			Set<String> groupSub = groupSubMap.get(topic) == null ? new HashSet<String>() : groupSubMap.get(topic);
 			groupSub.add(localSwtId + ":" + portWsn2Swt);
+			groupSubMap.put(topic,groupSub);
 			//全网广播
 			spreadSPInfo(topic, "sub", Action.SUB);
 			//更新全网所有集群信息
@@ -98,8 +99,7 @@ public class SubPubMgr extends SysInfo {
 //			Group g = new Group("g1");//测试
 			g.subMap = cloneSetMap(groupSubMap);
 			g.updateTime = System.currentTimeMillis();
-			allGroups.put(g.groupName, g);
-			GroupUtil.spreadLocalGrp(g);
+			GroupUtil.spreadLocalGrp();
 
 			new Thread(new SubMsgReciver(topic)).start();
 
@@ -127,8 +127,7 @@ public class SubPubMgr extends SysInfo {
 //		Group g = new Group("g1");//测试
 		g.subMap = cloneSetMap(groupSubMap);
 		g.updateTime = System.currentTimeMillis();
-		allGroups.put(g.groupName, g);
-		GroupUtil.spreadLocalGrp(g);
+		GroupUtil.spreadLocalGrp();
 
 		//TODO 应该删除集群内流表和过路流表，重新计算新的流表；但是太复杂了，需要再讨论
 
@@ -145,14 +144,14 @@ public class SubPubMgr extends SysInfo {
 		if (groupPub.contains(localSwtId + ":" + portWsn2Swt))
 			return false;
 		groupPub.add(localSwtId + ":" + portWsn2Swt);
+		groupPubMap.put(topic,groupPub);
 
 		spreadSPInfo(topic, "pub", Action.PUB);
 
 		Group g = allGroups.get(localGroupName);
 		g.pubMap = cloneSetMap(groupPubMap);
 		g.updateTime = System.currentTimeMillis();
-		allGroups.put(g.groupName, g);
-		GroupUtil.spreadLocalGrp(g);
+		GroupUtil.spreadLocalGrp();
 
 		RouteUtil.newPuber(localGroupName, localSwtId, portWsn2Swt, topic);
 		return true;
@@ -172,8 +171,7 @@ public class SubPubMgr extends SysInfo {
 		Group g = allGroups.get(localGroupName);
 		g.pubMap = cloneSetMap(groupPubMap);
 		g.updateTime = System.currentTimeMillis();
-		allGroups.put(g.groupName, g);
-		GroupUtil.spreadLocalGrp(g);
+		GroupUtil.spreadLocalGrp();
 
 		//TODO 应该删除集群内流表和过路流表，重新计算新的流表；但是太复杂了，需要再讨论
 
