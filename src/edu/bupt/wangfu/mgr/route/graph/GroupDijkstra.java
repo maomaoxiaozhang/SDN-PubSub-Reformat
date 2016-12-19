@@ -52,12 +52,14 @@ public class GroupDijkstra {
 				//dis_2存儲當前集群到startGrp集群的距離
 				int dis_2 = distance.get(gr.groupName);
 				//dis_3記錄當前集群到nearest集群的距離
-				int dis_3 = 0;
+				int dis_3 = -1;
 				if (nearest.dist2NbrGrps.containsKey(gr.groupName)) {
 					dis_3 = nearest.dist2NbrGrps.get(gr.groupName);
 				}
 
-				if (dis_2 == -1 || dis_2 > dis_1 + dis_3) {
+				if (dis_3 == -1) {}
+
+				else if (dis_2 == -1 || dis_2 > dis_1 + dis_3) {
 					//当前集群没有与startGrp集群相邻或者通过nearest集群的距离更短，更新
 					distance.put(gr.groupName, dis_1 + dis_3);
 
@@ -73,12 +75,13 @@ public class GroupDijkstra {
 				}
 			}
 		}
-		ArrayList<String> across = new ArrayList<String>();
+		ArrayList<String> across = new ArrayList<>();
 		across.add(startGrpName);
 		if (!(path.get(endGrpName) == null)) {
 			across.addAll(path.get(endGrpName));
 		}
 		across.add(endGrpName);
+		System.out.println("从集群" + startGrpName + "到集群" + endGrpName + "最短距离为: " + distance.get(endGrpName));
 		return across;
 	}
 

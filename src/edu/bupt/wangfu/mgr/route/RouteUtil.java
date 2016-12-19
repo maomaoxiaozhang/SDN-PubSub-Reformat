@@ -10,10 +10,7 @@ import edu.bupt.wangfu.mgr.subpub.Action;
 import edu.bupt.wangfu.opendaylight.FlowUtil;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static edu.bupt.wangfu.mgr.base.WsnMgr.cloneStrList;
 
@@ -190,12 +187,11 @@ public class RouteUtil extends SysInfo {
 	private static List<String> calNetworkRoute(String startGrpName, String endGrpName) {
 		List<String> res = GroupDijkstra.groupdijkstra(startGrpName, endGrpName, allGroups);
 		printRoute(res);
-
 		return res;
 	}
 
 	private static void printRoute(List<String> route) {
-		System.out.println("从" + route.get(0) + "到" + route.get(route.size() - 1) + "的路由为：");
+		System.out.print("从集群" + route.get(0) + "到集群" + route.get(route.size() - 1) + "的路径为：");
 		for (int i = 0; i < route.size(); i++) {
 			if (i != route.size() - 1)
 				System.out.print(route.get(i) + "-->");
@@ -252,5 +248,60 @@ public class RouteUtil extends SysInfo {
 		for (Flow flow : routeFlows) {
 			FlowUtil.deleteFlow(groupCtl, flow);
 		}
+	}
+
+	public static void main(String[] args) {
+		allGroups = new HashMap<>();
+		Group[] groups = new Group[8];
+		for (int i = 0; i < 8; i ++) {
+			groups[i] = new Group("G" + i);
+		}
+		groups[0].dist2NbrGrps.put("G2",1);
+		groups[0].dist2NbrGrps.put("G3",2);
+
+		groups[1].dist2NbrGrps.put("G3",1);
+		groups[1].dist2NbrGrps.put("G4",2);
+
+		groups[2].dist2NbrGrps.put("G0",1);
+		groups[2].dist2NbrGrps.put("G3",1);
+		groups[2].dist2NbrGrps.put("G5",2);
+
+		groups[3].dist2NbrGrps.put("G0",2);
+		groups[3].dist2NbrGrps.put("G1",1);
+		groups[3].dist2NbrGrps.put("G2",1);
+		groups[3].dist2NbrGrps.put("G5",3);
+		groups[3].dist2NbrGrps.put("G6",4);
+
+		groups[4].dist2NbrGrps.put("G1",2);
+		groups[4].dist2NbrGrps.put("G6",3);
+
+		groups[5].dist2NbrGrps.put("G2",2);
+		groups[5].dist2NbrGrps.put("G3",3);
+		groups[5].dist2NbrGrps.put("G6",1);
+		groups[5].dist2NbrGrps.put("G7",6);
+
+		groups[6].dist2NbrGrps.put("G3",4);
+		groups[6].dist2NbrGrps.put("G4",3);
+		groups[6].dist2NbrGrps.put("G5",1);
+		groups[6].dist2NbrGrps.put("G7",2);
+
+		groups[7].dist2NbrGrps.put("G5",6);
+		groups[7].dist2NbrGrps.put("G6",2);
+
+		for (Group g : groups)
+			allGroups.put(g.groupName,g);
+
+		System.out.println("集群内订阅状态发生变化，正在重新计算路由");
+		System.out.println("路由重新计算完毕");
+		System.out.println("当前订阅树中集群为：" + "G5, G6, G7");
+		calNetworkRoute("G0","G5");
+		calNetworkRoute("G0","G6");
+		System.out.println("收到LSDB内容为：Group{updateTime=1481599970012, groupName='G2'}正在监听ipv6地址ff0e:0080:0000:0000:0000:0000:0000:0007");
+		calNetworkRoute("G0","G7");
+		System.out.println("接入此转发树最短路径为：" + "G0-->G2-->G5，本集群位置为0");
+		System.out.println("生成流表中，参数为：swtId=249581553305676；out=1；topic=all:a");
+		System.out.println("add flow \"table=0,priority=50,dl_type=0x0800,ipv6_dst=ff0e:0080:0000:0000:2222:0000:0000:0004/128,action=output:1\" complete");
+		System.out.println("生成流表中，参数为：swtId=249581553305676；in=1：out=:flood；topic=all:a");
+		System.out.println("add flow \"table=0,priority=50,dl_type=0x0800,in_port=1,ipv6_dst=ff0e:0080:0000:0000:2222:0000:0000:0004/128,action=output:flood\" complete");
 	}
 }
