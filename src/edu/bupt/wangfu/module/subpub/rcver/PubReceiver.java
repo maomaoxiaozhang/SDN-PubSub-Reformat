@@ -1,10 +1,10 @@
-package edu.bupt.wangfu.mgr.subpub.rcver;
+package edu.bupt.wangfu.module.subpub.rcver;
 
 import edu.bupt.wangfu.info.device.Group;
 import edu.bupt.wangfu.info.msg.SPInfo;
-import edu.bupt.wangfu.mgr.base.SysInfo;
-import edu.bupt.wangfu.mgr.route.RouteUtil;
-import edu.bupt.wangfu.mgr.subpub.Action;
+import edu.bupt.wangfu.module.base.SysInfo;
+import edu.bupt.wangfu.module.route.RouteUtil;
+import edu.bupt.wangfu.module.subpub.Action;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 import java.util.HashSet;
@@ -17,7 +17,7 @@ public class PubReceiver extends SysInfo implements Runnable {
 	private MultiHandler handler;
 
 	public PubReceiver() {
-		System.out.println("pub receiver start");
+		System.out.println("发布及取消发布消息（pub）监听线程启动");
 		handler = new MultiHandler(sysPort, "pub", "sys");
 	}
 
@@ -40,13 +40,14 @@ public class PubReceiver extends SysInfo implements Runnable {
 		@Override
 		public void run() {
 			if (pub.group.equals(localGroupName)) {
-				System.out.println("集群内有新发布，主题为" + pub.topic);
+				System.out.println("集群内产生新发布，订阅主题为：" + pub.topic);
 
 				if (pub.action.equals(Action.PUB)) {
 					Set<String> groupPub = groupPubMap.get(pub.topic) == null ? new HashSet<String>() : groupPubMap.get(pub.topic);
 					groupPub.add(pub.swtId + ":" + pub.port);
+					groupPubMap.put(pub.topic, groupPub);
 				} else if (pub.action.equals(Action.UNPUB)) {
-					System.out.println("集群内有新的取消发布，主题为" + pub.topic);
+					System.out.println("集群内新取消发布，取消主题为：" + pub.topic);
 
 					Set<String> groupPub = groupPubMap.get(pub.topic);
 					groupPub.remove(pub.swtId + ":" + pub.port);
@@ -55,7 +56,7 @@ public class PubReceiver extends SysInfo implements Runnable {
 				}
 			} else {
 				if (pub.action.equals(Action.PUB)) {
-					System.out.println("其他集群有新发布，主题为" + pub.topic);
+					System.out.println("网络中产生新发布，订阅主题为：" + pub.topic);
 
 					Set<String> outerPub = outerPubMap.get(pub.topic) == null ? new HashSet<String>() : outerPubMap.get(pub.topic);
 					outerPub.add(pub.group);
@@ -64,18 +65,16 @@ public class PubReceiver extends SysInfo implements Runnable {
 					Group g = allGroups.get(pub.group);
 					g.pubMap.get(pub.topic).add(pub.swtId + ":" + pub.port);
 					g.updateTime = System.currentTimeMillis();
-					allGroups.put(g.groupName, g);
 
 					if (localCtl.url.equals(groupCtl.url)) {
 						RouteUtil.newPuber(pub.group, "", "", pub.topic);
 					}
 				} else if (pub.action.equals(Action.UNPUB)) {
-					System.out.println("其他集群有新的取消发布，主题为" + pub.topic);
+					System.out.println("网络中新取消发布，取消主题为：" + pub.topic);
 
 					if (allGroups.get(pub.group).pubMap.get(pub.topic).size() == 1) {
 						Set<String> outerPub = outerPubMap.get(pub.topic);
 						outerPub.remove(pub.group);
-						outerPubMap.put(pub.topic, outerPub);
 
 						if (localCtl.url.equals(groupCtl.url)) {
 							RouteUtil.updateNbrChange(pub.topic);

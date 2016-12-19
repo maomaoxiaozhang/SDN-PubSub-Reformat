@@ -1,7 +1,7 @@
 package edu.bupt.wangfu.opendaylight;
 
 import edu.bupt.wangfu.info.device.Controller;
-import edu.bupt.wangfu.mgr.base.SysInfo;
+import edu.bupt.wangfu.module.base.SysInfo;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
@@ -32,7 +32,8 @@ public class RestProcess extends SysInfo {
 			postMethod.setDoAuthentication(true);
 
 			status = httpclient.executeMethod(postMethod);
-			System.out.println("Post Status:" + status);
+			if (status != 200)
+				System.out.println("请求失败，错误编号为" + status);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -43,9 +44,6 @@ public class RestProcess extends SysInfo {
 		return result;
 	}
 
-	/**
-	 * new modify by HanB
-	 */
 	public static List<String> doClientDelete(String url, String body) {
 		System.out.println("sending DELETE to " + url);
 		if (!url.startsWith("http://")) url = "http://" + url;
@@ -64,7 +62,8 @@ public class RestProcess extends SysInfo {
 			postMethod.setDoAuthentication(true);
 
 			status = httpclient.executeMethod(postMethod);
-			System.out.println("Delete Status:" + status);
+			if (status != 200)
+				System.out.println("请求失败，错误编号为" + status);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -90,7 +89,8 @@ public class RestProcess extends SysInfo {
 			postMethod.setDoAuthentication(true);
 
 			status = httpclient.executeMethod(postMethod);
-			System.out.println("Update Status:" + status);
+			if (status != 200)
+				System.out.println("请求失败，错误编号为" + status);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -101,7 +101,7 @@ public class RestProcess extends SysInfo {
 	}
 
 	public static String doClientGet(String url) {//nll 用户名密码认证方式
-		System.out.println("sending GET to " + url);
+		System.out.println("\n向" + url + "发送GET请求");
 		try {
 			HttpClient httpclient = new HttpClient();
 			UsernamePasswordCredentials creds = new UsernamePasswordCredentials("admin", "admin");
@@ -110,12 +110,15 @@ public class RestProcess extends SysInfo {
 			getMethod.setDoAuthentication(true);
 
 			int status = httpclient.executeMethod(getMethod);
-			System.out.println("the code is " + status);
+			if (status != 200)
+				System.out.println("请求失败，错误编号为" + status);
 			String body = getMethod.getResponseBodyAsString();
 			getMethod.releaseConnection();
 			return body;
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			System.out.println("");
 		}
 		return null;
 	}

@@ -1,4 +1,4 @@
-package edu.bupt.wangfu.mgr.route.graph;
+package edu.bupt.wangfu.module.route.graph;
 
 public class Edge implements Comparable {
 	public String startPort;

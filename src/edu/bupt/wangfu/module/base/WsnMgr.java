@@ -1,10 +1,10 @@
-package edu.bupt.wangfu.mgr.base;
+package edu.bupt.wangfu.module.base;
 
 import edu.bupt.wangfu.info.device.Group;
-import edu.bupt.wangfu.mgr.route.RouteSyncMsgReceiver;
-import edu.bupt.wangfu.mgr.subpub.SubPubMgr;
-import edu.bupt.wangfu.mgr.topology.HeartMgr;
-import edu.bupt.wangfu.mgr.topology.rcver.LSAReceiver;
+import edu.bupt.wangfu.module.route.RouteSyncMsgReceiver;
+import edu.bupt.wangfu.module.subpub.SubPubMgr;
+import edu.bupt.wangfu.module.topology.HeartMgr;
+import edu.bupt.wangfu.module.topology.rcver.LSAReceiver;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,13 +29,13 @@ public class WsnMgr extends SysInfo {
 				break;
 			}
 		}
-		System.out.println("wsnMgr启动，本地地址" + localAddr + "，本地控制器" + localCtl.url + "，集群控制器" + groupCtl.url);
+		System.out.println("WsnMgr启动，本地地址" + localAddr + "，集群控制器" + groupCtl.url);
 		if (localCtl.url.equals(groupCtl.url)) {
 			dt = new HeartMgr();
 		}
+		spMgr = new SubPubMgr();
 		new Thread(new LSAReceiver()).start();
 		new Thread(new RouteSyncMsgReceiver()).start();
-		spMgr = new SubPubMgr();
 	}
 
 	public static WsnMgr getInstance() {

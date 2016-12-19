@@ -1,13 +1,13 @@
-package edu.bupt.wangfu.mgr.topology;
+package edu.bupt.wangfu.module.topology;
 
 import edu.bupt.wangfu.info.device.Flow;
 import edu.bupt.wangfu.info.device.Group;
 import edu.bupt.wangfu.info.device.Switch;
 import edu.bupt.wangfu.info.msg.Hello;
-import edu.bupt.wangfu.mgr.base.SysInfo;
-import edu.bupt.wangfu.mgr.route.RouteUtil;
-import edu.bupt.wangfu.mgr.topology.rcver.HelloReceiver;
-import edu.bupt.wangfu.mgr.topology.rcver.ReHelloReceiver;
+import edu.bupt.wangfu.module.base.SysInfo;
+import edu.bupt.wangfu.module.route.RouteUtil;
+import edu.bupt.wangfu.module.topology.rcver.HelloReceiver;
+import edu.bupt.wangfu.module.topology.rcver.ReHelloReceiver;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 import java.io.FileInputStream;
@@ -17,8 +17,8 @@ import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static edu.bupt.wangfu.mgr.base.WsnMgr.cloneGrpMap;
-import static edu.bupt.wangfu.mgr.base.WsnMgr.cloneSetMap;
+import static edu.bupt.wangfu.module.base.WsnMgr.cloneGrpMap;
+import static edu.bupt.wangfu.module.base.WsnMgr.cloneSetMap;
 
 
 /**
@@ -29,7 +29,7 @@ public class HeartMgr extends SysInfo {
 	private static Timer helloTimer = new Timer();
 
 	public HeartMgr() {
-		System.out.println("heartMgr启动");
+		System.out.println("HeartMgr启动");
 		addSelf2Allgrps();
 
 		new Thread(new HelloReceiver()).start();
@@ -48,7 +48,7 @@ public class HeartMgr extends SysInfo {
 		nbrGrpExpiration = Long.parseLong(props.getProperty("nbrGrpExpiration"));//邻居集群丢失时间的判断阈值
 
 		System.out.println("开始心跳任务");
-		helloTimer.schedule(new HelloTask(), 0, helloTaskPeriod);
+		helloTimer.schedule(new HelloTask(), helloTaskPeriod, helloTaskPeriod);
 	}
 
 	private void addSelf2Allgrps() {

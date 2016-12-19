@@ -1,15 +1,15 @@
-package edu.bupt.wangfu.mgr.topology.rcver;
+package edu.bupt.wangfu.module.topology.rcver;
 
 import edu.bupt.wangfu.info.device.Group;
 import edu.bupt.wangfu.info.device.GroupLink;
 import edu.bupt.wangfu.info.msg.Hello;
-import edu.bupt.wangfu.mgr.base.SysInfo;
-import edu.bupt.wangfu.mgr.topology.GroupUtil;
+import edu.bupt.wangfu.module.base.SysInfo;
+import edu.bupt.wangfu.module.topology.GroupUtil;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 import java.util.Map;
 
-import static edu.bupt.wangfu.mgr.base.WsnMgr.cloneGrpMap;
+import static edu.bupt.wangfu.module.base.WsnMgr.cloneGrpMap;
 
 /**
  * Created by lenovo on 2016-6-23.
@@ -18,6 +18,7 @@ public class ReHelloReceiver extends SysInfo implements Runnable {
 	private MultiHandler handler;
 
 	public ReHelloReceiver() {
+		System.out.println("ReHello监听线程启动");
 		handler = new MultiHandler(sysPort, "re_hello", "sys");
 	}
 
@@ -54,9 +55,8 @@ public class ReHelloReceiver extends SysInfo implements Runnable {
 		Group g = allGroups.get(localGroupName);
 		g.updateTime = System.currentTimeMillis();
 		g.dist2NbrGrps.put(re_hello.endGroup, 1);//TODO 初始化邻居集群间距离为1
-		allGroups.put(localGroupName, g);
 		//全网广播自己的集群信息
-		GroupUtil.spreadLocalGrp(g);
+		GroupUtil.spreadLocalGrp();
 
 		re_hello.allGroups.clear();
 		re_hello.allGroups = cloneGrpMap(allGroups);//之前发来的allGroups是对面集群的，现在给它回复过去，让它存我们这边的

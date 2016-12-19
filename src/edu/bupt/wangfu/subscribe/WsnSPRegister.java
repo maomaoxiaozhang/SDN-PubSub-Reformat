@@ -12,7 +12,7 @@ import javax.xml.ws.ResponseWrapper;
  * @ Created by HanB on 2016/12/7.
  */
 
-@WebService(name = "WsnSPRegisterService", targetNamespace = "http://ws.subpub.mgr.wangfu.bupt.edu/")
+@WebService(name = "WsnSPRegisterService", targetNamespace = "http://ws.subpub.module.wangfu.bupt.edu/")
 @XmlSeeAlso({})
 public interface WsnSPRegister {
     /**
@@ -23,8 +23,8 @@ public interface WsnSPRegister {
      */
     @WebMethod
     @WebResult(targetNamespace = "")
-    @RequestWrapper(localName = "wsnServerMethod", targetNamespace = "http://ws.subpub.mgr.wangfu.bupt.edu/", className = "wsnServerMethod")
-    @ResponseWrapper(localName = "wsnServerMethodResponse", targetNamespace = "http://ws.subpub.mgr.wangfu.bupt.edu/", className = "wsnServerMethodResponse")
+    @RequestWrapper(localName = "wsnServerMethod", targetNamespace = "http://ws.subpub.module.wangfu.bupt.edu/", className = "wsnServerMethod")
+    @ResponseWrapper(localName = "wsnServerMethodResponse", targetNamespace = "http://ws.subpub.module.wangfu.bupt.edu/", className = "wsnServerMethodResponse")
     public String wsnServerMethod(
             @WebParam(name = "arg0", targetNamespace = "")
                     String arg0);

@@ -1,20 +1,20 @@
-package edu.bupt.wangfu.mgr.subpub;
+package edu.bupt.wangfu.module.subpub;
 
 import edu.bupt.wangfu.info.device.Group;
 import edu.bupt.wangfu.info.msg.NotifyObj;
 import edu.bupt.wangfu.info.msg.SPInfo;
-import edu.bupt.wangfu.mgr.base.Config;
-import edu.bupt.wangfu.mgr.base.SysInfo;
-import edu.bupt.wangfu.mgr.route.RouteUtil;
-import edu.bupt.wangfu.mgr.subpub.rcver.PubReceiver;
-import edu.bupt.wangfu.mgr.subpub.rcver.SubReceiver;
-import edu.bupt.wangfu.mgr.subpub.ws.WsnSPRegister;
-import edu.bupt.wangfu.mgr.topology.GroupUtil;
+import edu.bupt.wangfu.module.base.Config;
+import edu.bupt.wangfu.module.base.SysInfo;
+import edu.bupt.wangfu.module.route.RouteUtil;
+import edu.bupt.wangfu.module.subpub.rcver.PubReceiver;
+import edu.bupt.wangfu.module.subpub.rcver.SubReceiver;
+import edu.bupt.wangfu.module.subpub.ws.WsnSPRegister;
+import edu.bupt.wangfu.module.topology.GroupUtil;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 import java.util.*;
 
-import static edu.bupt.wangfu.mgr.base.WsnMgr.cloneSetMap;
+import static edu.bupt.wangfu.module.base.WsnMgr.cloneSetMap;
 
 /**
  * Created by LCW on 2016-7-19.
@@ -24,7 +24,7 @@ public class SubPubMgr extends SysInfo {
 	private static Timer splitTimer = new Timer();
 
 	public SubPubMgr() {
-		System.out.println("发布/订阅监听处理器启动");
+		System.out.println("SubPubMgr启动");
 //		new Thread(new SocketSPRegister(tPort)).start();//接收新发布者和订阅者的注册
 		new Thread(new WsnSPRegister()).start(); // webservice方式接收新发布者或订阅者的注册
 
@@ -91,6 +91,7 @@ public class SubPubMgr extends SysInfo {
 			//更新本集群订阅信息
 			Set<String> groupSub = groupSubMap.get(topic) == null ? new HashSet<String>() : groupSubMap.get(topic);
 			groupSub.add(localSwtId + ":" + portWsn2Swt);
+			groupSubMap.put(topic,groupSub);
 			//全网广播
 			spreadSPInfo(topic, "sub", Action.SUB);
 			//更新全网所有集群信息
@@ -98,8 +99,7 @@ public class SubPubMgr extends SysInfo {
 //			Group g = new Group("g1");//测试
 			g.subMap = cloneSetMap(groupSubMap);
 			g.updateTime = System.currentTimeMillis();
-			allGroups.put(g.groupName, g);
-			GroupUtil.spreadLocalGrp(g);
+			GroupUtil.spreadLocalGrp();
 
 			new Thread(new SubMsgReciver(topic)).start();
 
@@ -127,8 +127,7 @@ public class SubPubMgr extends SysInfo {
 //		Group g = new Group("g1");//测试
 		g.subMap = cloneSetMap(groupSubMap);
 		g.updateTime = System.currentTimeMillis();
-		allGroups.put(g.groupName, g);
-		GroupUtil.spreadLocalGrp(g);
+		GroupUtil.spreadLocalGrp();
 
 		//TODO 应该删除集群内流表和过路流表，重新计算新的流表；但是太复杂了，需要再讨论
 
@@ -145,14 +144,14 @@ public class SubPubMgr extends SysInfo {
 		if (groupPub.contains(localSwtId + ":" + portWsn2Swt))
 			return false;
 		groupPub.add(localSwtId + ":" + portWsn2Swt);
+		groupPubMap.put(topic,groupPub);
 
 		spreadSPInfo(topic, "pub", Action.PUB);
 
 		Group g = allGroups.get(localGroupName);
 		g.pubMap = cloneSetMap(groupPubMap);
 		g.updateTime = System.currentTimeMillis();
-		allGroups.put(g.groupName, g);
-		GroupUtil.spreadLocalGrp(g);
+		GroupUtil.spreadLocalGrp();
 
 		RouteUtil.newPuber(localGroupName, localSwtId, portWsn2Swt, topic);
 		return true;
@@ -172,8 +171,7 @@ public class SubPubMgr extends SysInfo {
 		Group g = allGroups.get(localGroupName);
 		g.pubMap = cloneSetMap(groupPubMap);
 		g.updateTime = System.currentTimeMillis();
-		allGroups.put(g.groupName, g);
-		GroupUtil.spreadLocalGrp(g);
+		GroupUtil.spreadLocalGrp();
 
 		//TODO 应该删除集群内流表和过路流表，重新计算新的流表；但是太复杂了，需要再讨论
 
@@ -251,12 +249,12 @@ public class SubPubMgr extends SysInfo {
 		int splitThreshold = 1;//TODO 需要动态设置？
 
 		public CheckSplit(int splitThreshold) {
-			System.out.println("checking split");
 			this.splitThreshold = splitThreshold;
 		}
 
 		@Override
 		public void run() {
+			System.out.println("检查订阅表是否需要进行分裂");
 			for (String father : joinedSubTopics) {
 				if (getCurFlowStatus(father) > splitThreshold) {
 					localUnsubscribe(father);

@@ -1,7 +1,7 @@
-package edu.bupt.wangfu.mgr.subpub.socket;
+package edu.bupt.wangfu.module.subpub.socket;
 
 import edu.bupt.wangfu.info.msg.SPRegister;
-import edu.bupt.wangfu.mgr.subpub.SubPubMgr;
+import edu.bupt.wangfu.module.subpub.SubPubMgr;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

@@ -1,4 +1,4 @@
-package edu.bupt.wangfu.mgr.subpub;
+package edu.bupt.wangfu.module.subpub;
 
 /**
  * Created by lenovo on 2016-11-2.

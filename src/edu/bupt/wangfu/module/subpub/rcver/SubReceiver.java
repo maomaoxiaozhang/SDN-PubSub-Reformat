@@ -1,10 +1,10 @@
-package edu.bupt.wangfu.mgr.subpub.rcver;
+package edu.bupt.wangfu.module.subpub.rcver;
 
 import edu.bupt.wangfu.info.device.Group;
 import edu.bupt.wangfu.info.msg.SPInfo;
-import edu.bupt.wangfu.mgr.base.SysInfo;
-import edu.bupt.wangfu.mgr.route.RouteUtil;
-import edu.bupt.wangfu.mgr.subpub.Action;
+import edu.bupt.wangfu.module.base.SysInfo;
+import edu.bupt.wangfu.module.route.RouteUtil;
+import edu.bupt.wangfu.module.subpub.Action;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 import java.util.HashSet;
@@ -17,7 +17,7 @@ public class SubReceiver extends SysInfo implements Runnable {
 	private MultiHandler handler;
 
 	public SubReceiver() {
-		System.out.println("sub receiver start");
+		System.out.println("订阅及取消订阅消息（sub）监听线程启动");
 		handler = new MultiHandler(sysPort, "sub", "sys");
 	}
 
@@ -41,12 +41,13 @@ public class SubReceiver extends SysInfo implements Runnable {
 		public void run() {
 			if (sub.group.equals(localGroupName)) {//本集群内节点产生的订阅
 				if (sub.action.equals(Action.SUB)) {
-					System.out.println("new suber in group, sub topic is " + sub.topic);
+					System.out.println("集群内产生新订阅，订阅主题为：" + sub.topic);
 
 					Set<String> groupSub = groupSubMap.get(sub.topic) == null ? new HashSet<String>() : groupSubMap.get(sub.topic);
 					groupSub.add(sub.swtId + ":" + sub.port);
+					groupSubMap.put(sub.topic,groupSub);
 				} else if (sub.action.equals(Action.UNSUB)) {
-					System.out.println("new unsub from group, topic is " + sub.topic);
+					System.out.println("集群内新取消订阅，取消主题为：" + sub.topic);
 
 					Set<String> groupSub = groupSubMap.get(sub.topic);
 					groupSub.remove(sub.swtId + ":" + sub.port);
@@ -55,7 +56,7 @@ public class SubReceiver extends SysInfo implements Runnable {
 				}
 			} else {//邻居集群产生的订阅
 				if (sub.action.equals(Action.SUB)) {
-					System.out.println("new suber from neighbor, sub topic is " + sub.topic);
+					System.out.println("网络中产生新订阅，订阅主题为：" + sub.topic);
 
 					Set<String> outerSub = outerSubMap.get(sub.topic) == null ? new HashSet<String>() : outerSubMap.get(sub.topic);
 					outerSub.add(sub.group);
@@ -64,19 +65,17 @@ public class SubReceiver extends SysInfo implements Runnable {
 					Group g = allGroups.get(sub.group);
 					g.subMap.get(sub.topic).add(sub.swtId + ":" + sub.port);
 					g.updateTime = System.currentTimeMillis();
-					allGroups.put(g.groupName, g);
 
 					if (localCtl.url.equals(groupCtl.url)) {//因为sub信息会全网广播，集群中只要有一个人计算本集群该做什么就可以了
 						RouteUtil.newSuber(sub.group, "", "", sub.topic);
 					}
 				} else if (sub.action.equals(Action.UNSUB)) {
-					System.out.println("new unsub from neighbor, topic is " + sub.topic);
+					System.out.println("网络中新取消订阅，取消主题为：" + sub.topic);
 
 					if (allGroups.get(sub.group).subMap.get(sub.topic).size() == 1) {//如果发来取消订阅信息的集群内
 						// 有不止一个订阅节点，那么就不需要修改outerSubMap
 						Set<String> outerSub = outerSubMap.get(sub.topic);
 						outerSub.remove(sub.group);
-						outerSubMap.put(sub.topic, outerSub);
 
 						if (localCtl.url.equals(groupCtl.url)) {//因为sub信息会全网广播，集群中只要有一个人计算本集群该做什么就可以了
 							RouteUtil.updateNbrChange(sub.topic);

@@ -1,4 +1,4 @@
-package edu.bupt.wangfu.mgr.base;
+package edu.bupt.wangfu.module.base;
 
 import edu.bupt.wangfu.info.device.Controller;
 import edu.bupt.wangfu.info.msg.Route;
@@ -18,9 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Config extends SysInfo {
 	public static void configure() {
 		setParams();
-
 //		localSwtId = getLinkedSwtId(localMac);
-		System.out.println("localSwtId = " + localSwtId);
+		printParams();
 
 		//初始化topic和对应的编码
 		WsnUtil.initSysTopicMap();
@@ -31,6 +30,15 @@ public class Config extends SysInfo {
 		notifyTopicAddrMap.put("all:a:1", "ff0e:0080:0000:0000:0000:0000:3333:0006");
 		notifyTopicAddrMap.put("all:a:2", "ff0e:0080:0000:0000:0000:0000:4444:0006");
 		notifyTopicAddrMap.put("all:a:3", "ff0e:0080:0000:0000:0000:0000:5555:0006");
+
+		System.out.println("参数及主题树配置完成\n");
+	}
+
+	private static void printParams() {
+		System.out.println("管理员地址：" + adminAddr + "，管理员端口：");
+		System.out.println("集群名：" + localGroupName);
+		System.out.println("本地OpenFlow交换机ID：" + localSwtId);
+		System.out.println("控制消息端口号的起点：" + sysPort + "，转发消息端口：" + notifyPort);
 	}
 
 	//TODO 本机连接的swt无法groupCtl获取，当前实验环境的问题
@@ -113,23 +121,5 @@ public class Config extends SysInfo {
 
 		localCtl = new Controller(localAddr + ":8181");
 		groupRoutes = Collections.synchronizedSet(new HashSet<Route>());
-
-		System.out.print("adminAddress: " + adminAddr);
-		System.out.println(", adminPort: " + adminPort);
-
-		System.out.print("localGroupName: " + localGroupName);
-		//System.out.print(", groupCtl: " + groupCtl);
-		System.out.print(", localSwtId: " + localSwtId);
-		System.out.print(", localAddr: " + localAddr);
-		System.out.print(", localMac: " + localMac);
-		System.out.print(", tPort: " + tPort);
-		System.out.print(", sysPort: " + sysPort);
-		System.out.println(", notifyPort: " + notifyPort);
-
-		System.out.print("refreshPeriod: " + refreshPeriod);
-		System.out.print(", checkSplitPeriod: " + checkSplitPeriod);
-		System.out.println(", splitThreshold: " + splitThreshold);
-
-		System.out.println("config complete");
 	}
 }
