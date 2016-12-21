@@ -6,8 +6,8 @@ public class Flow implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public int flow_id;
-	public int table_id;
-	public int priority;
+	public String table_id;
+	public String priority;
 
 	public String topic;
 	public String swtId;
@@ -19,16 +19,16 @@ public class Flow implements Serializable {
 
 	public String toStringOutput() {
 		if (in != null) { // generateFlow
-			return String.format("table=%d,priority=%d,dl_type=%s,in_port=%s,ipv6_dst=%s,action=output:%s", table_id, priority, "0x86DD", in, ipv6_dst, out);
+			return String.format("table=%s,priority=%s,dl_type=%s,in_port=%s,ipv6_dst=%s,action=output:%s", table_id, priority, "0x86DD", in, ipv6_dst, out);
 		}
 		if (ipv6_dst != null) { // generateNoInPortFlow
-			return String.format("table=%d,priority=%d,dl_type=%s,ipv6_dst=%s,action=output:%s", table_id, priority, "0x86DD", ipv6_dst, out);
+			return String.format("table=%s,priority=%s,dl_type=%s,ipv6_dst=%s,action=output:%s", table_id, priority, "0x86DD", ipv6_dst, out);
 		}
 		if (nw_src != null) { // generateRestFlow
-			return String.format("table=%d,priority=%d,dl_type=%s,nw_src=%s,action=output:%s", table_id, priority, "0x0800", nw_src, out);
+			return String.format("table=%s,priority=%s,dl_type=%s,nw_src=%s,action=output:%s", table_id, priority, "0x0800", nw_src, out);
 		}
 		if (nw_dst != null) {
-			return String.format("table=%d,priority=%d,dl_type=%s,nw_dst=%s,action=output:%s", table_id, priority, "0x0800", nw_dst, out);
+			return String.format("table=%s,priority=%s,dl_type=%s,nw_dst=%s,action=output:%s", table_id, priority, "0x0800", nw_dst, out);
 		}
 		return null;
 	}
@@ -38,10 +38,10 @@ public class Flow implements Serializable {
 	}
 
 	public String toStringEnQueue() {
-		return String.format("table=%d,priority=%d,dl_type=%s,in_port=%s,ipv6_dst=%s,action=enqueue:%s", table_id, priority, "0x86DD", in, ipv6_dst, out);
+		return String.format("table=%s,priority=%s,dl_type=%s,in_port=%s,ipv6_dst=%s,action=enqueue:%s", table_id, priority, "0x86DD", in, ipv6_dst, out);
 	}
 
 	public String toStringDelete() {
-		return String.format("table=%d,dl_type=%s,in_port=%s,ipv6_dst=%s", table_id, "0x86DD", in, ipv6_dst);
+		return String.format("table=%s,dl_type=%s,in_port=%s,ipv6_dst=%s", table_id, "0x86DD", in, ipv6_dst);
 	}
 }
