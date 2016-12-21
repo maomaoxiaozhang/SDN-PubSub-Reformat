@@ -13,9 +13,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by lenovo on 2016-6-22.
  */
 public class WsnMgr extends SysInfo {
-	private static WsnMgr wsnMgr = new WsnMgr();
-	private HeartMgr dt;//集群内检测模块
-	private SubPubMgr spMgr;//订阅与发布管模块
+	private static WsnMgr wsnMgr;
+	private HeartMgr heartMgr;//集群内检测模块
+	private SubPubMgr subPubMgr;//订阅与发布管模块
 
 	private WsnMgr() {
 		while (true) {
@@ -31,14 +31,17 @@ public class WsnMgr extends SysInfo {
 		}
 		System.out.println("WsnMgr启动，本地地址" + localAddr + "，集群控制器" + groupCtl.url);
 		if (localCtl.url.equals(groupCtl.url)) {
-			dt = new HeartMgr();
+			heartMgr = new HeartMgr();
 		}
-		spMgr = new SubPubMgr();
+		subPubMgr = new SubPubMgr();
 		new Thread(new LSAReceiver()).start();
 		new Thread(new RouteSyncMsgReceiver()).start();
 	}
 
 	public static WsnMgr getInstance() {
+		if (wsnMgr == null) {
+			wsnMgr = new WsnMgr();
+		}
 		return wsnMgr;
 	}
 

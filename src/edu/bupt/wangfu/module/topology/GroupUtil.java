@@ -204,9 +204,20 @@ public class GroupUtil extends SysInfo {
 			spreadAllGrps();//集群内定时广播自己拥有的allGroups，确保每个新增加的节点都有最新的全网集群信息
 			downSubPubFlow();//下发注册流表，之后如果wsn要产生新订阅或新发布，就可以通过它扩散到全网
 			downSynGrpRtFlow();//下发route同步流表，使wsn计算出来的新route可以在集群内同步
+			downLeadTableFlow();//下发优先级为10的导向流表，将消息引导到第二级流表
 			if (localCtl.url.equals(groupCtl.url))
 				downRestFlow();//下发访问groupCtl的flood流表
 
+		}
+
+		private void downLeadTableFlow() {
+			for (Switch swt : switchMap.values()) {
+				for (int i = 0; i < 15; i++) {
+					String inPort = String.valueOf(i);
+					Flow leadTabFlow = FlowUtil.getInstance().generateLeadTabFlow(swt.id, inPort, "0", "10", inPort);
+					FlowUtil.downFlow(groupCtl, leadTabFlow, "add");
+				}
+			}
 		}
 
 		private void downRcvHelloFlow() {
@@ -225,7 +236,7 @@ public class GroupUtil extends SysInfo {
 
 		private void spreadAllGrps() {
 			for (Switch swt : switchMap.values()) {
-				Flow floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swt.id, "flood", "lsa", "sys", 0, 50);
+				Flow floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swt.id, "flood", "lsa", "sys", "0", "50");
 				FlowUtil.downFlow(groupCtl, floodFlow, "add");
 			}
 
@@ -237,20 +248,20 @@ public class GroupUtil extends SysInfo {
 
 		private void downSubPubFlow() {
 			for (Switch swt : switchMap.values()) {
-				Flow floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swt.id, "flood", "sub", "sys", 0, 50);
+				Flow floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swt.id, "flood", "sub", "sys", "0", "50");
 				FlowUtil.downFlow(groupCtl, floodFlow, "add");
-				floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swt.id, "flood", "pub", "sys", 0, 50);
+				floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swt.id, "flood", "pub", "sys", "0", "50");
 				FlowUtil.downFlow(groupCtl, floodFlow, "add");
 			}
 		}
 
 		private void downSynGrpRtFlow() {
-			Flow floodOutFlow = FlowUtil.getInstance().generateFlow(localSwtId, portWsn2Swt, "flood", "route", "sys", 0, 50);
+			Flow floodOutFlow = FlowUtil.getInstance().generateFlow(localSwtId, portWsn2Swt, "flood", "route", "sys", "0", "50");
 			FlowUtil.downFlow(groupCtl, floodOutFlow, "add");
 
 			for (Switch swt : switchMap.values()) {
 				for (String p : swt.neighbors.keySet()) {
-					Flow floodInFlow = FlowUtil.getInstance().generateFlow(swt.id, p, "flood", "route", "sys", 0, 50);
+					Flow floodInFlow = FlowUtil.getInstance().generateFlow(swt.id, p, "flood", "route", "sys", "0", "50");
 					FlowUtil.downFlow(groupCtl, floodInFlow, "add");
 				}
 			}
@@ -258,9 +269,9 @@ public class GroupUtil extends SysInfo {
 
 		private void downRestFlow() {
 			for (Switch swt : switchMap.values()) {
-				Flow fromGrpCtlFlow = FlowUtil.getInstance().generateRestFlow(swt.id, "flood", 0, 50, "src:" + localAddr);
+				Flow fromGrpCtlFlow = FlowUtil.getInstance().generateRestFlow(swt.id, "flood", "0", "50", "src:" + localAddr);
 				FlowUtil.downFlow(groupCtl, fromGrpCtlFlow, "add");
-				Flow toGrpCtlFlow = FlowUtil.getInstance().generateRestFlow(swt.id, "flood", 0, 50, "dst:" + localAddr);
+				Flow toGrpCtlFlow = FlowUtil.getInstance().generateRestFlow(swt.id, "flood", "0", "50", "dst:" + localAddr);
 				FlowUtil.downFlow(groupCtl, toGrpCtlFlow, "add");
 			}
 		}

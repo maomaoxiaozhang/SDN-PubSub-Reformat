@@ -47,7 +47,7 @@ public class RouteUtil extends SysInfo {
 		System.out.println("新增订阅主题" + topic + "，新订阅集群为" + newSuberGrp + "，订阅者所在OpenFlow交换机为" + suberSwtId);
 		if (newSuberGrp.equals(localGroupName)) {
 			//订阅者直接相连的swt，主要是为了预防订阅swt是一个边界swt
-			Flow inFlow = FlowUtil.getInstance().generateNoInPortFlow(suberSwtId, out, topic, "notify", 0, 20);
+			Flow inFlow = FlowUtil.getInstance().generateNoInPortFlow(suberSwtId, out, topic, "notify","0", "20");
 			FlowUtil.downFlow(groupCtl, inFlow, "update");
 			//群内非outSwt，匹配上topic，都flood；outSwt则是匹配上topic之后，向除outPort外的port转发
 			downGrpFlows(topic);
@@ -59,7 +59,7 @@ public class RouteUtil extends SysInfo {
 
 	public static void newPuber(String newPuberGrp, String puberSwtId, String in, String topic) {
 		if (newPuberGrp.equals(localGroupName)) {
-			Flow floodFlow = FlowUtil.getInstance().generateFlow(puberSwtId, in, "flood-in-grp", topic, "notify", 0, 20);
+			Flow floodFlow = FlowUtil.getInstance().generateFlow(puberSwtId, in, "flood-in-grp", topic, "notify", "0", "20");
 			if (floodFlow != null)
 				FlowUtil.downFlow(groupCtl, floodFlow, "update");
 			downGrpFlows(topic);
@@ -70,10 +70,10 @@ public class RouteUtil extends SysInfo {
 	private static void downGrpFlows(String topic) {
 		for (String swtId : switchMap.keySet()) {
 			if (!outSwitches.containsKey(swtId)) {
-				Flow floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swtId, "flood", topic, "notify", 0, 20);
+				Flow floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swtId, "flood", topic, "notify", "0", "20");
 				FlowUtil.downFlow(groupCtl, floodFlow, "update");
 			} else {
-				Flow floodInFlow = FlowUtil.getInstance().generateNoInPortFlow(swtId, "flood-in-grp", topic, "notify", 0, 20);
+				Flow floodInFlow = FlowUtil.getInstance().generateNoInPortFlow(swtId, "flood-in-grp", topic, "notify", "0", "20");
 				if (floodInFlow != null)
 					FlowUtil.downFlow(groupCtl, floodInFlow, "update");
 			}
@@ -164,7 +164,7 @@ public class RouteUtil extends SysInfo {
 							break;
 						}
 					}
-					Flow outFlow = FlowUtil.getInstance().generateNoInPortFlow(groupLink.srcBorderSwtId, groupLink.srcOutPort, topic, "notify", 0, 20);
+					Flow outFlow = FlowUtil.getInstance().generateNoInPortFlow(groupLink.srcBorderSwtId, groupLink.srcOutPort, topic, "notify", "0", "20");
 					FlowUtil.downFlow(groupCtl, outFlow, "update");
 				} else if (i >= 1 && i <= route.size() - 2) {//当前集群在这条路径的中间
 					String swt2PreGrp = nbrGrpLinks.get(route.get(i - 1)).srcBorderSwtId;
@@ -179,7 +179,7 @@ public class RouteUtil extends SysInfo {
 					String swt2PreGrp = nbrGrpLinks.get(route.get(i - 1)).srcBorderSwtId;
 					String port2PreGrp = nbrGrpLinks.get(route.get(i - 1)).srcOutPort;
 
-					Flow inFloodFlow = FlowUtil.getInstance().generateFlow(swt2PreGrp, port2PreGrp, "flood", topic, "notify", 0, 20);
+					Flow inFloodFlow = FlowUtil.getInstance().generateFlow(swt2PreGrp, port2PreGrp, "flood", topic, "notify", "0", "20");
 					FlowUtil.downFlow(groupCtl, inFloodFlow, "update");
 				}
 			}
@@ -214,7 +214,7 @@ public class RouteUtil extends SysInfo {
 	public static List<Flow> downInGrpRtFlows(List<String> route, String in, String out, String topic, String topicType, Controller ctl) {
 		List<Flow> routeFlows = new ArrayList<>();
 		if (route.size() == 1) {
-			Flow flow = FlowUtil.getInstance().generateFlow(route.get(0), in, out, topic, topicType, 0, 20);
+			Flow flow = FlowUtil.getInstance().generateFlow(route.get(0), in, out, topic, topicType, out, "50");
 			routeFlows.add(flow);
 			FlowUtil.downFlow(ctl, flow, "update");
 			return routeFlows;
@@ -241,7 +241,7 @@ public class RouteUtil extends SysInfo {
 						outPort = e.startPort;
 				}
 			}
-			Flow flow = FlowUtil.getInstance().generateFlow(route.get(i), inPort, outPort, topic, topicType, 0, 20);
+			Flow flow = FlowUtil.getInstance().generateFlow(route.get(i), inPort, outPort, topic, topicType, outPort, "50");
 			routeFlows.add(flow);
 			FlowUtil.downFlow(ctl, flow, "update");
 		}
