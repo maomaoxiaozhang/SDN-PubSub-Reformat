@@ -26,7 +26,13 @@ public class GroupUtil extends SysInfo {
 
 	public static void main(String[] args) {
 		Config.configure();
-		getGrpTopo(new Controller("10.108.165.188:8181"));
+		groupCtl = new Controller("10.108.165.188:8181");
+		/*for (int i = 1; i <= 8; i++) {
+			String inPort = String.valueOf(i);
+			Flow leadTabFlow = FlowUtil.getInstance().generateLeadTabFlow("249581553305676", inPort, "0", "10", inPort);
+
+			FlowUtil.downFlow(new Controller("http://10.108.165.188:8181"), leadTabFlow, "add");
+		}*/
 	}
 
 	public static void initGroup() {
@@ -212,7 +218,7 @@ public class GroupUtil extends SysInfo {
 
 		private void downLeadTableFlow() {
 			for (Switch swt : switchMap.values()) {
-				for (int i = 0; i < 15; i++) {
+				for (int i = 1; i <= 8; i++) {
 					String inPort = String.valueOf(i);
 					Flow leadTabFlow = FlowUtil.getInstance().generateLeadTabFlow(swt.id, inPort, "0", "10", inPort);
 					FlowUtil.downFlow(groupCtl, leadTabFlow, "add");

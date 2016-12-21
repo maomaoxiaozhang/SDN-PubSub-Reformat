@@ -19,7 +19,10 @@ public class Flow implements Serializable {
 
 	public String toStringOutput() {
 		if (in != null) { // generateFlow
-			return String.format("table=%s,priority=%s,dl_type=%s,in_port=%s,ipv6_dst=%s,action=output:%s", table_id, priority, "0x86DD", in, ipv6_dst, out);
+			if (ipv6_dst != null)
+				return String.format("table=%s,priority=%s,dl_type=%s,in_port=%s,ipv6_dst=%s,action=output:%s", table_id, priority, "0x86DD", in, ipv6_dst, out);
+			else
+				return String.format("table=%s,priority=%s,dl_type=%s,in_port=%s,action=goto_table:%s", table_id, priority, "0x0800", in, out);
 		}
 		if (ipv6_dst != null) { // generateNoInPortFlow
 			return String.format("table=%s,priority=%s,dl_type=%s,ipv6_dst=%s,action=output:%s", table_id, priority, "0x86DD", ipv6_dst, out);
