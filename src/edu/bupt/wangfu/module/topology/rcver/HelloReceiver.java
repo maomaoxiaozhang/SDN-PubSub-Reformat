@@ -123,6 +123,11 @@ public class HelloReceiver extends SysInfo implements Runnable {
 						|| allGroups.get(grpName).updateTime < newAllGroup.get(grpName).updateTime)
 					allGroups.put(grpName, newAllGroup.get(grpName));
 			}
+
+			System.out.println("邻居建立完成,邻居情况如下:");
+			for (String groupName : allGroups.keySet())
+				System.out.println(groupName + allGroups.get(groupName).getMac());
+
 			//全网广播自己的集群信息
 			Group g = allGroups.get(localGroupName);
 			g.updateTime = System.currentTimeMillis();
