@@ -20,11 +20,11 @@ public class Switch extends DevInfo {
 
 	@Override
 	public String toString() {
-		return "Switch{" +
-				"LOCAL and outPorts=" + portSet +
-				", id='" + id + '\'' +
-				", load=" + load +
-				", neighbors count=" + neighbors.size() +
-				'}';
+		return "Switch{ " +
+				"outPort（以及Local端口）有：" + portSet +
+				"，id：'" + id + '\'' +
+				"，load：" + load +
+				"，邻居个数：" + neighbors.size() +
+				" }";
 	}
 }

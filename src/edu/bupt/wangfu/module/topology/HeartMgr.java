@@ -18,7 +18,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static edu.bupt.wangfu.module.base.WsnMgr.cloneGrpMap;
-import static edu.bupt.wangfu.module.base.WsnMgr.cloneSetMap;
 
 
 /**
@@ -30,7 +29,6 @@ public class HeartMgr extends SysInfo {
 
 	public HeartMgr() {
 		System.out.println("HeartMgr启动");
-		addSelf2Allgrps();
 
 		new Thread(new HelloReceiver()).start();
 		new Thread(new ReHelloReceiver()).start();
@@ -47,26 +45,20 @@ public class HeartMgr extends SysInfo {
 		helloTaskPeriod = Long.parseLong(props.getProperty("helloTaskPeriod"));//hello任务的执行周期
 		nbrGrpExpiration = Long.parseLong(props.getProperty("nbrGrpExpiration"));//邻居集群丢失时间的判断阈值
 
-		System.out.println("开始心跳任务");
 		helloTimer.schedule(new HelloTask(), helloTaskPeriod, helloTaskPeriod);
 	}
 
-	private void addSelf2Allgrps() {
-		Group g = new Group(localGroupName);
-		g.updateTime = System.currentTimeMillis();
-		g.subMap = cloneSetMap(groupSubMap);
-		g.pubMap = cloneSetMap(groupPubMap);
-		allGroups.put(localGroupName, g);
-	}
 
 	//依次向每个outPort发送Hello信息
 	private class HelloTask extends TimerTask {
 		@Override
 		public void run() {
+			System.out.println("开始心跳任务");
 			for (Switch swt : outSwitches.values()) {
 				for (String out : swt.portSet) {
 					if (!out.equals("LOCAL")) {
 						Group localGrp = allGroups.get(localGroupName);
+						localGrp.id += 1;
 						localGrp.updateTime = System.currentTimeMillis();
 						allGroups.put(localGroupName, localGrp);
 

@@ -45,7 +45,7 @@ public class SubReceiver extends SysInfo implements Runnable {
 
 					Set<String> groupSub = groupSubMap.get(sub.topic) == null ? new HashSet<String>() : groupSubMap.get(sub.topic);
 					groupSub.add(sub.swtId + ":" + sub.port);
-					groupSubMap.put(sub.topic,groupSub);
+					groupSubMap.put(sub.topic, groupSub);
 				} else if (sub.action.equals(Action.UNSUB)) {
 					System.out.println("集群内新取消订阅，取消主题为：" + sub.topic);
 
@@ -64,6 +64,7 @@ public class SubReceiver extends SysInfo implements Runnable {
 
 					Group g = allGroups.get(sub.group);
 					g.subMap.get(sub.topic).add(sub.swtId + ":" + sub.port);
+					g.id += 1;
 					g.updateTime = System.currentTimeMillis();
 
 					if (localCtl.url.equals(groupCtl.url)) {//因为sub信息会全网广播，集群中只要有一个人计算本集群该做什么就可以了

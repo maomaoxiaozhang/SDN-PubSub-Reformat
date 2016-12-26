@@ -35,7 +35,7 @@ public class Config extends SysInfo {
 	}
 
 	private static void printParams() {
-		System.out.println("管理员地址：" + adminAddr + "，管理员端口：");
+		System.out.println("管理员地址：" + adminAddr + "，管理员端口：" + adminPort);
 		System.out.println("集群名：" + localGroupName);
 		System.out.println("本地OpenFlow交换机ID：" + localSwtId);
 		System.out.println("控制消息端口号的起点：" + sysPort + "，转发消息端口：" + notifyPort);

@@ -19,15 +19,17 @@ public class Group extends DevInfo {
 
 	public Group(String groupName) {
 		super();
+		this.id = 1;
 		this.dist2NbrGrps = new ConcurrentHashMap<>();
 		this.groupName = groupName;
 	}
 
 	@Override
 	public String toString() {
-		return "Group{" +
-				"updateTime=" + updateTime +
-				", groupName='" + groupName + '\'' +
-				'}';
+		return "Group{ " +
+				"id为：" + id +
+				"，上次更新时间为：" + updateTime +
+				"，集群名称为：'" + groupName + '\'' +
+				" }";
 	}
 }

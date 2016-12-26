@@ -91,13 +91,14 @@ public class SubPubMgr extends SysInfo {
 			//更新本集群订阅信息
 			Set<String> groupSub = groupSubMap.get(topic) == null ? new HashSet<String>() : groupSubMap.get(topic);
 			groupSub.add(localSwtId + ":" + portWsn2Swt);
-			groupSubMap.put(topic,groupSub);
+			groupSubMap.put(topic, groupSub);
 			//全网广播
 			spreadSPInfo(topic, "sub", Action.SUB);
 			//更新全网所有集群信息
 			Group g = allGroups.get(localGroupName);//实际使用
 //			Group g = new Group("g1");//测试
 			g.subMap = cloneSetMap(groupSubMap);
+			g.id += 1;
 			g.updateTime = System.currentTimeMillis();
 			GroupUtil.spreadLocalGrp();
 
@@ -126,6 +127,7 @@ public class SubPubMgr extends SysInfo {
 		Group g = allGroups.get(localGroupName);//真实使用
 //		Group g = new Group("g1");//测试
 		g.subMap = cloneSetMap(groupSubMap);
+		g.id += 1;
 		g.updateTime = System.currentTimeMillis();
 		GroupUtil.spreadLocalGrp();
 
@@ -144,12 +146,13 @@ public class SubPubMgr extends SysInfo {
 		if (groupPub.contains(localSwtId + ":" + portWsn2Swt))
 			return false;
 		groupPub.add(localSwtId + ":" + portWsn2Swt);
-		groupPubMap.put(topic,groupPub);
+		groupPubMap.put(topic, groupPub);
 
 		spreadSPInfo(topic, "pub", Action.PUB);
 
 		Group g = allGroups.get(localGroupName);
 		g.pubMap = cloneSetMap(groupPubMap);
+		g.id += 1;
 		g.updateTime = System.currentTimeMillis();
 		GroupUtil.spreadLocalGrp();
 
@@ -170,6 +173,7 @@ public class SubPubMgr extends SysInfo {
 
 		Group g = allGroups.get(localGroupName);
 		g.pubMap = cloneSetMap(groupPubMap);
+		g.id += 1;
 		g.updateTime = System.currentTimeMillis();
 		GroupUtil.spreadLocalGrp();
 

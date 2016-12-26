@@ -145,7 +145,7 @@ public class RestProcess extends SysInfo {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.out.println("got br name with tpid: " + tpid + ", and the name is " + brName);
+		System.out.println("查询到tpid为" + tpid + "的网桥名字为" + brName);
 		id2NameMap.put(tpid, brName);
 		return brName;
 	}

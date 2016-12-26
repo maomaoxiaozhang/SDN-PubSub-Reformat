@@ -48,11 +48,12 @@ public class ReHelloReceiver extends SysInfo implements Runnable {
 		for (String grpName : newAllGroup.keySet()) {
 			if ((allGroups.get(grpName) == null //这个集群的信息对面有，而我没有
 					&& System.currentTimeMillis() - allGroups.get(grpName).updateTime < nbrGrpExpiration)//同时这条集群信息尚未过期
-					|| allGroups.get(grpName).updateTime < newAllGroup.get(grpName).updateTime)//或者这个集群的信息我和对面都有，但对面的比较新
+					|| allGroups.get(grpName).id < newAllGroup.get(grpName).id)//或者这个集群的信息我和对面都有，但对面的比较新
 				allGroups.put(grpName, newAllGroup.get(grpName));
 		}
 		//再更新自己这个集群和新邻居的距离信息
 		Group g = allGroups.get(localGroupName);
+		g.id += 1;
 		g.updateTime = System.currentTimeMillis();
 		g.dist2NbrGrps.put(re_hello.endGroup, 1);//TODO 初始化邻居集群间距离为1
 		//全网广播自己的集群信息

@@ -120,7 +120,7 @@ public class HelloReceiver extends SysInfo implements Runnable {
 			for (String grpName : newAllGroup.keySet()) {
 				if ((allGroups.get(grpName) == null
 						&& System.currentTimeMillis() - allGroups.get(grpName).updateTime < nbrGrpExpiration)
-						|| allGroups.get(grpName).updateTime < newAllGroup.get(grpName).updateTime)
+						|| allGroups.get(grpName).id < newAllGroup.get(grpName).id)
 					allGroups.put(grpName, newAllGroup.get(grpName));
 			}
 
@@ -130,6 +130,7 @@ public class HelloReceiver extends SysInfo implements Runnable {
 
 			//全网广播自己的集群信息
 			Group g = allGroups.get(localGroupName);
+			g.id += 1;
 			g.updateTime = System.currentTimeMillis();
 			g.dist2NbrGrps.put(finalHello.startGroup, 1);
 			//全网广播自己的集群信息

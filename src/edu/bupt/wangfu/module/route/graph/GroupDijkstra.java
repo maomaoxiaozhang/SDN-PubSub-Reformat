@@ -57,9 +57,8 @@ public class GroupDijkstra {
 					dis_3 = nearest.dist2NbrGrps.get(gr.groupName);
 				}
 
-				if (dis_3 == -1) {}
-
-				else if (dis_2 == -1 || dis_2 > dis_1 + dis_3) {
+				if (dis_3 == -1) {
+				} else if (dis_2 == -1 || dis_2 > dis_1 + dis_3) {
 					//当前集群没有与startGrp集群相邻或者通过nearest集群的距离更短，更新
 					distance.put(gr.groupName, dis_1 + dis_3);
 

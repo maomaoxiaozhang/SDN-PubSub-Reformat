@@ -64,6 +64,7 @@ public class PubReceiver extends SysInfo implements Runnable {
 
 					Group g = allGroups.get(pub.group);
 					g.pubMap.get(pub.topic).add(pub.swtId + ":" + pub.port);
+					g.id += 1;
 					g.updateTime = System.currentTimeMillis();
 
 					if (localCtl.url.equals(groupCtl.url)) {

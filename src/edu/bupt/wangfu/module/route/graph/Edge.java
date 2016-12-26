@@ -27,13 +27,13 @@ public class Edge implements Comparable {
 
 	@Override
 	public String toString() {
-		return "Edge{" +
-				"start='" + start + '\'' +
-				", startPort='" + startPort + '\'' +
-				", finish='" + finish + '\'' +
-				", finishPort='" + finishPort + '\'' +
-				", value=" + value +
-				'}';
+		return "Edge{ " +
+				"边起点交换机为：'" + start + '\'' +
+				"，起点交换机的端口为：'" + startPort + '\'' +
+				"，终点交换机为：'" + finish + '\'' +
+				"，终点交换机的端口为：'" + finishPort + '\'' +
+				"，边的权值为：" + value +
+				" }";
 	}
 
 	public String getStart() {

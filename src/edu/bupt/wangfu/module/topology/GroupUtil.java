@@ -100,11 +100,7 @@ public class GroupUtil extends SysInfo {
 			}
 		}
 
-		Group localGrp = new Group(localGroupName);
-		localGrp.subMap = cloneSetMap(groupSubMap);
-		localGrp.pubMap = cloneSetMap(groupPubMap);
-		localGrp.updateTime = System.currentTimeMillis();
-		allGroups.put(localGroupName, localGrp);
+		addSelf2Allgrps();
 
 		if (topology.has("link")) {
 			JSONArray links = topology.getJSONArray("link");
@@ -168,16 +164,39 @@ public class GroupUtil extends SysInfo {
 
 				Group g = allGroups.get(gl.srcGroupName);
 				g.dist2NbrGrps.remove(gl.dstGroupName);
+				g.id += 1;
 				g.updateTime = System.currentTimeMillis();
 
 				Group g2 = allGroups.get(gl.dstGroupName);
 				g2.dist2NbrGrps.remove(gl.srcGroupName);
+				g2.id += 1;
 				g2.updateTime = System.currentTimeMillis();
 				//后面在定时任务里已经有spreadAllGrps()了
 			}
 		}
 
+		printGrpTopoStatus();
 
+	}
+
+	private static void printGrpTopoStatus() {
+		System.out.println("集群内OpenFlow交换机信息：");
+		for (Switch swt : switchMap.values()) {
+			System.out.println(swt.toString() + "; ");
+		}
+
+		System.out.println("集群内连接信息：");
+		for (Edge e : groupEdges) {
+			System.out.println(e.toString() + "; ");
+		}
+	}
+
+	private static void addSelf2Allgrps() {
+		Group g = new Group(localGroupName);
+		g.updateTime = System.currentTimeMillis();
+		g.subMap = cloneSetMap(groupSubMap);
+		g.pubMap = cloneSetMap(groupPubMap);
+		allGroups.put(localGroupName, g);
 	}
 
 	private static boolean isGrpLinked(GroupLink gl) {
@@ -190,7 +209,7 @@ public class GroupUtil extends SysInfo {
 		Group g = allGroups.get(localGroupName);
 		MultiHandler handler = new MultiHandler(sysPort, "lsa", "sys");
 		handler.v6Send(g);
-		System.out.println("广播当前集群LSA" + g.toString());
+		System.out.println("广播当前集群LSA：" + g.toString());
 	}
 
 	//更新group拓扑信息
@@ -237,7 +256,7 @@ public class GroupUtil extends SysInfo {
 					}
 				}
 			}
-			System.out.println("down heart flows complete");
+			System.out.println("心跳流表下发完毕");
 		}
 
 		private void spreadAllGrps() {
@@ -249,7 +268,7 @@ public class GroupUtil extends SysInfo {
 			MultiHandler handler = new MultiHandler(sysPort, "lsa", "sys");
 			AllGrps ags = new AllGrps(allGroups);
 			handler.v6Send(ags);
-			System.out.println("spreading updated allGroups");
+			System.out.println("更新后的allGroups广播完毕");
 		}
 
 		private void downSubPubFlow() {

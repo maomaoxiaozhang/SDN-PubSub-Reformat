@@ -15,18 +15,16 @@ import javax.xml.ws.ResponseWrapper;
 @WebService(name = "WsnSPRegisterService", targetNamespace = "http://ws.subpub.module.wangfu.bupt.edu/")
 @XmlSeeAlso({})
 public interface WsnSPRegister {
-    /**
-     *
-     * @param arg0
-     * @return
-     *     returns java.lang.String
-     */
-    @WebMethod
-    @WebResult(targetNamespace = "")
-    @RequestWrapper(localName = "wsnServerMethod", targetNamespace = "http://ws.subpub.module.wangfu.bupt.edu/", className = "wsnServerMethod")
-    @ResponseWrapper(localName = "wsnServerMethodResponse", targetNamespace = "http://ws.subpub.module.wangfu.bupt.edu/", className = "wsnServerMethodResponse")
-    public String wsnServerMethod(
-            @WebParam(name = "arg0", targetNamespace = "")
-                    String arg0);
+	/**
+	 * @param arg0
+	 * @return returns java.lang.String
+	 */
+	@WebMethod
+	@WebResult(targetNamespace = "")
+	@RequestWrapper(localName = "wsnServerMethod", targetNamespace = "http://ws.subpub.module.wangfu.bupt.edu/", className = "wsnServerMethod")
+	@ResponseWrapper(localName = "wsnServerMethodResponse", targetNamespace = "http://ws.subpub.module.wangfu.bupt.edu/", className = "wsnServerMethodResponse")
+	public String wsnServerMethod(
+			@WebParam(name = "arg0", targetNamespace = "")
+					String arg0);
 
 }
