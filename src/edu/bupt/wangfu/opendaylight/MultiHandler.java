@@ -22,9 +22,10 @@ public class MultiHandler extends SysInfo {
 		if (topicType.equals("sys")) {
 			v6addr = sysTopicAddrMap.get(topic);
 
-			String[] tmp = this.v6addr.split("");
-			this.port += Integer.valueOf(tmp[tmp.length - 1]);
+			//String[] tmp = this.v6addr.split("");
 
+			this.port += v6addr.charAt(v6addr.length() - 1) - '0';
+			System.out.println("！！！主题为"+v6addr+"端口为"+this.port);
 		} else if (topicType.equals("notify")) {
 			v6addr = notifyTopicAddrMap.get(topic);
 		}
