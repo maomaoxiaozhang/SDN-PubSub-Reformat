@@ -12,6 +12,8 @@ import edu.bupt.wangfu.opendaylight.RestProcess;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.*;
 
 import static edu.bupt.wangfu.module.base.WsnMgr.cloneSetMap;
@@ -216,7 +218,8 @@ public class GroupUtil extends SysInfo {
 	private static class RefreshGroup extends TimerTask {
 		@Override
 		public void run() {
-			getGrpTopo(groupCtl);
+//			getGrpTopo(groupCtl);
+			getGrpTopoFromFile();
 			while (switchMap.size() == 0) {
 				try {
 					Thread.sleep(100);
@@ -233,6 +236,41 @@ public class GroupUtil extends SysInfo {
 			if (localCtl.url.equals(groupCtl.url))
 				downRestFlow();//下发访问groupCtl的flood流表
 
+		}
+
+		private void getGrpTopoFromFile() {
+			hostMap.clear();
+			switchMap.clear();
+			groupEdges.clear();
+			outSwitches.clear();
+
+			Properties props = new Properties();
+			String propertiesPath = "./resources/Topo.properties";
+			try {
+				props.load(new FileInputStream(propertiesPath));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			String ip = props.getProperty("ip");
+			String hostMac = props.getProperty("hostMac");
+			String swtId = props.getProperty("swtId");
+			Host host = new Host(ip);
+			host.mac = hostMac;
+			host.swtId = swtId;
+			host.port = props.getProperty("port2wsn");
+			hostMap.put(hostMac, host);
+
+			Switch swt = new Switch(swtId);
+			swt.portSet = new HashSet<>();
+			swt.portSet.add("outPort");
+			switchMap.put(swtId, swt);
+
+			addSelf2Allgrps();
+
+			outSwitches.put(swt.id, swt);
+
+			printGrpTopoStatus();
 		}
 
 		private void downLeadTableFlow() {

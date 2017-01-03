@@ -50,6 +50,8 @@ public class HelloReceiver extends SysInfo implements Runnable {
 				new Thread(new OnHello(mh)).start();
 				System.out.println("收到Hello消息");
 			}
+		} else {
+			System.out.println(mh.startGroup + "！！！！！");
 		}
 	}
 

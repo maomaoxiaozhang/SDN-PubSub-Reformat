@@ -11,14 +11,15 @@ import static edu.bupt.wangfu.opendaylight.WsnUtil.initSysTopicMap;
 /**
  * @ Created by HanB on 2016/12/26.
  */
-public class HelloPrint extends SysInfo {
+public class HelloSend extends SysInfo {
 	public static void main(String[] args) {
 		sysTopicAddrMap = new ConcurrentHashMap<>();
 		initSysTopicMap();
 
 		MultiHandler multiHandler = new MultiHandler(30000, "hello", "sys");
-        Object object = multiHandler.v6Receive();
-		Hello hello = (Hello) object;
-		System.out.println("StartGroup:" + hello.startGroup + ",startBorderSwtId:" + hello.startBorderSwtId);
+		Hello hello = new Hello();
+		hello.startGroup = "abc";
+		multiHandler.v6Send(hello);
+		System.out.println("搞定！");
 	}
 }

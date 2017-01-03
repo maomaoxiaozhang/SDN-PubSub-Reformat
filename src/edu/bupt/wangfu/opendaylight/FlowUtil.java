@@ -63,10 +63,10 @@ public class FlowUtil extends SysInfo {
 				flow.out = outPort;
 				OvsProcess.addFlow(controller, flow.swtId, flow.toStringOutput());
 			}
-			System.out.println("update flow \"" + flow.toStringOutput() + "\" complete");
+//			System.out.println("update flow \"" + flow.toStringOutput() + "\" complete");
 		} else if (action.equals("add")) {//把旧流表覆盖掉
 			OvsProcess.addFlow(controller, flow.swtId, flow.toStringOutput());
-			System.out.println("add flow \"" + flow.toStringOutput() + "\" complete");
+//			System.out.println("add flow \"" + flow.toStringOutput() + "\" complete");
 		}
 	}
 
