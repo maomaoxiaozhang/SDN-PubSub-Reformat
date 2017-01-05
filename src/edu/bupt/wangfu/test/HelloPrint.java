@@ -16,9 +16,10 @@ public class HelloPrint extends SysInfo {
 		sysTopicAddrMap = new ConcurrentHashMap<>();
 		initSysTopicMap();
 
-		MultiHandler multiHandler = new MultiHandler(30000, "hello", "sys");
-        Object object = multiHandler.v6Receive();
+		MultiHandler multiHandler = new MultiHandler(30000, "re_hello", "sys");
+		Object object = multiHandler.v6Receive();
 		Hello hello = (Hello) object;
-		System.out.println("StartGroup:" + hello.startGroup + ",startBorderSwtId:" + hello.startBorderSwtId);
+		System.out.println("StartGroup:" + hello.startGroup + ", startBorderSwtId:" + hello.startBorderSwtId);
+		System.out.println("EndGroup:" + hello.endGroup + ", endBorderSwtId:" + hello.endBorderSwtId);
 	}
 }

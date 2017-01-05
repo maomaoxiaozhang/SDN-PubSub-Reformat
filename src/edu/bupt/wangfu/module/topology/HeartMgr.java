@@ -6,6 +6,8 @@ import edu.bupt.wangfu.info.device.Switch;
 import edu.bupt.wangfu.info.msg.Hello;
 import edu.bupt.wangfu.module.base.SysInfo;
 import edu.bupt.wangfu.module.route.RouteUtil;
+import edu.bupt.wangfu.module.topology.rcver.HelloReceiver;
+import edu.bupt.wangfu.module.topology.rcver.ReHelloReceiver;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 import java.io.FileInputStream;
@@ -28,8 +30,8 @@ public class HeartMgr extends SysInfo {
 	public HeartMgr() {
 		System.out.println("HeartMgr启动");
 
-//		new Thread(new HelloReceiver()).start();
-//		new Thread(new ReHelloReceiver()).start();
+		new Thread(new HelloReceiver()).start();
+		new Thread(new ReHelloReceiver()).start();
 
 		Properties props = new Properties();
 		String propertiesPath = "./resources/DtConfig.properties";

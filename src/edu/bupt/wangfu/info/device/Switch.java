@@ -1,9 +1,6 @@
 package edu.bupt.wangfu.info.device;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by root on 15-7-14.
@@ -16,12 +13,13 @@ public class Switch extends DevInfo {
 
 	public Switch(String id) {
 		this.id = id;
+		this.portSet = new HashSet<>();
 	}
 
 	@Override
 	public String toString() {
 		return "Switch{ " +
-				"outPort（以及Local端口）有：" + portSet +
+				"outPort有：" + portSet +
 				"，id：'" + id + '\'' +
 				"，load：" + load +
 				"，邻居个数：" + neighbors.size() +
