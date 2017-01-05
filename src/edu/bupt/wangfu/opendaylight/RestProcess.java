@@ -7,9 +7,14 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
 public class RestProcess extends SysInfo {
 
@@ -122,31 +127,41 @@ public class RestProcess extends SysInfo {
 	}
 
 	public static String getBrNameByTpid(Controller ctrl, String tpid) {
-		return "br0";
-		/*if (id2NameMap.containsKey(tpid))
-			return id2NameMap.get(tpid);
-		String brName = "";
-		String url = ctrl.url + "/restconf/operational/opendaylight-inventory:nodes/node/openflow:" + tpid;
-		String body = RestProcess.doClientGet(url);
-		assert body != null;
-		try {
-			JSONObject json = new JSONObject(body);
-			JSONArray node = json.getJSONArray("node");
-			JSONArray node_connector = node.getJSONObject(0).getJSONArray("node-connector");
-			for (int i = 0; i < node_connector.length(); i++) {
-				JSONObject term = node_connector.getJSONObject(i);
-				String portName = term.getString("flow-node-inventory:name");
-				if (portName.startsWith("br")) {
-					brName = portName;
-					break;
-				}
+		if (!groupCtl.url.contains("192.168.100.3")) {
+			Properties props = new Properties();
+			String propertiesPath = "./resources/Topo.properties";
+			try {
+				props.load(new FileInputStream(propertiesPath));
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
+			return props.getProperty("brName");
+		} else {
+			if (id2NameMap.containsKey(tpid))
+				return id2NameMap.get(tpid);
+			String brName = "";
+			String url = ctrl.url + "/restconf/operational/opendaylight-inventory:nodes/node/openflow:" + tpid;
+			String body = RestProcess.doClientGet(url);
+			assert body != null;
+			try {
+				JSONObject json = new JSONObject(body);
+				JSONArray node = json.getJSONArray("node");
+				JSONArray node_connector = node.getJSONObject(0).getJSONArray("node-connector");
+				for (int i = 0; i < node_connector.length(); i++) {
+					JSONObject term = node_connector.getJSONObject(i);
+					String portName = term.getString("flow-node-inventory:name");
+					if (portName.startsWith("br")) {
+						brName = portName;
+						break;
+					}
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			System.out.println("查询到tpid为" + tpid + "的网桥名字为" + brName);
+			id2NameMap.put(tpid, brName);
+			return brName;
 		}
-		System.out.println("查询到tpid为" + tpid + "的网桥名字为" + brName);
-		id2NameMap.put(tpid, brName);
-		return brName;*/
 	}
 
 }

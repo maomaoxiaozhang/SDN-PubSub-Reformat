@@ -78,7 +78,8 @@ public class GroupUtil extends SysInfo {
 					JSONArray nbs = nodes.getJSONObject(i).getJSONArray("termination-point");
 					for (int j = 0; j < nbs.length(); j++) {
 						String port = nbs.getJSONObject(j).getString("tp-id").split(":")[2];
-						swt.portSet.add(port);
+						if (!port.contains("LOCAL"))
+							swt.portSet.add(port);
 					}
 					switchMap.put(swtId, swt);
 				}
@@ -155,7 +156,7 @@ public class GroupUtil extends SysInfo {
 
 		//把switchMap中有outPort的swt放到outSwitches中
 		for (Switch swt : switchMap.values()) {
-			if (swt.portSet.size() > 1) {
+			if (swt.portSet.size() > 0) {
 				outSwitches.put(swt.id, swt);
 			}
 		}
@@ -229,16 +230,14 @@ public class GroupUtil extends SysInfo {
 				e.printStackTrace();
 			}
 
-			String ip = localAddr;
-			String hostMac = p.getProperty("hostMac");
-			Host host = new Host(ip);
-			host.mac = hostMac;
+			Host host = new Host(localAddr);
+			host.mac = localMac;
 			host.swtId = localSwtId;
 			host.port = portWsn2Swt;
-			hostMap.put(hostMac, host);
+			hostMap.put(localMac, host);
 
 			Switch swt = new Switch(localSwtId);
-			String outPort = p.getProperty("outPort");
+			String outPort = p.getProperty("outPort");//swt连接其他group的端口
 			swt.portSet.add(outPort);
 			switchMap.put(localSwtId, swt);
 
@@ -246,13 +245,34 @@ public class GroupUtil extends SysInfo {
 
 			outSwitches.put(swt.id, swt);
 
+			for (GroupLink gl : nbrGrpLinks.values()) {
+				if (!isGrpLinked(gl)) {//两集群不相连，则删掉二者之间的邻居关系
+					nbrGrpLinks.remove(gl.dstGroupName);
+
+					Group g = allGroups.get(gl.srcGroupName);
+					g.dist2NbrGrps.remove(gl.dstGroupName);
+					g.id += 1;
+					g.updateTime = System.currentTimeMillis();
+
+					Group g2 = allGroups.get(gl.dstGroupName);
+					g2.dist2NbrGrps.remove(gl.srcGroupName);
+					g2.id += 1;
+					g2.updateTime = System.currentTimeMillis();
+					//后面在定时任务里已经有spreadAllGrps()了
+				}
+			}
+
 			printGrpTopoStatus();
 		}
 
 		@Override
 		public void run() {
-//			getGrpTopo(groupCtl);
-			getGrpTopoFromFile();
+			//测试
+			if (groupCtl.url.contains("192.168.100.3"))
+				getGrpTopo(groupCtl);
+			else
+				getGrpTopoFromFile();
+
 			while (switchMap.size() == 0) {
 				try {
 					Thread.sleep(100);

@@ -81,11 +81,11 @@ public class HelloReceiver extends SysInfo implements Runnable {
 						handler.v6Send(re_hello);
 						System.out.println("通过" + swt.id + "交换机的" + out + "端口发送ReHello消息");
 
-						/*try {
+						try {
 							Thread.sleep(re_hello.reHelloPeriod);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
-						}*/
+						}
 						//删除这条回复流表，准备下次发送
 						RouteUtil.delRouteFlows(rs);
 					}
@@ -124,10 +124,8 @@ public class HelloReceiver extends SysInfo implements Runnable {
 			}
 
 			System.out.println("邻居建立完成,邻居情况如下:");
-			allGroups
-			for (String groupName : allGroups.keySet())
-				System.out.print(groupName + "--");
-			System.out.println("");
+			Group localGrp = allGroups.get(localGroupName);
+			System.out.println(localGroupName + "的邻居有：" + localGrp.dist2NbrGrps.keySet());
 
 			//全网广播自己的集群信息
 			Group g = allGroups.get(localGroupName);

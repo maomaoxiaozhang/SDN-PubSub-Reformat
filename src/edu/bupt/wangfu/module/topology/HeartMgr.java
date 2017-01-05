@@ -45,7 +45,7 @@ public class HeartMgr extends SysInfo {
 		helloTaskPeriod = Long.parseLong(props.getProperty("helloTaskPeriod"));//hello任务的执行周期
 		nbrGrpExpiration = Long.parseLong(props.getProperty("nbrGrpExpiration"));//邻居集群丢失时间的判断阈值
 
-		helloTimer.schedule(new HelloTask(), helloTaskPeriod, helloTaskPeriod);
+		helloTimer.schedule(new HelloTask(), 15000, helloTaskPeriod);
 	}
 
 
