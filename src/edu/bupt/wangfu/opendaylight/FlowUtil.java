@@ -181,7 +181,6 @@ public class FlowUtil extends SysInfo {
 	}
 
 	public Flow generateLeadTabFlow(String swtId, String in, String t_id, String pri, String gotoTable) {
-		//TODO 韩波~~辛苦啦~~
 		Flow flow = new Flow();
 		flow.swtId = swtId;
 		flow.table_id = t_id;

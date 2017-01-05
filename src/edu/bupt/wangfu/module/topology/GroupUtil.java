@@ -75,7 +75,6 @@ public class GroupUtil extends SysInfo {
 				} else if (node_id.contains("openflow")) {
 					String swtId = node_id.split(":")[1];
 					Switch swt = new Switch(swtId);
-					swt.portSet = new HashSet<>();
 					JSONArray nbs = nodes.getJSONObject(i).getJSONArray("termination-point");
 					for (int j = 0; j < nbs.length(); j++) {
 						String port = nbs.getJSONObject(j).getString("tp-id").split(":")[2];
@@ -216,6 +215,40 @@ public class GroupUtil extends SysInfo {
 
 	//更新group拓扑信息
 	private static class RefreshGroup extends TimerTask {
+		private static void getGrpTopoFromFile() {
+			hostMap.clear();
+			switchMap.clear();
+			groupEdges.clear();
+			outSwitches.clear();
+
+			Properties p = new Properties();
+			String propertiesPath = "./resources/Topo.properties";
+			try {
+				p.load(new FileInputStream(propertiesPath));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			String ip = localAddr;
+			String hostMac = p.getProperty("hostMac");
+			Host host = new Host(ip);
+			host.mac = hostMac;
+			host.swtId = localSwtId;
+			host.port = portWsn2Swt;
+			hostMap.put(hostMac, host);
+
+			Switch swt = new Switch(localSwtId);
+			String outPort = p.getProperty("outPort");
+			swt.portSet.add(outPort);
+			switchMap.put(localSwtId, swt);
+
+			addSelf2Allgrps();
+
+			outSwitches.put(swt.id, swt);
+
+			printGrpTopoStatus();
+		}
+
 		@Override
 		public void run() {
 //			getGrpTopo(groupCtl);
@@ -236,41 +269,6 @@ public class GroupUtil extends SysInfo {
 			if (localCtl.url.equals(groupCtl.url))
 				downRestFlow();//下发访问groupCtl的flood流表
 
-		}
-
-		private void getGrpTopoFromFile() {
-			hostMap.clear();
-			switchMap.clear();
-			groupEdges.clear();
-			outSwitches.clear();
-
-			Properties props = new Properties();
-			String propertiesPath = "./resources/Topo.properties";
-			try {
-				props.load(new FileInputStream(propertiesPath));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-			String ip = props.getProperty("ip");
-			String hostMac = props.getProperty("hostMac");
-			String swtId = props.getProperty("swtId");
-			Host host = new Host(ip);
-			host.mac = hostMac;
-			host.swtId = swtId;
-			host.port = props.getProperty("port2wsn");
-			hostMap.put(hostMac, host);
-
-			Switch swt = new Switch(swtId);
-			swt.portSet = new HashSet<>();
-			swt.portSet.add("outPort");
-			switchMap.put(swtId, swt);
-
-			addSelf2Allgrps();
-
-			outSwitches.put(swt.id, swt);
-
-			printGrpTopoStatus();
 		}
 
 		private void downLeadTableFlow() {

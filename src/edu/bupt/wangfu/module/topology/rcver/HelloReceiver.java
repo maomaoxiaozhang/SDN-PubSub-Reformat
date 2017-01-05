@@ -48,10 +48,7 @@ public class HelloReceiver extends SysInfo implements Runnable {
 			} else {
 				//第一次握手，只携带发起方的信息，需要补完接收方的信息，也就是当前节点
 				new Thread(new OnHello(mh)).start();
-				System.out.println("收到Hello消息");
 			}
-		} else {
-			System.out.println(mh.startGroup + "！！！！！");
 		}
 	}
 
@@ -84,11 +81,11 @@ public class HelloReceiver extends SysInfo implements Runnable {
 						handler.v6Send(re_hello);
 						System.out.println("通过" + swt.id + "交换机的" + out + "端口发送ReHello消息");
 
-						try {
+						/*try {
 							Thread.sleep(re_hello.reHelloPeriod);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
-						}
+						}*/
 						//删除这条回复流表，准备下次发送
 						RouteUtil.delRouteFlows(rs);
 					}
@@ -127,8 +124,10 @@ public class HelloReceiver extends SysInfo implements Runnable {
 			}
 
 			System.out.println("邻居建立完成,邻居情况如下:");
+			allGroups
 			for (String groupName : allGroups.keySet())
-				System.out.println(groupName + allGroups.get(groupName).getMac());
+				System.out.print(groupName + "--");
+			System.out.println("");
 
 			//全网广播自己的集群信息
 			Group g = allGroups.get(localGroupName);

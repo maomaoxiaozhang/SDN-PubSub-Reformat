@@ -7,8 +7,6 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -124,7 +122,8 @@ public class RestProcess extends SysInfo {
 	}
 
 	public static String getBrNameByTpid(Controller ctrl, String tpid) {
-		if (id2NameMap.containsKey(tpid))
+		return "br0";
+		/*if (id2NameMap.containsKey(tpid))
 			return id2NameMap.get(tpid);
 		String brName = "";
 		String url = ctrl.url + "/restconf/operational/opendaylight-inventory:nodes/node/openflow:" + tpid;
@@ -147,7 +146,7 @@ public class RestProcess extends SysInfo {
 		}
 		System.out.println("查询到tpid为" + tpid + "的网桥名字为" + brName);
 		id2NameMap.put(tpid, brName);
-		return brName;
+		return brName;*/
 	}
 
 }
