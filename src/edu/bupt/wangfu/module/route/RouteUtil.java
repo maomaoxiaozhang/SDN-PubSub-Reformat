@@ -209,10 +209,10 @@ public class RouteUtil extends SysInfo {
 
 	public static List<Flow> downInGrpRtFlows(List<String> route, String in, String out, String topic, String topicType, Controller ctl) {
 		List<Flow> routeFlows = new ArrayList<>();
-		if (route.size() == 1) {//测试环境
+		if (route.size() == 1) {//测试
 			Flow flow = FlowUtil.getInstance().generateFlow(route.get(0), in, out, topic, topicType, "0", "50");
 			routeFlows.add(flow);
-			FlowUtil.downFlow(ctl, flow, "update");
+			FlowUtil.downFlow(ctl, flow, "add");
 			return routeFlows;
 		}
 		for (int i = 0; i < route.size(); i++) {

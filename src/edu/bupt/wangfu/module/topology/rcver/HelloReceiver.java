@@ -41,7 +41,7 @@ public class HelloReceiver extends SysInfo implements Runnable {
 	}
 
 	public void onHello(Hello mh) throws InterruptedException {
-		if (!mh.startGroup.equals(localGroupName)) {
+		if (!mh.startGroup.equals(localGroupName) && !mh.startGroup.equals("")) {
 			if (mh.endGroup.equals(localGroupName)) {
 				//第三次握手，携带这个跨集群连接的全部信息
 				new Thread(new OnFinalHello(mh)).start();
@@ -112,20 +112,20 @@ public class HelloReceiver extends SysInfo implements Runnable {
 			gl.dstBorderSwtId = finalHello.startBorderSwtId;
 			gl.dstOutPort = finalHello.startOutPort;
 			nbrGrpLinks.put(gl.dstGroupName, gl);
-			System.out.println("从" + gl.srcGroupName + "集群获得了FinallHello消息，此连接中我方边界交换机为" + gl.dstBorderSwtId + "，对外端口为" + gl.dstOutPort);
+			System.out.println("从" + finalHello.startGroup + "集群获得了FinallHello消息，此连接中我方边界交换机为" + gl.dstBorderSwtId + "，对外端口为" + gl.dstOutPort);
 
 			//同步LSDB，其他集群的连接情况；把对面已知的每个group的信息都替换为最新版本的
 			Map<String, Group> newAllGroup = finalHello.allGroups;
 			for (String grpName : newAllGroup.keySet()) {
 				if ((allGroups.get(grpName) == null
-						&& System.currentTimeMillis() - allGroups.get(grpName).updateTime < nbrGrpExpiration)
+						&& System.currentTimeMillis() - newAllGroup.get(grpName).updateTime < nbrGrpExpiration)
 						|| allGroups.get(grpName).id < newAllGroup.get(grpName).id)
 					allGroups.put(grpName, newAllGroup.get(grpName));
 			}
 
 			System.out.println("邻居建立完成,邻居情况如下:");
 			Group localGrp = allGroups.get(localGroupName);
-			System.out.println(localGroupName + "的邻居有：" + localGrp.dist2NbrGrps.keySet());
+			System.out.println(localGroupName + "的原有邻居为：" + localGrp.dist2NbrGrps.keySet() + "，新增邻居为：" + finalHello.startGroup);
 
 			//全网广播自己的集群信息
 			Group g = allGroups.get(localGroupName);

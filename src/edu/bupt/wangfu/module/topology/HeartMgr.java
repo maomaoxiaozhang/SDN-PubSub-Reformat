@@ -40,14 +40,14 @@ public class HeartMgr extends SysInfo {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		Long firstHelloDelay = Long.parseLong(props.getProperty("firstHelloDelay"));
 		reHelloPeriod = Long.parseLong(props.getProperty("reHelloPeriod"));//判断失效阀值
 		helloPeriod = Long.parseLong(props.getProperty("helloPeriod"));//发送周期
 		helloTaskPeriod = Long.parseLong(props.getProperty("helloTaskPeriod"));//hello任务的执行周期
 		nbrGrpExpiration = Long.parseLong(props.getProperty("nbrGrpExpiration"));//邻居集群丢失时间的判断阈值
 
-		helloTimer.schedule(new HelloTask(), 15000, helloTaskPeriod);
+		helloTimer.schedule(new HelloTask(), firstHelloDelay, helloTaskPeriod);
 	}
-
 
 	//依次向每个outPort发送Hello信息
 	private class HelloTask extends TimerTask {

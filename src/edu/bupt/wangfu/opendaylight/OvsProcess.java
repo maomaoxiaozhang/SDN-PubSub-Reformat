@@ -4,6 +4,7 @@ import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import edu.bupt.wangfu.info.device.Controller;
+import edu.bupt.wangfu.module.base.SysInfo;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -12,7 +13,7 @@ import java.util.Properties;
 /**
  * @ Created by HanB on 2016/11/29.
  */
-public class OvsProcess {
+public class OvsProcess extends SysInfo {
 	public static void addFlow(Controller ctrl, String tpid, String body) {
 		String brName = RestProcess.getBrNameByTpid(ctrl, tpid);
 		String cmd = "ovs-ofctl add-flow " + brName + " " + body;
@@ -68,11 +69,12 @@ public class OvsProcess {
 		return sb.toString();*/
 	}
 
+	//测试
 	public static String remoteExcuteCommand(String cmd) {
 		StringBuilder sb = new StringBuilder();
 		try {
 			JSch jsch = new JSch();
-			Session session = jsch.getSession("root", "10.109.253.3", 22);
+			Session session = jsch.getSession("root", "192.168.100.3", 22);
 			session.setPassword("123456");
 			Properties config = new Properties();
 			config.put("StrictHostKeyChecking", "no");

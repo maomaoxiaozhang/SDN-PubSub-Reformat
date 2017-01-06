@@ -41,146 +41,6 @@ public class GroupUtil extends SysInfo {
 		refreshTimer.schedule(refreshTask, 0, refreshPeriod);
 	}
 
-	//初始化hostMap，switchMap，outPorts
-	private static void getGrpTopo(Controller controller) {
-		String url = controller.url + "/restconf/operational/network-topology:network-topology/";
-
-		hostMap.clear();
-		switchMap.clear();
-		groupEdges.clear();
-		outSwitches.clear();
-
-		String body = RestProcess.doClientGet(url);
-		assert body != null;
-		JSONObject json = new JSONObject(body);
-		JSONObject net_topology = json.getJSONObject("network-topology");
-		JSONObject topology = net_topology.getJSONArray("topology").getJSONObject(0);
-
-		if (topology.has("node")) {
-			JSONArray nodes = topology.getJSONArray("node");
-			for (int i = 0; i < nodes.length(); i++) {
-				String node_id = nodes.getJSONObject(i).getString("node-id");
-				if (node_id.contains("host")) {
-					String swt = nodes.getJSONObject(i).getJSONArray("host-tracker-service:attachment-points").getJSONObject(0).getString("tp-id");
-					String port = swt.split(":")[2];
-					String swtId = swt.split(":")[1];
-					String ip = nodes.getJSONObject(i).getJSONArray("host-tracker-service:addresses").getJSONObject(0).getString("ip");
-					String mac = node_id.substring(5, node_id.length());
-
-					Host host = new Host(ip);
-					host.mac = mac;
-					host.swtId = swtId;
-					host.port = port;
-					hostMap.put(mac, host);
-				} else if (node_id.contains("openflow")) {
-					String swtId = node_id.split(":")[1];
-					Switch swt = new Switch(swtId);
-					JSONArray nbs = nodes.getJSONObject(i).getJSONArray("termination-point");
-					for (int j = 0; j < nbs.length(); j++) {
-						String port = nbs.getJSONObject(j).getString("tp-id").split(":")[2];
-						if (!port.contains("LOCAL"))
-							swt.portSet.add(port);
-					}
-					switchMap.put(swtId, swt);
-				}
-			}
-		}
-
-		//从groupSub和groupPub中清理本集群内失效的swt
-		for (Set<String> subSwts : groupSubMap.values()) {
-			for (String swt_Port : subSwts) {
-				if (!switchMap.keySet().contains(swt_Port.split(":")[0])) {//说明原本有订阅的这个swt丢失了，那么就要在subMap里面把它清除
-					subSwts.remove(swt_Port);
-				}
-			}
-		}
-		for (Set<String> pubSwts : groupPubMap.values()) {
-			for (String swt_Port : pubSwts) {
-				if (!switchMap.keySet().contains(swt_Port.split(":")[0])) {
-					pubSwts.remove(swt_Port);
-				}
-			}
-		}
-
-		addSelf2Allgrps();
-
-		if (topology.has("link")) {
-			JSONArray links = topology.getJSONArray("link");
-			for (int i = 0; i < links.length(); i++) {
-				String link_id = links.getJSONObject(i).getString("link-id");
-				String dest = links.getJSONObject(i).getJSONObject("destination").getString("dest-tp");
-				String src = links.getJSONObject(i).getJSONObject("source").getString("source-tp");
-				String hostMac = null, swtId1, port1, swtId2 = null, port2 = null;
-				//获取连接关系
-				if (link_id.contains("host")) {
-					hostMac = dest.contains("host") ? dest.substring(5, dest.length()) : src.substring(5, src.length());
-					swtId1 = dest.contains("host") ? src.split(":")[1] : dest.split(":")[1];
-					port1 = dest.contains("host") ? src.split(":")[2] : dest.split(":")[2];
-				} else {
-					swtId1 = src.split(":")[1];
-					port1 = src.split(":")[2];
-					swtId2 = dest.split(":")[1];
-					port2 = dest.split(":")[2];
-				}
-				//修改连接关系
-				if (hostMac != null) {
-					Host h = hostMap.get(hostMac);
-					switchMap.get(swtId1).addNeighbor(port1, h);
-					switchMap.get(swtId1).portSet.remove(port1);
-				} else {
-					Switch s1 = switchMap.get(swtId1);
-					Switch s2 = switchMap.get(swtId2);
-					s1.addNeighbor(port1, s2);
-					s1.portSet.remove(port1);
-					s2.addNeighbor(port2, s1);
-					s2.portSet.remove(port2);
-				}
-			}
-
-			for (int i = 0; i < links.length(); i++) {
-				String link_id = links.getJSONObject(i).getString("link-id");
-				if (!link_id.contains("host")) {//这说明这个连接是一个swt--swt的连接
-					Edge e = new Edge();
-					String[] s = links.getJSONObject(i).getJSONObject("destination").getString("dest-tp").split(":");
-					e.setStart(s[1]);
-					e.startPort = s[2];
-
-					String[] f = links.getJSONObject(i).getJSONObject("source").getString("source-tp").split(":");
-					e.setFinish(f[1]);
-					e.finishPort = f[2];
-
-					groupEdges.add(e);
-				}
-			}
-		}
-
-		//把switchMap中有outPort的swt放到outSwitches中
-		for (Switch swt : switchMap.values()) {
-			if (swt.portSet.size() > 0) {
-				outSwitches.put(swt.id, swt);
-			}
-		}
-		for (GroupLink gl : nbrGrpLinks.values()) {
-			if (!isGrpLinked(gl)) {//两集群不相连，则删掉二者之间的邻居关系
-				nbrGrpLinks.remove(gl.dstGroupName);
-
-				Group g = allGroups.get(gl.srcGroupName);
-				g.dist2NbrGrps.remove(gl.dstGroupName);
-				g.id += 1;
-				g.updateTime = System.currentTimeMillis();
-
-				Group g2 = allGroups.get(gl.dstGroupName);
-				g2.dist2NbrGrps.remove(gl.srcGroupName);
-				g2.id += 1;
-				g2.updateTime = System.currentTimeMillis();
-				//后面在定时任务里已经有spreadAllGrps()了
-			}
-		}
-
-		printGrpTopoStatus();
-
-	}
-
 	private static void printGrpTopoStatus() {
 		System.out.println("集群内OpenFlow交换机信息：");
 		for (Switch swt : switchMap.values()) {
@@ -216,6 +76,146 @@ public class GroupUtil extends SysInfo {
 
 	//更新group拓扑信息
 	private static class RefreshGroup extends TimerTask {
+		//初始化hostMap，switchMap，outPorts
+		private static void getGrpTopo(Controller controller) {
+			String url = controller.url + "/restconf/operational/network-topology:network-topology/";
+
+			hostMap.clear();
+			switchMap.clear();
+			groupEdges.clear();
+			outSwitches.clear();
+
+			String body = RestProcess.doClientGet(url);
+			assert body != null;
+			JSONObject json = new JSONObject(body);
+			JSONObject net_topology = json.getJSONObject("network-topology");
+			JSONObject topology = net_topology.getJSONArray("topology").getJSONObject(0);
+
+			if (topology.has("node")) {
+				JSONArray nodes = topology.getJSONArray("node");
+				for (int i = 0; i < nodes.length(); i++) {
+					String node_id = nodes.getJSONObject(i).getString("node-id");
+					if (node_id.contains("host")) {
+						String swt = nodes.getJSONObject(i).getJSONArray("host-tracker-service:attachment-points").getJSONObject(0).getString("tp-id");
+						String port = swt.split(":")[2];
+						String swtId = swt.split(":")[1];
+						String ip = nodes.getJSONObject(i).getJSONArray("host-tracker-service:addresses").getJSONObject(0).getString("ip");
+						String mac = node_id.substring(5, node_id.length());
+
+						Host host = new Host(ip);
+						host.mac = mac;
+						host.swtId = swtId;
+						host.port = port;
+						hostMap.put(mac, host);
+					} else if (node_id.contains("openflow")) {
+						String swtId = node_id.split(":")[1];
+						Switch swt = new Switch(swtId);
+						JSONArray nbs = nodes.getJSONObject(i).getJSONArray("termination-point");
+						for (int j = 0; j < nbs.length(); j++) {
+							String port = nbs.getJSONObject(j).getString("tp-id").split(":")[2];
+							if (!port.contains("LOCAL") && !port.contains(portWsn2Swt))
+								swt.portSet.add(port);
+						}
+						switchMap.put(swtId, swt);
+					}
+				}
+			}
+
+			//从groupSub和groupPub中清理本集群内失效的swt
+			for (Set<String> subSwts : groupSubMap.values()) {
+				for (String swt_Port : subSwts) {
+					if (!switchMap.keySet().contains(swt_Port.split(":")[0])) {//说明原本有订阅的这个swt丢失了，那么就要在subMap里面把它清除
+						subSwts.remove(swt_Port);
+					}
+				}
+			}
+			for (Set<String> pubSwts : groupPubMap.values()) {
+				for (String swt_Port : pubSwts) {
+					if (!switchMap.keySet().contains(swt_Port.split(":")[0])) {
+						pubSwts.remove(swt_Port);
+					}
+				}
+			}
+
+			addSelf2Allgrps();
+
+			if (topology.has("link")) {
+				JSONArray links = topology.getJSONArray("link");
+				for (int i = 0; i < links.length(); i++) {
+					String link_id = links.getJSONObject(i).getString("link-id");
+					String dest = links.getJSONObject(i).getJSONObject("destination").getString("dest-tp");
+					String src = links.getJSONObject(i).getJSONObject("source").getString("source-tp");
+					String hostMac = null, swtId1, port1, swtId2 = null, port2 = null;
+					//获取连接关系
+					if (link_id.contains("host")) {
+						hostMac = dest.contains("host") ? dest.substring(5, dest.length()) : src.substring(5, src.length());
+						swtId1 = dest.contains("host") ? src.split(":")[1] : dest.split(":")[1];
+						port1 = dest.contains("host") ? src.split(":")[2] : dest.split(":")[2];
+					} else {
+						swtId1 = src.split(":")[1];
+						port1 = src.split(":")[2];
+						swtId2 = dest.split(":")[1];
+						port2 = dest.split(":")[2];
+					}
+					//修改连接关系
+					if (hostMac != null) {
+						Host h = hostMap.get(hostMac);
+						switchMap.get(swtId1).addNeighbor(port1, h);
+						switchMap.get(swtId1).portSet.remove(port1);
+					} else {
+						Switch s1 = switchMap.get(swtId1);
+						Switch s2 = switchMap.get(swtId2);
+						s1.addNeighbor(port1, s2);
+						s1.portSet.remove(port1);
+						s2.addNeighbor(port2, s1);
+						s2.portSet.remove(port2);
+					}
+				}
+
+				for (int i = 0; i < links.length(); i++) {
+					String link_id = links.getJSONObject(i).getString("link-id");
+					if (!link_id.contains("host")) {//这说明这个连接是一个swt--swt的连接
+						Edge e = new Edge();
+						String[] s = links.getJSONObject(i).getJSONObject("destination").getString("dest-tp").split(":");
+						e.setStart(s[1]);
+						e.startPort = s[2];
+
+						String[] f = links.getJSONObject(i).getJSONObject("source").getString("source-tp").split(":");
+						e.setFinish(f[1]);
+						e.finishPort = f[2];
+
+						groupEdges.add(e);
+					}
+				}
+			}
+
+			//把switchMap中有outPort的swt放到outSwitches中
+			for (Switch swt : switchMap.values()) {
+				if (swt.portSet.size() > 0) {
+					outSwitches.put(swt.id, swt);
+				}
+			}
+			for (GroupLink gl : nbrGrpLinks.values()) {
+				if (!isGrpLinked(gl)) {//两集群不相连，则删掉二者之间的邻居关系
+					nbrGrpLinks.remove(gl.dstGroupName);
+
+					Group g = allGroups.get(gl.srcGroupName);
+					g.dist2NbrGrps.remove(gl.dstGroupName);
+					g.id += 1;
+					g.updateTime = System.currentTimeMillis();
+
+					Group g2 = allGroups.get(gl.dstGroupName);
+					g2.dist2NbrGrps.remove(gl.srcGroupName);
+					g2.id += 1;
+					g2.updateTime = System.currentTimeMillis();
+					//后面在定时任务里已经有spreadAllGrps()了
+				}
+			}
+
+			printGrpTopoStatus();
+
+		}
+
 		private static void getGrpTopoFromFile() {
 			hostMap.clear();
 			switchMap.clear();

@@ -119,7 +119,8 @@ public class Config extends SysInfo {
 		joinedUnsubTopics = new HashSet<>();
 		notifyFlows = new ConcurrentHashMap<>();
 
-		localCtl = new Controller(localAddr + ":8181");
+//		localCtl = new Controller(localAddr + ":8181");
+		localCtl = groupCtl;
 		groupRoutes = Collections.synchronizedSet(new HashSet<Route>());
 	}
 }

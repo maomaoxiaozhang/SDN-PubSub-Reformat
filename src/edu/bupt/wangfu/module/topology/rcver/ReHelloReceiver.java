@@ -27,7 +27,7 @@ public class ReHelloReceiver extends SysInfo implements Runnable {
 		while (true) {
 			Object msg = handler.v6Receive();
 			Hello re_hello = (Hello) msg;
-			if (!re_hello.endGroup.equals(localGroupName))
+			if (!re_hello.endGroup.equals(localGroupName) && !re_hello.endGroup.equals(""))
 				onReHello(re_hello);
 		}
 	}
@@ -47,10 +47,15 @@ public class ReHelloReceiver extends SysInfo implements Runnable {
 		Map<String, Group> newAllGroup = re_hello.allGroups;
 		for (String grpName : newAllGroup.keySet()) {
 			if ((allGroups.get(grpName) == null //这个集群的信息对面有，而我没有
-					&& System.currentTimeMillis() - allGroups.get(grpName).updateTime < nbrGrpExpiration)//同时这条集群信息尚未过期
+					&& System.currentTimeMillis() - newAllGroup.get(grpName).updateTime < nbrGrpExpiration)//同时这条集群信息尚未过期
 					|| allGroups.get(grpName).id < newAllGroup.get(grpName).id)//或者这个集群的信息我和对面都有，但对面的比较新
 				allGroups.put(grpName, newAllGroup.get(grpName));
 		}
+
+		System.out.println("邻居建立完成,邻居情况如下:");
+		Group localGrp = allGroups.get(localGroupName);
+		System.out.println(localGroupName + "的原有邻居为：" + localGrp.dist2NbrGrps.keySet() + "，新增邻居为：" + gl.dstGroupName);
+
 		//再更新自己这个集群和新邻居的距离信息
 		Group g = allGroups.get(localGroupName);
 		g.id += 1;
