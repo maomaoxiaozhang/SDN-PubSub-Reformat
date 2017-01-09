@@ -72,4 +72,12 @@ public class WsnMgr extends SysInfo {
 		}
 		return res;
 	}
+
+	public static Map<String, Integer> cloneIntMap(Map<String, Integer> dist2NbrGrps) {
+		Map<String, Integer> res = new ConcurrentHashMap<>();
+		for (String key : dist2NbrGrps.keySet()) {
+			res.put(key, dist2NbrGrps.get(key));
+		}
+		return res;
+	}
 }

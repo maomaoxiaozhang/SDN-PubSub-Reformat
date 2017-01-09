@@ -14,7 +14,6 @@ public class SingleSubscribe {
 	public static String localPort = "30000";
 
 	public static void main(String[] args) {
-
 		URL wsdlUrl = null;
 		try {
 			wsdlUrl = new URL("http://" + args[0] + ":" + localPort + "/WsnRegisterService?wsdl");

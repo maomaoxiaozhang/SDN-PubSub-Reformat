@@ -18,6 +18,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import static edu.bupt.wangfu.module.base.WsnMgr.cloneGrpMap;
+import static edu.bupt.wangfu.module.base.WsnMgr.cloneIntMap;
 
 
 /**
@@ -57,29 +58,43 @@ public class HeartMgr extends SysInfo {
 			for (Switch swt : outSwitches.values()) {
 				for (String out : swt.portSet) {
 					if (!out.equals("LOCAL")) {
-						Group localGrp = allGroups.get(localGroupName);
-						localGrp.id += 1;
-						localGrp.updateTime = System.currentTimeMillis();
-						allGroups.put(localGroupName, localGrp);
 
-						List<String> outHello = RouteUtil.calRoute(localSwtId, swt.id);
-						List<String> inRehello = RouteUtil.calRoute(swt.id, localSwtId);
-						List<Flow> ctl2out = RouteUtil.downInGrpRtFlows(outHello, portWsn2Swt, out, "hello", "sys", groupCtl);
-						List<Flow> out2ctl = RouteUtil.downInGrpRtFlows(inRehello, out, portWsn2Swt, "re_hello", "sys", groupCtl);
-
-						sendHello(out, swt.id);
-						System.out.println("向交换机" + swt.id + "通过" + out + "端口发送Hello消息");
-						//发送后阻塞线程，这期间：对面收到hello，回复re_hello，最后再发送一条最终版的hello
-						//这之后（无论之前是否回复），都继续发下一条
-						try {
-							Thread.sleep(helloPeriod);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
+						/*//判断发送的是heart维护还是hello探索
+						boolean isKnownGrpLink = false;
+						for (GroupLink gl : nbrGrpLinks.values()) {
+							if (gl.srcBorderSwtId.equals(swt.id) && gl.srcOutPort.equals(out)) {
+								isKnownGrpLink = true;
+								break;
+							}
 						}
-						//删除这次握手的流表，准备下次的
-						RouteUtil.delRouteFlows(ctl2out);
-						RouteUtil.delRouteFlows(out2ctl);
-						System.out.println("delete route to switch " + swt.id + " through port " + out);
+
+						if (!isKnownGrpLink) {*/
+							Group localGrp = allGroups.get(localGroupName);
+							localGrp.id += 1;
+							localGrp.updateTime = System.currentTimeMillis();
+							allGroups.put(localGroupName, localGrp);
+
+							List<String> outHello = RouteUtil.calRoute(localSwtId, swt.id);
+							List<String> inRehello = RouteUtil.calRoute(swt.id, localSwtId);
+							List<Flow> ctl2out = RouteUtil.downInGrpRtFlows(outHello, portWsn2Swt, out, "hello", "sys", groupCtl);
+							List<Flow> out2ctl = RouteUtil.downInGrpRtFlows(inRehello, out, portWsn2Swt, "re_hello", "sys", groupCtl);
+
+							sendHello(out, swt.id);
+							System.out.println("向交换机" + swt.id + "通过" + out + "端口发送Hello消息");
+							//发送后阻塞线程，这期间：对面收到hello，回复re_hello，最后再发送一条最终版的hello
+							//这之后（无论之前是否回复），都继续发下一条
+							try {
+								Thread.sleep(helloPeriod);
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+							//删除这次握手的流表，准备下次的
+							RouteUtil.delRouteFlows(ctl2out);
+							RouteUtil.delRouteFlows(out2ctl);
+							System.out.println("delete route to switch " + swt.id + " through port " + out);
+						/*} else {
+							sendHeartBeat();
+						}*/
 					}
 				}
 			}
@@ -104,6 +119,17 @@ public class HeartMgr extends SysInfo {
 			hello.allGroups = cloneGrpMap(allGroups);
 
 			handler.v6Send(hello);
+		}
+
+		private void sendHeartBeat() {
+			//可能会多次发送给相同的集群
+			Group heart = new Group(localGroupName);
+			heart.id += allGroups.get(localGroupName).id;
+			heart.updateTime = System.currentTimeMillis();
+			heart.dist2NbrGrps = cloneIntMap(allGroups.get(localGroupName).dist2NbrGrps);
+
+			MultiHandler handler = new MultiHandler(sysPort, "heart", "sys");
+			handler.v6Send(heart);
 		}
 	}
 

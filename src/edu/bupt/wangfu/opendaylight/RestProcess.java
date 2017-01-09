@@ -104,7 +104,7 @@ public class RestProcess extends SysInfo {
 	}
 
 	public static String doClientGet(String url) {//nll 用户名密码认证方式
-		System.out.println("\n向" + url + "发送GET请求");
+//		System.out.println("\n向" + url + "发送GET请求");
 		try {
 			HttpClient httpclient = new HttpClient();
 			UsernamePasswordCredentials creds = new UsernamePasswordCredentials("admin", "admin");
