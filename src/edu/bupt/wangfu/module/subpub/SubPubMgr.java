@@ -12,12 +12,16 @@ import edu.bupt.wangfu.module.subpub.ws.WsnSPRegister;
 import edu.bupt.wangfu.module.topology.GroupUtil;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
+import javax.xml.namespace.QName;
+import javax.xml.ws.Service;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 import static edu.bupt.wangfu.module.base.WsnMgr.cloneSetMap;
 
 /**
- *  Created by LCW on 2016-7-19.
+ * Created by LCW on 2016-7-19.
  */
 public class SubPubMgr extends SysInfo {
 	private static CheckSplit splitTask = new CheckSplit(splitThreshold);
@@ -42,14 +46,13 @@ public class SubPubMgr extends SysInfo {
 		notifyTopicAddrMap.put("All:a:2", "ff0e:0080:0000:0000:0000:0000:4444:0006");
 		notifyTopicAddrMap.put("All:a:3", "ff0e:0080:0000:0000:0000:0000:5555:0006");
 
-		localSubscribe("All", false,address);
+		localSubscribe("All", false, address);
 //		localSubscribe("All:a:2", false);
 //		localSubscribe("All:a:3", false);
 	}
 
 	//本地有新订阅
-	public static boolean localSubscribe(String topic, boolean isJoinedSub,String addr) {
-		address=addr;
+	public static boolean localSubscribe(String topic, boolean isJoinedSub, String subRcvServiceAddr) {
 		System.out.println("判定是否为聚合订阅：" + isJoinedSub);
 		if (!isJoinedSub) {
 			//查看是否已订阅该主题的父主题或更高层的主题
@@ -57,7 +60,7 @@ public class SubPubMgr extends SysInfo {
 			String[] topicPath = topic.split(":");
 			String cur = topicPath[0];
 			for (int i = 1; i < topicPath.length; i++) {
-				if (localSubTopics.contains(cur)) {
+				if (localSubTopics.keySet().contains(cur)) {
 					System.out.println("有订阅过更早期的主题，取消订阅流程");
 					return false;
 				} else
@@ -66,7 +69,7 @@ public class SubPubMgr extends SysInfo {
 		}
 		//更新节点上的订阅信息
 		System.out.println("更新本地订阅表localSubTopics");
-		localSubTopics.add(topic);
+		localSubTopics.put(topic, subRcvServiceAddr);
 		//再判断是否需要聚合
 		System.out.println("判定新订阅是否需要聚合");
 		if (needJoin(topic) && !isJoinedSub) {
@@ -74,7 +77,7 @@ public class SubPubMgr extends SysInfo {
 			String father = getTopicFather(topic);
 
 			joinedSubTopics.add(father);
-			localSubscribe(father, true,address);
+			localSubscribe(father, true, address);
 
 			joinedUnsubTopics.add(topic);
 			unsubAllSons(father);
@@ -116,7 +119,7 @@ public class SubPubMgr extends SysInfo {
 	public static boolean localUnsubscribe(String topic) {
 		if (joinedSubTopics.contains(topic))//若这个订阅是聚合而成的，那么不能取消，因为并不是真实订阅
 			return false;
-		if (!localSubTopics.contains(topic))
+		if (!localSubTopics.keySet().contains(topic))
 			return false;//本地没有这个订阅
 
 //		localSubTopics.remove(topic);
@@ -185,7 +188,7 @@ public class SubPubMgr extends SysInfo {
 	}
 
 	private static void unsubAllSons(String father) {
-		Iterator<String> iterator = localSubTopics.iterator();
+		Iterator<String> iterator = localSubTopics.keySet().iterator();
 		while (iterator.hasNext()) {
 			String topic = iterator.next();
 			if (topic.contains(father) && topic.length() > father.length()) {
@@ -214,7 +217,7 @@ public class SubPubMgr extends SysInfo {
 		int level = topic.split(":").length;
 		String father = getTopicFather(topic);
 		int totalDirectSons = totalDirectSons(father);
-		for (String lst : localSubTopics) {
+		for (String lst : localSubTopics.keySet()) {
 			if (lst.contains(father) && lst.split(":").length == level && !lst.equals(topic)) {//lst是topic的兄弟主题
 				subBros++;
 			}
@@ -267,7 +270,7 @@ public class SubPubMgr extends SysInfo {
 					joinedSubTopics.remove(father);
 					for (String son : joinedUnsubTopics) {
 						if (son.contains(father)) {
-							localSubscribe(son, false,address);
+							localSubscribe(son, false, address);
 							joinedUnsubTopics.remove(son);
 						}
 					}
@@ -298,11 +301,21 @@ public class SubPubMgr extends SysInfo {
 		}
 
 		private void processNotifyObj(NotifyObj obj) {
-			if (localSubTopics.contains(obj.topic)
+			if (localSubTopics.keySet().contains(obj.topic)
 					|| joinedUnsubTopics.contains(obj.topic)) {
-				System.out.println();
-				//send address
-				//TODO 查找本地订阅者，把这条消息用原来的webservice或者什么东东，发给本地订阅者
+
+				//查找本地订阅者，把这条消息用原来的webservice或者什么东东，发给本地订阅者
+				URL wsdlUrl = null;
+				try {
+					wsdlUrl = new URL(localSubTopics.get(obj.topic) + "?wsdl");
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				}
+				Service s = Service.create(wsdlUrl, new QName("http://ws.subpub.module.wangfu.bupt.edu/", "WsnSPRegisterService"));
+				WsnSPRegister hs = s.getPort(new QName("http://ws.subpub.module.wangfu.bupt.edu/", "WsnSPRegisterPort"), WsnSPRegister.class);
+
+				hs.wsnServerMethod(obj.content);
+
 			}
 		}
 	}

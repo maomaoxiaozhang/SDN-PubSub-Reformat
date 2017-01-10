@@ -237,8 +237,11 @@ public class GroupUtil extends SysInfo {
 			hostMap.put(localMac, host);
 
 			Switch swt = new Switch(localSwtId);
+
 			String outPort = p.getProperty("outPort");//swt连接其他group的端口
-			swt.portSet.add(outPort);
+			String[] outPorts = outPort.split(",");
+			Collections.addAll(swt.portSet, outPorts);
+
 			switchMap.put(localSwtId, swt);
 
 			addSelf2Allgrps();

@@ -109,7 +109,7 @@ public class Config extends SysInfo {
 		sysTopicAddrMap = new ConcurrentHashMap<>();
 		notifyTopicAddrMap = new ConcurrentHashMap<>();
 
-		localSubTopics = new HashSet<>();
+		localSubTopics = new ConcurrentHashMap<>();
 		localPubTopic = new HashSet<>();
 		groupSubMap = new ConcurrentHashMap<>();
 		outerSubMap = new ConcurrentHashMap<>();

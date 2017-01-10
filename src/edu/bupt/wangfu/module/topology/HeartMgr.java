@@ -91,7 +91,7 @@ public class HeartMgr extends SysInfo {
 						//删除这次握手的流表，准备下次的
 						RouteUtil.delRouteFlows(ctl2out);
 						RouteUtil.delRouteFlows(out2ctl);
-						System.out.println("delete route to switch " + swt.id + " through port " + out);
+						System.out.println("删除从" + swt.id + "交换机的" + out + "端口发出Hello消息的流表");
 						/*} else {
 							sendHeartBeat();
 						}*/
