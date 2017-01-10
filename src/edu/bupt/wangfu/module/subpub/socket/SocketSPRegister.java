@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Created by lenovo on 2016-11-4.
+ *  Created by lenovo on 2016-11-4.
  */
 public class SocketSPRegister implements Runnable {
 	private ServerSocket ss;
@@ -59,7 +59,7 @@ public class SocketSPRegister implements Runnable {
 					SPRegister spr = (SPRegister) obj;
 					switch (spr.type) {
 						case SUB:
-							SubPubMgr.localSubscribe(spr.topic, false);
+							SubPubMgr.localSubscribe(spr.topic, false,"abc");
 							spr.success = true;
 							oos.writeObject(spr);
 							break;

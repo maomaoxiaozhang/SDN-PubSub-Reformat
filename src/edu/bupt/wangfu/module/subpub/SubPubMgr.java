@@ -311,11 +311,10 @@ public class SubPubMgr extends SysInfo {
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
 				}
-				Service s = Service.create(wsdlUrl, new QName("http://ws.subpub.module.wangfu.bupt.edu/", "WsnSPRegisterService"));
-				WsnSPRegister hs = s.getPort(new QName("http://ws.subpub.module.wangfu.bupt.edu/", "WsnSPRegisterPort"), WsnSPRegister.class);
+				Service s = Service.create(wsdlUrl, new QName("http://subscribe.wangfu.bupt.edu/", "SubscribeProcessService"));
+				SubscribeProcess sp = s.getPort(new QName("http://subscribe.wangfu.bupt.edu/", "SubscribeProcessPort"), SubscribeProcess.class);
 
-				hs.wsnServerMethod(obj.content);
-
+				sp.subscribeProcess(obj.topic + "#" + obj.content);
 			}
 		}
 	}

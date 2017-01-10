@@ -5,7 +5,7 @@ import edu.bupt.wangfu.module.base.WsnMgr;
 import edu.bupt.wangfu.module.topology.GroupUtil;
 
 /**
- * Created by LCW on 2016-6-19.
+ *  Created by LCW on 2016-6-19.
  */
 public class Start {
 	public static void main(String[] args) {
