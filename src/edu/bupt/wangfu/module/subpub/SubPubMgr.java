@@ -17,11 +17,12 @@ import java.util.*;
 import static edu.bupt.wangfu.module.base.WsnMgr.cloneSetMap;
 
 /**
- * Created by LCW on 2016-7-19.
+ *  Created by LCW on 2016-7-19.
  */
 public class SubPubMgr extends SysInfo {
 	private static CheckSplit splitTask = new CheckSplit(splitThreshold);
 	private static Timer splitTimer = new Timer();
+	private static String address;
 
 	public SubPubMgr() {
 		System.out.println("SubPubMgr启动");
@@ -41,13 +42,14 @@ public class SubPubMgr extends SysInfo {
 		notifyTopicAddrMap.put("All:a:2", "ff0e:0080:0000:0000:0000:0000:4444:0006");
 		notifyTopicAddrMap.put("All:a:3", "ff0e:0080:0000:0000:0000:0000:5555:0006");
 
-		localSubscribe("All", false);
+		localSubscribe("All", false,address);
 //		localSubscribe("All:a:2", false);
 //		localSubscribe("All:a:3", false);
 	}
 
 	//本地有新订阅
-	public static boolean localSubscribe(String topic, boolean isJoinedSub) {
+	public static boolean localSubscribe(String topic, boolean isJoinedSub,String addr) {
+		address=addr;
 		System.out.println("判定是否为聚合订阅：" + isJoinedSub);
 		if (!isJoinedSub) {
 			//查看是否已订阅该主题的父主题或更高层的主题
@@ -72,7 +74,7 @@ public class SubPubMgr extends SysInfo {
 			String father = getTopicFather(topic);
 
 			joinedSubTopics.add(father);
-			localSubscribe(father, true);
+			localSubscribe(father, true,address);
 
 			joinedUnsubTopics.add(topic);
 			unsubAllSons(father);
@@ -265,7 +267,7 @@ public class SubPubMgr extends SysInfo {
 					joinedSubTopics.remove(father);
 					for (String son : joinedUnsubTopics) {
 						if (son.contains(father)) {
-							localSubscribe(son, false);
+							localSubscribe(son, false,address);
 							joinedUnsubTopics.remove(son);
 						}
 					}
@@ -299,6 +301,7 @@ public class SubPubMgr extends SysInfo {
 			if (localSubTopics.contains(obj.topic)
 					|| joinedUnsubTopics.contains(obj.topic)) {
 				System.out.println();
+				//send address
 				//TODO 查找本地订阅者，把这条消息用原来的webservice或者什么东东，发给本地订阅者
 			}
 		}

@@ -16,10 +16,14 @@ public class WsnProcessImpl extends SysInfo {
 			String topic = msgSplit[1];
 			String content = msgSplit[2];
 
-			System.out.println("收到新消息，动作为" + action + "，主题为" + "，内容为" + content);
+			if (action.equals("SUB"))
+				System.out.println("收到新订阅，主题为" + "，接受消息的服务地址为：" + content);
+			else
+				System.out.println("收到新消息，动作为" + action + "，主题为" + "，内容为" + content);
+
 			switch (action) {
 				case "SUB":
-					return topic + "#" + (SubPubMgr.localSubscribe(topic.toLowerCase(), false) ? "success" : "fail");
+					return topic + "#" + (SubPubMgr.localSubscribe(topic.toLowerCase(), false,content) ? "success" : "fail");
 				case "PUB":
 					return topic + "#" + (SubPubMgr.localPublish(topic.toLowerCase()) ? "success" : "fail");
 				case "UNSUB":

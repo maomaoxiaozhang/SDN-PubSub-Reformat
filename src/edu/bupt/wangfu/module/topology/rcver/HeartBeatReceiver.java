@@ -5,7 +5,7 @@ import edu.bupt.wangfu.module.base.SysInfo;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 /**
- * Created by lenovo on 2016-6-23.
+ *  Created by lenovo on 2016-6-23.
  */
 public class HeartBeatReceiver extends SysInfo implements Runnable {
 	private MultiHandler handler;
