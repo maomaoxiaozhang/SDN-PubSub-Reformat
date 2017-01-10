@@ -30,7 +30,7 @@ public class Receive_str1 {
 				while (true) {
 					DatagramPacket datagramPacket = new DatagramPacket(data, data.length);
 					multicastSocket.receive(datagramPacket);
-					n ++;
+					n++;
 					if (n % 200 == 0)
 						System.out.println("收到第" + n + "条msg1消息: " + new String(data).trim() + "--" + System.currentTimeMillis());
 				}
@@ -39,6 +39,7 @@ public class Receive_str1 {
 			}
 		}
 	}
+
 	private static class Topic2Receiver implements Runnable {
 
 		@Override
@@ -55,7 +56,7 @@ public class Receive_str1 {
 				while (true) {
 					DatagramPacket datagramPacket = new DatagramPacket(data, data.length);
 					multicastSocket.receive(datagramPacket);
-					n ++;
+					n++;
 					if (n % 200 == 0)
 						System.out.println("收到第" + n + "条msg2消息: " + new String(data).trim() + "--" + System.currentTimeMillis());
 				}
@@ -64,6 +65,7 @@ public class Receive_str1 {
 			}
 		}
 	}
+
 	private static class Topic3Receiver implements Runnable {
 
 		@Override
@@ -80,7 +82,7 @@ public class Receive_str1 {
 				while (true) {
 					DatagramPacket datagramPacket = new DatagramPacket(data, data.length);
 					multicastSocket.receive(datagramPacket);
-					n ++;
+					n++;
 					if (n % 200 == 0)
 						System.out.println("收到第" + n + "条msg3消息: " + new String(data).trim() + "--" + System.currentTimeMillis());
 				}
@@ -89,6 +91,7 @@ public class Receive_str1 {
 			}
 		}
 	}
+
 	private static class Topic4Receiver implements Runnable {
 
 		@Override
@@ -105,7 +108,7 @@ public class Receive_str1 {
 				while (true) {
 					DatagramPacket datagramPacket = new DatagramPacket(data, data.length);
 					multicastSocket.receive(datagramPacket);
-					n ++;
+					n++;
 					if (n % 200 == 0)
 						System.out.println("收到第" + n + "条msg4消息: " + new String(data).trim() + "--" + System.currentTimeMillis());
 				}
@@ -114,6 +117,7 @@ public class Receive_str1 {
 			}
 		}
 	}
+
 	private static class Topic5Receiver implements Runnable {
 
 		@Override
@@ -130,7 +134,7 @@ public class Receive_str1 {
 				while (true) {
 					DatagramPacket datagramPacket = new DatagramPacket(data, data.length);
 					multicastSocket.receive(datagramPacket);
-					n ++;
+					n++;
 					if (n % 200 == 0)
 						System.out.println("收到第" + n + "条msg5消息: " + new String(data).trim() + "--" + System.currentTimeMillis());
 				}

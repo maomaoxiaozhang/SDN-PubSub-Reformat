@@ -22,7 +22,7 @@ public class Switch extends DevInfo {
 				"outPort有：" + portSet +
 				"，id：'" + id + '\'' +
 				"，load：" + load +
-				"，邻居个数：" + neighbors.size() +
+				"，集群内邻居个数：" + neighbors.size() +
 				" }";
 	}
 }

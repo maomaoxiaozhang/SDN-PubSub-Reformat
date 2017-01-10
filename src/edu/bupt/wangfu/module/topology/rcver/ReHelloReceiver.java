@@ -68,7 +68,7 @@ public class ReHelloReceiver extends SysInfo implements Runnable {
 
 			System.out.println("邻居建立完成,邻居情况如下:");
 			Group localGrp = allGroups.get(localGroupName);
-			System.out.println(localGroupName + "的原有邻居为：" + localGrp.dist2NbrGrps.keySet() + "，新增邻居为：" + gl.dstGroupName);
+			System.out.println(localGroupName + "的原有邻居为：" + localGrp.dist2NbrGrps.keySet() + "，即将新增的邻居为：" + gl.dstGroupName);
 
 			//再更新自己这个集群和新邻居的距离信息
 			Group g = allGroups.get(localGroupName);

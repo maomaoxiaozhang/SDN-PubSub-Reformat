@@ -13,7 +13,7 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Created by lenovo on 2016-6-22.
+ * @ Created by lenovo on 2016-6-22.
  */
 public class Config extends SysInfo {
 	public static void configure() {

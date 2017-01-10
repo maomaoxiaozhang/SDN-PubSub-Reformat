@@ -16,7 +16,7 @@ import java.util.Map;
 import static edu.bupt.wangfu.module.base.WsnMgr.cloneGrpMap;
 
 /**
- * Created by lenovo on 2016-6-23.
+ * @ Created by lenovo on 2016-6-23.
  */
 public class HelloReceiver extends SysInfo implements Runnable {
 	private MultiHandler handler;
@@ -125,7 +125,7 @@ public class HelloReceiver extends SysInfo implements Runnable {
 
 			System.out.println("邻居建立完成,邻居情况如下:");
 			Group localGrp = allGroups.get(localGroupName);
-			System.out.println(localGroupName + "的原有邻居为：" + localGrp.dist2NbrGrps.keySet() + "，新增邻居为：" + finalHello.startGroup);
+			System.out.println(localGroupName + "的原有邻居为：" + localGrp.dist2NbrGrps.keySet() + "，即将新增的邻居为：" + finalHello.startGroup);
 
 			//全网广播自己的集群信息
 			Group g = allGroups.get(localGroupName);
