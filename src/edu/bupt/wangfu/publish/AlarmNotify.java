@@ -24,7 +24,7 @@ public class AlarmNotify {
         String content = "I'm a bupter."; // 发布的内容
 
         // 发布注册成功，开始发布消息
-        if (hs.wsnServerMethod("PUB#" + topic + "#" + content).contains("success")) {
+        if ( hs.wsnServerMethod("PUB#" + topic + "#" + content).contains("success")) {
             try {
                 Thread.sleep(20000);
             } catch (InterruptedException e) {

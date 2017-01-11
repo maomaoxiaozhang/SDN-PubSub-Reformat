@@ -30,8 +30,8 @@ public class SingleSubscribe {
 		String topic = "all:a"; // 订阅主题
 		String ret = hs.wsnServerMethod("SUB#" + topic + "#" + subscribeProcessAddr);
 		if (ret.contains("success"))
-			System.out.println("SUB " + topic + "success!");
+			System.out.println("SUB " + topic + " success!");
 		else
-			System.out.println("SUB " + topic + "failed!");
+			System.out.println("SUB " + topic + " failed!");
 	}
 }
