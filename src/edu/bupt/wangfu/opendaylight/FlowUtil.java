@@ -2,6 +2,7 @@ package edu.bupt.wangfu.opendaylight;
 
 import edu.bupt.wangfu.info.device.Controller;
 import edu.bupt.wangfu.info.device.Flow;
+import edu.bupt.wangfu.info.device.Switch;
 import edu.bupt.wangfu.module.base.SysInfo;
 
 import java.util.ArrayList;
@@ -120,6 +121,52 @@ public class FlowUtil extends SysInfo {
 		topicFlowSet.add(flow);
 		notifyFlows.put(topic, topicFlowSet);
 
+		return flow;
+	}
+
+	public Flow generateAllOutFlow(String swtId, String in, String topic, String topicType, String t_id, String pri) {
+		Set<Flow> topicFlowSet;
+		//将route中的每一段flow都添加到set中，保证后面不用重复下发，控制flowcount
+		if (notifyFlows.get(topic) != null) {
+			topicFlowSet = notifyFlows.get(topic);
+			for (Flow flow : topicFlowSet) {
+				if (flow.swtId.equals(swtId)
+						&& (flow.in == null || flow.in.equals(in))
+						&& flow.topic.equals(topic)) {
+					return flow;
+				}
+			}
+		} else {
+			topicFlowSet = new HashSet<>();
+		}
+		String out = ",";
+		if (outSwitches.get(swtId) != null) {
+			Switch sw = outSwitches.get(swtId);
+			for (String port : sw.portSet)
+			out += port;
+		}
+		out = out.substring(1);
+
+		String v6Addr = null;
+		if (topicType.equals("sys")) {
+			v6Addr = sysTopicAddrMap.get(topic);
+		} else if (topicType.equals("notify")) {
+			v6Addr = notifyTopicAddrMap.get(topic);
+		}
+
+		flowcount ++;
+
+		Flow flow = new Flow();
+		flow.in = in;
+		flow.swtId = swtId;
+		flow.out = out;
+		flow.table_id = t_id;
+		flow.priority = pri;
+		flow.ipv6_dst = v6Addr + "/128";
+		flow.topic = topic;
+		flow.flow_id = flowcount;
+		topicFlowSet.add(flow);
+		notifyFlows.put(topic, topicFlowSet);
 		return flow;
 	}
 
