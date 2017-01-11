@@ -58,6 +58,12 @@ public class SubReceiver extends SysInfo implements Runnable {
 				if (sub.action.equals(Action.SUB)) {
 					System.out.println("网络中产生新订阅，订阅主题为：" + sub.topic);
 
+					if (outerSubMap.get(sub.topic) == null//该订阅是新订阅，之前没有，需要继续通过自己来发送
+							|| (outerSubMap.get(sub.topic) != null && !outerSubMap.get(sub.topic).contains(sub.group))) {
+
+						handler.v6Send(sub);
+					}
+
 					Set<String> outerSub = outerSubMap.get(sub.topic) == null ? new HashSet<String>() : outerSubMap.get(sub.topic);
 					outerSub.add(sub.group);
 					outerSubMap.put(sub.topic, outerSub);
@@ -70,8 +76,13 @@ public class SubReceiver extends SysInfo implements Runnable {
 					if (localCtl.url.equals(groupCtl.url)) {//因为sub信息会全网广播，集群中只要有一个人计算本集群该做什么就可以了
 						RouteUtil.newSuber(sub.group, "", "", sub.topic);
 					}
+
 				} else if (sub.action.equals(Action.UNSUB)) {
 					System.out.println("网络中新取消订阅，取消主题为：" + sub.topic);
+
+					if (outerSubMap.get(sub.topic) != null && outerSubMap.get(sub.topic).contains(sub.group)) {
+						handler.v6Send(sub);
+					}
 
 					if (allGroups.get(sub.group).subMap.get(sub.topic).size() == 1) {//如果发来取消订阅信息的集群内
 						// 有不止一个订阅节点，那么就不需要修改outerSubMap

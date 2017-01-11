@@ -38,10 +38,11 @@ public class LSAReceiver extends SysInfo implements Runnable {
 					}
 				}
 			}
-			System.out.println("当前网络中集群信息为：");
+			//测试
+			/*System.out.println("当前网络中集群信息为：");
 			for (Group group : allGroups.values()) {
 				System.out.println(group.toString());
-			}
+			}*/
 		}
 	}
 }

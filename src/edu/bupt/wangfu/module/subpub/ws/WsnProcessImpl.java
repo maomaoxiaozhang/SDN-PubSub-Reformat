@@ -23,7 +23,7 @@ public class WsnProcessImpl extends SysInfo {
 
 			switch (action) {
 				case "SUB":
-					return topic + "#" + (SubPubMgr.localSubscribe(topic.toLowerCase(), false,content) ? "success" : "fail");
+					return topic + "#" + (SubPubMgr.localSubscribe(topic.toLowerCase(), false, content) ? "success" : "fail");
 				case "PUB":
 					return topic + "#" + (SubPubMgr.localPublish(topic.toLowerCase()) ? "success" : "fail");
 				case "UNSUB":

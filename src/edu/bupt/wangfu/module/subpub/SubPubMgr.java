@@ -69,7 +69,13 @@ public class SubPubMgr extends SysInfo {
 		}
 		//更新节点上的订阅信息
 		System.out.println("更新本地订阅表localSubTopics");
-		localSubTopics.put(topic, subRcvServiceAddr);
+		if (localSubTopics.get(topic) == null) {
+			Set<String> servicesAddrs = new HashSet<>();
+			servicesAddrs.add(subRcvServiceAddr);
+			localSubTopics.put(topic, servicesAddrs);
+		} else {
+			localSubTopics.get(topic).add(subRcvServiceAddr);
+		}
 		//再判断是否需要聚合
 		System.out.println("判定新订阅是否需要聚合");
 		if (needJoin(topic) && !isJoinedSub) {
@@ -87,18 +93,17 @@ public class SubPubMgr extends SysInfo {
 
 			if (joinedSubTopics.contains(topic) && !isJoinedSub) {
 				System.out.println("新订阅是聚合而成的订阅，更新订阅状态");
-
 				joinedSubTopics.remove(topic);
 				return true;
 			}
-			System.out.println("新订阅是全新订阅，更新本集群订阅信息groupSubMap");
 
+			System.out.println("新订阅是全新订阅，更新本集群订阅信息groupSubMap");
 			//更新本集群订阅信息
 			Set<String> groupSub = groupSubMap.get(topic) == null ? new HashSet<String>() : groupSubMap.get(topic);
 			groupSub.add(localSwtId + ":" + portWsn2Swt);
 			groupSubMap.put(topic, groupSub);
 			//全网广播
-			spreadSPInfo(topic, "sub", Action.SUB);
+			spreadLocalSPInfo(topic, "sub", Action.SUB);
 			//更新全网所有集群信息
 			Group g = allGroups.get(localGroupName);//实际使用
 //			Group g = new Group("g1");//测试
@@ -109,6 +114,7 @@ public class SubPubMgr extends SysInfo {
 
 			new Thread(new SubMsgReciver(topic)).start();
 
+			//计算订阅后的路径
 			RouteUtil.newSuber(localGroupName, localSwtId, portWsn2Swt, topic);
 			return true;
 		}
@@ -127,7 +133,7 @@ public class SubPubMgr extends SysInfo {
 		Set<String> groupSub = groupSubMap.get(topic);
 		groupSub.remove(localSwtId + ":" + portWsn2Swt);
 
-		spreadSPInfo(topic, "sub", Action.UNSUB);
+		spreadLocalSPInfo(topic, "sub", Action.UNSUB);
 
 		Group g = allGroups.get(localGroupName);//真实使用
 //		Group g = new Group("g1");//测试
@@ -153,7 +159,7 @@ public class SubPubMgr extends SysInfo {
 		groupPub.add(localSwtId + ":" + portWsn2Swt);
 		groupPubMap.put(topic, groupPub);
 
-		spreadSPInfo(topic, "pub", Action.PUB);
+		spreadLocalSPInfo(topic, "pub", Action.PUB);
 
 		Group g = allGroups.get(localGroupName);
 		g.pubMap = cloneSetMap(groupPubMap);
@@ -174,7 +180,7 @@ public class SubPubMgr extends SysInfo {
 		Set<String> groupPub = groupPubMap.get(topic);
 		groupPub.remove(localSwtId + ":" + portWsn2Swt);
 
-		spreadSPInfo(topic, "pub", Action.UNPUB);
+		spreadLocalSPInfo(topic, "pub", Action.UNPUB);
 
 		Group g = allGroups.get(localGroupName);
 		g.pubMap = cloneSetMap(groupPubMap);
@@ -237,7 +243,7 @@ public class SubPubMgr extends SysInfo {
 		return res;
 	}
 
-	private static void spreadSPInfo(String topic, String type, Action action) {
+	private static void spreadLocalSPInfo(String topic, String type, Action action) {
 		SPInfo nsp = new SPInfo();
 		MultiHandler handler = new MultiHandler(sysPort, type, "sys");
 
@@ -301,20 +307,20 @@ public class SubPubMgr extends SysInfo {
 		}
 
 		private void processNotifyObj(NotifyObj obj) {
-			if (localSubTopics.keySet().contains(obj.topic)
-					|| joinedUnsubTopics.contains(obj.topic)) {
+			if (localSubTopics.keySet().contains(obj.topic) || joinedUnsubTopics.contains(obj.topic)) {
+				for (String serviceAddr : localSubTopics.get(obj.topic)) {
+					//查找本地订阅者，把这条消息用原来的webservice或者什么东东，发给本地订阅者
+					URL wsdlUrl = null;
+					try {
+						wsdlUrl = new URL(serviceAddr + "?wsdl");
+					} catch (MalformedURLException e) {
+						e.printStackTrace();
+					}
+					Service s = Service.create(wsdlUrl, new QName("http://subscribe.wangfu.bupt.edu/", "SubscribeProcessService"));
+					SubscribeProcess sp = s.getPort(new QName("http://subscribe.wangfu.bupt.edu/", "SubscribeProcessPort"), SubscribeProcess.class);
 
-				//查找本地订阅者，把这条消息用原来的webservice或者什么东东，发给本地订阅者
-				URL wsdlUrl = null;
-				try {
-					wsdlUrl = new URL(localSubTopics.get(obj.topic) + "?wsdl");
-				} catch (MalformedURLException e) {
-					e.printStackTrace();
+					sp.subscribeProcess(obj.topic + "#" + obj.content);
 				}
-				Service s = Service.create(wsdlUrl, new QName("http://subscribe.wangfu.bupt.edu/", "SubscribeProcessService"));
-				SubscribeProcess sp = s.getPort(new QName("http://subscribe.wangfu.bupt.edu/", "SubscribeProcessPort"), SubscribeProcess.class);
-
-				sp.subscribeProcess(obj.topic + "#" + obj.content);
 			}
 		}
 	}

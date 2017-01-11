@@ -64,6 +64,10 @@ public class MultiHandler extends SysInfo {
 			Inet6Address inetAddress = (Inet6Address) Inet6Address.getByName(v6addr);//根据主题名返回主题的IP地址
 			DatagramPacket datagramPacket = new DatagramPacket(msg, msg.length, inetAddress, port);//这里的端口没有用，最终转发还是看流表
 			MulticastSocket multicastSocket = new MulticastSocket();
+
+//			multicastSocket.setLoopbackMode(true);
+//			multicastSocket.setTimeToLive(10);
+
 			multicastSocket.send(datagramPacket);//发送数据包
 
 			multicastSocket.close();

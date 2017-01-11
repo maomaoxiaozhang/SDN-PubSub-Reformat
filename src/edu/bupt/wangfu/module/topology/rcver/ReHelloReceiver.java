@@ -27,7 +27,7 @@ public class ReHelloReceiver extends SysInfo implements Runnable {
 		while (true) {
 			Object msg = rcvReHello.v6Receive();
 			Hello re_hello = (Hello) msg;
-			if (!re_hello.endGroup.equals(localGroupName) && !re_hello.endGroup.equals(""))
+			if (re_hello.startGroup.equals(localGroupName) && !re_hello.endGroup.equals(localGroupName) && !re_hello.endGroup.equals(""))
 				new Thread(new OnReHello(re_hello)).start();
 		}
 	}

@@ -37,7 +37,7 @@ public abstract class SysInfo {
 	public static Map<String, String> notifyTopicAddrMap;//主题树-->编码树，key是主题名，value是对应这个主题的v6地址
 	public static Map<String, String> sysTopicAddrMap;//系统消息对应的编码，key是topic的名字，value是topic对应的v6地址
 	//订阅表
-	public static Map<String, String> localSubTopics;//本地订阅表，key是本地的订阅主题，value是接收端的webService地址
+	public static Map<String, Set<String>> localSubTopics;//本地订阅表，key是本地的订阅主题，value是接收端的webService地址
 	public static Set<String> localPubTopic;//本地发布表，value是本地的发布主题
 	public static Map<String, Set<String>> groupSubMap;//本集群的订阅信息，key是topic，value是swtId:port的集合
 	public static Map<String, Set<String>> outerSubMap;//全网的订阅信息，key是topic，value是groupName的集合

@@ -100,10 +100,10 @@ public class HeartMgr extends SysInfo {
 			}
 			//定时检测邻居集群的代表是否还在线
 			for (Group g : allGroups.values()) {
-				if (System.currentTimeMillis() - g.updateTime > nbrGrpExpiration) {
+				if (!g.groupName.equals(localGroupName) && System.currentTimeMillis() - g.updateTime > nbrGrpExpiration) {
 					allGroups.remove(g.groupName);
 					nbrGrpLinks.remove(g.groupName);
-					System.out.println("remove group " + g.groupName + " from local allGroups");
+					System.out.println("从本地allGroups中删除" + g.groupName + "集群");
 				}
 			}
 		}

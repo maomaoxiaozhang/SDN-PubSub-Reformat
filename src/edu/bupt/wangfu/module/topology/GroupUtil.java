@@ -285,7 +285,7 @@ public class GroupUtil extends SysInfo {
 			}
 			downRcvHelloFlow();//接收Hello消息的流表
 			spreadLocalGrp();//全网定时广播本集群内容更新
-			spreadAllGrps();//集群内定时广播自己拥有的allGroups，确保每个新增加的节点都有最新的全网集群信息
+//			spreadAllGrps();//集群内定时广播自己拥有的allGroups，确保每个新增加的节点都有最新的全网集群信息
 			downSubPubFlow();//下发注册流表，之后如果wsn要产生新订阅或新发布，就可以通过它扩散到全网
 			downSynGrpRtFlow();//下发route同步流表，使wsn计算出来的新route可以在集群内同步
 			downLeadTableFlow();//下发优先级为10的导向流表，将消息引导到第二级流表
@@ -331,11 +331,25 @@ public class GroupUtil extends SysInfo {
 		}
 
 		private void downSubPubFlow() {
-			for (Switch swt : switchMap.values()) {
-				Flow floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swt.id, "flood", "sub", "sys", "0", "50");
-				FlowUtil.downFlow(groupCtl, floodFlow, "add");
-				floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swt.id, "flood", "pub", "sys", "0", "50");
-				FlowUtil.downFlow(groupCtl, floodFlow, "add");
+			for (String swtId : switchMap.keySet()) {
+				if (!outSwitches.keySet().contains(swtId)) {
+					Flow floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swtId, "flood", "sub", "sys", "0", "50");
+					FlowUtil.downFlow(groupCtl, floodFlow, "add");
+					floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swtId, "flood", "pub", "sys", "0", "50");
+					FlowUtil.downFlow(groupCtl, floodFlow, "add");
+				} else {
+					Flow allOutFlow = FlowUtil.getInstance().generateAllOutFlow(swtId, portWsn2Swt, "sub", "sys", "0", "50");
+					FlowUtil.downFlow(groupCtl, allOutFlow, "add");
+					allOutFlow = FlowUtil.getInstance().generateAllOutFlow(swtId, portWsn2Swt, "pub", "sys", "0", "50");
+					FlowUtil.downFlow(groupCtl, allOutFlow, "add");
+
+					for (String outPort : outSwitches.get(swtId).portSet) {
+						Flow inFlow = FlowUtil.getInstance().generateFlow(swtId, outPort, portWsn2Swt, "sub", "sys", "0", "50");
+						FlowUtil.downFlow(groupCtl, inFlow, "add");
+						inFlow = FlowUtil.getInstance().generateFlow(swtId, outPort, portWsn2Swt, "pub", "sys", "0", "50");
+						FlowUtil.downFlow(groupCtl, inFlow, "add");
+					}
+				}
 			}
 		}
 

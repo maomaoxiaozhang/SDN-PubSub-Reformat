@@ -58,6 +58,12 @@ public class PubReceiver extends SysInfo implements Runnable {
 				if (pub.action.equals(Action.PUB)) {
 					System.out.println("网络中产生新发布，订阅主题为：" + pub.topic);
 
+					if (outerPubMap.get(pub.topic) == null//该订阅是新订阅，之前没有，需要继续通过自己来发送
+							|| (outerPubMap.get(pub.topic) != null && !outerPubMap.get(pub.topic).contains(pub.group))) {
+
+						handler.v6Send(pub);
+					}
+
 					Set<String> outerPub = outerPubMap.get(pub.topic) == null ? new HashSet<String>() : outerPubMap.get(pub.topic);
 					outerPub.add(pub.group);
 					outerPubMap.put(pub.topic, outerPub);
@@ -72,6 +78,10 @@ public class PubReceiver extends SysInfo implements Runnable {
 					}
 				} else if (pub.action.equals(Action.UNPUB)) {
 					System.out.println("网络中新取消发布，取消主题为：" + pub.topic);
+
+					if (outerPubMap.get(pub.topic) != null && outerPubMap.get(pub.topic).contains(pub.group)) {
+						handler.v6Send(pub);
+					}
 
 					if (allGroups.get(pub.group).pubMap.get(pub.topic).size() == 1) {
 						Set<String> outerPub = outerPubMap.get(pub.topic);

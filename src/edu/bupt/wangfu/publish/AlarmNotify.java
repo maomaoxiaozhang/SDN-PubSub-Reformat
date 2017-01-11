@@ -8,7 +8,7 @@ import java.net.URL;
 /**
  *  Created by HanB on 2017/1/10.
  */
-public class AlermNotify {
+public class AlarmNotify {
     private static int count = 1000;
     public static void main(String[] args) {
         URL wsdlUrl = null;
