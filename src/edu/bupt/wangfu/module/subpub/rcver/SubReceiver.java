@@ -68,10 +68,13 @@ public class SubReceiver extends SysInfo implements Runnable {
 					outerSub.add(sub.group);
 					outerSubMap.put(sub.topic, outerSub);
 
-					Group g = allGroups.get(sub.group);
-					g.subMap.get(sub.topic).add(sub.swtId + ":" + sub.port);
+					Group g = allGroups.get(sub.group) == null ? new Group(sub.group) : allGroups.get(sub.group);
+					Set<String> subTopics = g.subMap.get(sub.topic) == null ? new HashSet<String>() : g.subMap.get(sub.topic);
+					subTopics.add(sub.swtId + ":" + sub.port);
 					g.id += 1;
 					g.updateTime = System.currentTimeMillis();
+					g.subMap.put(sub.topic, subTopics);
+					allGroups.put(sub.group, g);
 
 					if (localCtl.url.equals(groupCtl.url)) {//因为sub信息会全网广播，集群中只要有一个人计算本集群该做什么就可以了
 						RouteUtil.newSuber(sub.group, "", "", sub.topic);

@@ -22,14 +22,14 @@ public class LSAReceiver extends SysInfo implements Runnable {
 			Object msg = handler.v6Receive();
 			if (msg instanceof Group) {
 				Group lsa = (Group) msg;
-				System.out.println("收到单条LSA");
+//				System.out.println("收到单条LSA");
 				Group localGrpInfo = allGroups.get(lsa.groupName);
 				if (localGrpInfo == null || localGrpInfo.id < lsa.id) {
 					allGroups.put(lsa.groupName, lsa);
 				}
 			} else if (msg instanceof AllGrps) {
 				AllGrps ags = (AllGrps) msg;
-				System.out.print("收到LSDB");
+//				System.out.print("收到LSDB");
 				for (Group group : ags.allGrps.values()) {
 					if (allGroups.containsKey(group.groupName) && allGroups.get(group.groupName).id < group.id) {
 						allGroups.put(group.groupName, group);

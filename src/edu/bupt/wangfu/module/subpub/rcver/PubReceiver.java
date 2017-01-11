@@ -68,10 +68,13 @@ public class PubReceiver extends SysInfo implements Runnable {
 					outerPub.add(pub.group);
 					outerPubMap.put(pub.topic, outerPub);
 
-					Group g = allGroups.get(pub.group);
-					g.pubMap.get(pub.topic).add(pub.swtId + ":" + pub.port);
+					Group g = allGroups.get(pub.group) == null ? new Group(pub.group) : allGroups.get(pub.group);
+					Set<String> pubTopics = g.pubMap.get(pub.topic) == null ? new HashSet<String>() : g.pubMap.get(pub.topic);
+					pubTopics.add(pub.swtId + ":" + pub.port);
 					g.id += 1;
 					g.updateTime = System.currentTimeMillis();
+					g.pubMap.put(pub.topic, pubTopics);
+					allGroups.put(pub.group, g);
 
 					if (localCtl.url.equals(groupCtl.url)) {
 						RouteUtil.newPuber(pub.group, "", "", pub.topic);

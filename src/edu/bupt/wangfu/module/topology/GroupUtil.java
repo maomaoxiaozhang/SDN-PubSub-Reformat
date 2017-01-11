@@ -71,7 +71,7 @@ public class GroupUtil extends SysInfo {
 		Group g = allGroups.get(localGroupName);
 		MultiHandler handler = new MultiHandler(sysPort, "lsa", "sys");
 		handler.v6Send(g);
-		System.out.println("广播当前集群LSA：" + g.toString());
+//		System.out.println("广播当前集群LSA：" + g.toString());
 	}
 
 	//更新group拓扑信息
@@ -291,7 +291,7 @@ public class GroupUtil extends SysInfo {
 			downLeadTableFlow();//下发优先级为10的导向流表，将消息引导到第二级流表
 			if (localCtl.url.equals(groupCtl.url))
 				downRestFlow();//下发访问groupCtl的flood流表
-
+			pintSub();//打印所有当前订阅的主题
 		}
 
 		private void downLeadTableFlow() {
@@ -371,6 +371,13 @@ public class GroupUtil extends SysInfo {
 				FlowUtil.downFlow(groupCtl, fromGrpCtlFlow, "add");
 				Flow toGrpCtlFlow = FlowUtil.getInstance().generateRestFlow(swt.id, "flood", "0", "50", "dst:" + localAddr);
 				FlowUtil.downFlow(groupCtl, toGrpCtlFlow, "add");
+			}
+		}
+
+		private void pintSub() {
+			System.out.println("当前订阅的主题有：");
+			for (String topic : localSubTopics.keySet()) {
+				System.out.println(topic);
 			}
 		}
 	}
