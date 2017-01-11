@@ -31,7 +31,7 @@ public class AlarmNotify {
                 e.printStackTrace();
             }
             // 发布消息数
-            for (int i = 0; i < count; i ++) {
+            for (int i = 1; i <= count; i ++) {
                 hs.wsnServerMethod("NOTIFY#" + topic + "#" + content);
                 if (i % 100 == 0)
                     System.out.println("PUB " + topic + " -- " + i);
