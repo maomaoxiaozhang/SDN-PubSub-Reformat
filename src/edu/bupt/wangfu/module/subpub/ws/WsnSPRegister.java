@@ -13,7 +13,7 @@ import javax.xml.ws.Endpoint;
 public class WsnSPRegister extends SysInfo implements Runnable {
 
 	public static void main(String[] args) {
-		Endpoint.publish("http://localhost:" + 30000 + "/WsnRegisterService", new WsnSPRegister());
+		Endpoint.publish("http://10.108.164.152:30000/WsnRegisterService", new WsnSPRegister());
 	}
 
 	// 发布的服务方法处理发布者订阅者的注册，并返回处理结果
