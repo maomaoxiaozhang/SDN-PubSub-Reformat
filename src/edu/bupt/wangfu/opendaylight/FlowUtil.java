@@ -143,7 +143,7 @@ public class FlowUtil extends SysInfo {
 		if (outSwitches.get(swtId) != null) {
 			Switch sw = outSwitches.get(swtId);
 			for (String port : sw.portSet)
-			out += port;
+			out += port + ",";
 		}
 		out = out.substring(1);
 
