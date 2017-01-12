@@ -15,7 +15,7 @@ public class SingleSubscribe {
 	public static void main(String[] args) {
 		URL wsdlUrl = null;
 		try {
-			wsdlUrl = new URL("http://" + args[0] +  "/WsnRegisterService?wsdl");
+			wsdlUrl = new URL("http://" + args[0] + ":" + args[1] +  "/WsnRegisterService?wsdl");
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
@@ -24,7 +24,7 @@ public class SingleSubscribe {
 		WsnSPRegister hs = s.getPort(new QName("http://ws.subpub.module.wangfu.bupt.edu/", "WsnSPRegisterPort"), WsnSPRegister.class);
 
 		// 启动订阅接受服务
-		String subscribeProcessAddr = "http://" + args[1] + "/SubscribeProcess";
+		String subscribeProcessAddr = "http://" + args[0] + ":" + (Integer.parseInt(args[1]) - 1) + "/SubscribeProcess";
 		Endpoint.publish(subscribeProcessAddr,new SubscribeProcess());
 
 		String topic = "all:a"; // 订阅主题

@@ -14,7 +14,6 @@ import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 import javax.xml.namespace.QName;
 import javax.xml.ws.Service;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
@@ -320,16 +319,16 @@ public class SubPubMgr extends SysInfo {
 				if (localSubTopics.keySet().contains(obj.topic) || joinedUnsubTopics.contains(obj.topic)) {
 					for (String serviceAddr : localSubTopics.get(obj.topic)) {
 						//查找本地订阅者，把这条消息用原来的webservice或者什么东东，发给本地订阅者
-						URL wsdlUrl = null;
+						URL wsdlUrl;
 						try {
 							wsdlUrl = new URL(serviceAddr + "?wsdl");
-						} catch (MalformedURLException e) {
-							e.printStackTrace();
-						}
-						Service s = Service.create(wsdlUrl, new QName("http://subscribe.wangfu.bupt.edu/", "SubscribeProcessService"));
-						SubscribeProcess sp = s.getPort(new QName("http://subscribe.wangfu.bupt.edu/", "SubscribeProcessPort"), SubscribeProcess.class);
+							Service s = Service.create(wsdlUrl, new QName("http://subscribe.wangfu.bupt.edu/", "SubscribeProcessService"));
+							SubscribeProcess sp = s.getPort(new QName("http://subscribe.wangfu.bupt.edu/", "SubscribeProcessPort"), SubscribeProcess.class);
 
-						sp.subscribeProcess(obj.topic + "#" + obj.content);
+							sp.subscribeProcess(obj.topic + "#" + obj.content);
+						} catch (Exception e) {
+							System.out.println("消息推送失败，请检查订阅方是否在线");
+						}
 					}
 				}
 			}
