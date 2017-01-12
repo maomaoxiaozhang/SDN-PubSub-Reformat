@@ -22,7 +22,7 @@ public class AlarmNotify {
 		WsnSPRegister hs = s.getPort(new QName("http://ws.subpub.module.wangfu.bupt.edu/", "WsnSPRegisterPort"), WsnSPRegister.class);
 
 		String topic = "all:a"; // 发布的主题
-		String content = "I'm a bupter. -- (" + System.currentTimeMillis() + ")"; // 发布的内容
+		String content = "I'm a bupter."; // 发布的内容
 
 		// 发布注册成功，开始发布消息
 		hs.wsnServerMethod("PUB#" + topic + "#" + content);
@@ -35,7 +35,7 @@ public class AlarmNotify {
 		count = Integer.parseInt(args[2]);
 		// 发布消息数
 		for (int i = 1; i <= count; i++) {
-			hs.wsnServerMethod("NOTIFY#" + topic + "#" + content);
+			hs.wsnServerMethod("NOTIFY#" + topic + "#" + content + " -- (" + System.currentTimeMillis() + ", from )" + args[0]);
 			if (i % 100 == 0)
 				System.out.println("PUB " + topic + " -- " + i);
 		}
