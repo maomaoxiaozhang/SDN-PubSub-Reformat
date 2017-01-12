@@ -53,7 +53,14 @@ public class GroupDijkstra {
 			}
 
 			//dis_1記錄最近集群到startGrp集群的距離
-			int dis_1 = distance.get(nearest.groupName);
+			int dis_1 = 0;
+			if(distance.get(nearest.groupName) == null){
+				return null;
+			}
+			else{
+				dis_1 = distance.get(nearest.groupName);
+			}
+
 			//更新distance中的信息
 			for (Group gr : op) {
 				//dis_2存儲當前集群到startGrp集群的距離
