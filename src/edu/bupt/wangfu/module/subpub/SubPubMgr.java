@@ -106,7 +106,6 @@ public class SubPubMgr extends SysInfo {
 			spreadLocalSPInfo(topic, "sub", Action.SUB);
 			//更新全网所有集群信息
 			Group g = allGroups.get(localGroupName);//实际使用
-//			Group g = new Group("g1");//测试
 			g.subMap = cloneSetMap(groupSubMap);
 			g.id += 1;
 			g.updateTime = System.currentTimeMillis();
@@ -136,7 +135,6 @@ public class SubPubMgr extends SysInfo {
 		spreadLocalSPInfo(topic, "sub", Action.UNSUB);
 
 		Group g = allGroups.get(localGroupName);//真实使用
-//		Group g = new Group("g1");//测试
 		g.subMap = cloneSetMap(groupSubMap);
 		g.id += 1;
 		g.updateTime = System.currentTimeMillis();
@@ -296,7 +294,7 @@ public class SubPubMgr extends SysInfo {
 		String topic;
 		MultiHandler handler;
 
-		public SubMsgReciver(String topic) {
+		SubMsgReciver(String topic) {
 			System.out.println("新监听启动中，监听主题为" + topic);
 			this.topic = topic;
 			this.handler = new MultiHandler(notifyPort, topic.toLowerCase(), "notify");
@@ -306,24 +304,33 @@ public class SubPubMgr extends SysInfo {
 		public void run() {
 			while (true) {
 				NotifyObj obj = (NotifyObj) handler.v6Receive();
-				processNotifyObj(obj);
+				new Thread(new NotifyObjProcessor(obj)).start();
 			}
 		}
 
-		private void processNotifyObj(NotifyObj obj) {
-			if (localSubTopics.keySet().contains(obj.topic) || joinedUnsubTopics.contains(obj.topic)) {
-				for (String serviceAddr : localSubTopics.get(obj.topic)) {
-					//查找本地订阅者，把这条消息用原来的webservice或者什么东东，发给本地订阅者
-					URL wsdlUrl = null;
-					try {
-						wsdlUrl = new URL(serviceAddr + "?wsdl");
-					} catch (MalformedURLException e) {
-						e.printStackTrace();
-					}
-					Service s = Service.create(wsdlUrl, new QName("http://subscribe.wangfu.bupt.edu/", "SubscribeProcessService"));
-					SubscribeProcess sp = s.getPort(new QName("http://subscribe.wangfu.bupt.edu/", "SubscribeProcessPort"), SubscribeProcess.class);
+		private class NotifyObjProcessor implements Runnable {
+			private NotifyObj obj;
 
-					sp.subscribeProcess(obj.topic + "#" + obj.content);
+			NotifyObjProcessor(NotifyObj obj) {
+				this.obj = obj;
+			}
+
+			@Override
+			public void run() {
+				if (localSubTopics.keySet().contains(obj.topic) || joinedUnsubTopics.contains(obj.topic)) {
+					for (String serviceAddr : localSubTopics.get(obj.topic)) {
+						//查找本地订阅者，把这条消息用原来的webservice或者什么东东，发给本地订阅者
+						URL wsdlUrl = null;
+						try {
+							wsdlUrl = new URL(serviceAddr + "?wsdl");
+						} catch (MalformedURLException e) {
+							e.printStackTrace();
+						}
+						Service s = Service.create(wsdlUrl, new QName("http://subscribe.wangfu.bupt.edu/", "SubscribeProcessService"));
+						SubscribeProcess sp = s.getPort(new QName("http://subscribe.wangfu.bupt.edu/", "SubscribeProcessPort"), SubscribeProcess.class);
+
+						sp.subscribeProcess(obj.topic + "#" + obj.content);
+					}
 				}
 			}
 		}

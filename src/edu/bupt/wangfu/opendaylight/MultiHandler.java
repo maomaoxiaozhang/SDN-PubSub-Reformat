@@ -21,11 +21,7 @@ public class MultiHandler extends SysInfo {
 		this.port = port;
 		if (topicType.equals("sys")) {
 			v6addr = sysTopicAddrMap.get(topic);
-
-			//String[] tmp = this.v6addr.split("");
-
 			this.port += v6addr.charAt(v6addr.length() - 1) - '0';
-//			System.out.println("！！！主题为"+v6addr+"端口为"+this.port);
 		} else if (topicType.equals("notify")) {
 			v6addr = notifyTopicAddrMap.get(topic);
 		}
@@ -64,10 +60,6 @@ public class MultiHandler extends SysInfo {
 			Inet6Address inetAddress = (Inet6Address) Inet6Address.getByName(v6addr);//根据主题名返回主题的IP地址
 			DatagramPacket datagramPacket = new DatagramPacket(msg, msg.length, inetAddress, port);//这里的端口没有用，最终转发还是看流表
 			MulticastSocket multicastSocket = new MulticastSocket();
-
-//			multicastSocket.setLoopbackMode(true);
-//			multicastSocket.setTimeToLive(10);
-
 			multicastSocket.send(datagramPacket);//发送数据包
 
 			multicastSocket.close();

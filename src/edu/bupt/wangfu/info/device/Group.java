@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by lenovo on 2016-10-31.
  */
-public class Group extends DevInfo {
+public class Group extends DevInfo implements Comparable {
 	/**
 	 * Link State Advertisement，全称链路状态广播
 	 * 包含这个集群的全部信息，直接存起来就可以，不是增量的
@@ -34,5 +34,11 @@ public class Group extends DevInfo {
 				"，集群订阅为：'" + subMap.keySet() + '\'' +
 				"，集群发布为：'" + pubMap.keySet() + '\'' +
 				" }";
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		Group remote = (Group) o;
+		return groupName.compareTo(remote.groupName);
 	}
 }

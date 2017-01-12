@@ -9,8 +9,8 @@ import java.util.*;
  */
 public class GroupDijkstra {
 	public static List<String> groupdijkstra(String startGrpName, String endGrpName, Map<String, Group> allGroups) {
-		Set<Group> op = new HashSet<>();
-		Set<String> open = new HashSet<>();
+		Set<Group> op = new TreeSet<>();
+		Set<String> open = new TreeSet<>();
 		//將所有group存儲在op中，所有Group集群名存儲在open中
 		for (String st : allGroups.keySet()) {
 			op.add(allGroups.get(st));
@@ -20,7 +20,7 @@ public class GroupDijkstra {
 		Group endGrp = allGroups.get(endGrpName);
 
 		op.remove(startGrp);
-		Set<Group> close = new HashSet<>();
+		Set<Group> close = new TreeSet<>();
 		close.add(startGrp);
 		//distance存儲當前集群到starGrp集群距離
 		Map<String, Integer> distance = new HashMap<>();
@@ -45,12 +45,6 @@ public class GroupDijkstra {
 			nearest = getNearestGroup(distance, op);
 			op.remove(nearest);
 			close.add(nearest);
-
-			//测试
-			System.out.println("！！！！！！！！！肿么回事儿！！！！！！！！！！！！！");
-			for (String nbr : distance.keySet()) {
-				System.out.println(nbr);
-			}
 
 			//dis_1記錄最近集群到startGrp集群的距離
 			int dis_1 = 0;

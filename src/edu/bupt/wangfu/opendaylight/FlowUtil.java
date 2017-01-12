@@ -32,6 +32,9 @@ public class FlowUtil extends SysInfo {
 	}
 
 	public static void downFlow(Controller controller, Flow flow, String action) {
+		if (flow == null) {
+			return;
+		}
 		//这里还要考虑下发到具体哪个流表里，看要执行的动作是 更新流表项 还是 添加新流表项
 		// action == "add" "update"
 		//RestProcess.doClientPost(controller, flow.swtId, flow.toStringOutput());
@@ -93,7 +96,7 @@ public class FlowUtil extends SysInfo {
 		// 非outport flood流表
 		if (out.equals("flood-in-grp")) {
 			if (switchMap.get(swtId).neighbors.keySet().isEmpty())
-				out = portWsn2Swt;
+				return null;
 			else {
 				out = "";
 				for (String s : switchMap.get(swtId).neighbors.keySet())
@@ -101,6 +104,7 @@ public class FlowUtil extends SysInfo {
 				out = out.substring(1);
 			}
 		}
+
 		String v6Addr = null;
 		if (topicType.equals("sys")) {
 			v6Addr = sysTopicAddrMap.get(topic);
@@ -186,7 +190,7 @@ public class FlowUtil extends SysInfo {
 
 		if (out.equals("flood-in-grp")) {
 			if (switchMap.get(swtId).neighbors.keySet().isEmpty())
-				out = portWsn2Swt;
+				return null;
 			else {
 				out = "";
 				for (String s : switchMap.get(swtId).neighbors.keySet())
