@@ -45,6 +45,13 @@ public class GroupDijkstra {
 			nearest = getNearestGroup(distance, op);
 			op.remove(nearest);
 			close.add(nearest);
+
+			//测试
+			System.out.println("！！！！！！！！！肿么回事儿！！！！！！！！！！！！！");
+			for (String nbr : distance.keySet()) {
+				System.out.println(nbr);
+			}
+
 			//dis_1記錄最近集群到startGrp集群的距離
 			int dis_1 = distance.get(nearest.groupName);
 			//更新distance中的信息

@@ -77,7 +77,7 @@ public class RouteUtil extends SysInfo {
 		}
 	}
 
-	//集群中新添元素，重新计算路由
+	//收到本集群的订阅或发布，重新计算群间路由
 	private static void updateInGrpChange(String grpName, String topic, Action action) {
 		if (action.equals(Action.SUB)) {
 			System.out.println("集群内订阅状态发生变化，正在重新计算路由");
@@ -117,6 +117,7 @@ public class RouteUtil extends SysInfo {
 		System.out.println("路由重新计算完毕");
 	}
 
+	//收到其他集群的订阅或者发布，更新群间路由
 	public static void updateNbrChange(String topic) {
 		System.out.println("集群间链路状态发生变化，正在重新计算路由");
 		Set<Group> suberGrps = new HashSet<>();
@@ -176,7 +177,7 @@ public class RouteUtil extends SysInfo {
 					String swt2PreGrp = nbrGrpLinks.get(route.get(i - 1)).srcBorderSwtId;
 					String port2PreGrp = nbrGrpLinks.get(route.get(i - 1)).srcOutPort;
 
-					Flow inFloodFlow = FlowUtil.getInstance().generateFlow(swt2PreGrp, port2PreGrp, "flood", topic, "notify", "0", "20");
+					Flow inFloodFlow = FlowUtil.getInstance().generateFlow(swt2PreGrp, port2PreGrp, "flood-in-grp", topic, "notify", "0", "20");
 					FlowUtil.downFlow(groupCtl, inFloodFlow, "update");
 				}
 			}

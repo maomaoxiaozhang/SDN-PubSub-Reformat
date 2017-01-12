@@ -149,8 +149,10 @@ public class SubPubMgr extends SysInfo {
 
 	//本地有新发布
 	public static boolean localPublish(String topic) {
-		if (localPubTopic.contains(topic))
-			return false;//本地已有这个发布
+		if (localPubTopic.contains(topic)) {
+			System.out.println("本地已有这个发布");
+			return false;
+		}
 		localPubTopic.add(topic);
 
 		Set<String> groupPub = groupPubMap.get(topic) == null ? new HashSet<String>() : groupPubMap.get(topic);
@@ -302,8 +304,10 @@ public class SubPubMgr extends SysInfo {
 
 		@Override
 		public void run() {
-			NotifyObj obj = (NotifyObj) handler.v6Receive();
-			processNotifyObj(obj);
+			while (true) {
+				NotifyObj obj = (NotifyObj) handler.v6Receive();
+				processNotifyObj(obj);
+			}
 		}
 
 		private void processNotifyObj(NotifyObj obj) {

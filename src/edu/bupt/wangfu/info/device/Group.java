@@ -30,6 +30,9 @@ public class Group extends DevInfo {
 				"id为：" + id +
 				"，上次更新时间为：" + updateTime +
 				"，集群名称为：'" + groupName + '\'' +
+				"，集群邻居为：'" + dist2NbrGrps.keySet() + '\'' +
+				"，集群订阅为：'" + subMap.keySet() + '\'' +
+				"，集群发布为：'" + pubMap.keySet() + '\'' +
 				" }";
 	}
 }

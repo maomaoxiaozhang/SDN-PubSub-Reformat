@@ -54,11 +54,17 @@ public class GroupUtil extends SysInfo {
 	}
 
 	private static void addSelf2Allgrps() {
-		Group g = new Group(localGroupName);
-		g.updateTime = System.currentTimeMillis();
-		g.subMap = cloneSetMap(groupSubMap);
-		g.pubMap = cloneSetMap(groupPubMap);
-		allGroups.put(localGroupName, g);
+		if (allGroups.get(localGroupName) != null) {
+			Group g = allGroups.get(localGroupName);
+			g.id += 1;
+			g.updateTime = System.currentTimeMillis();
+		} else {
+			Group g = new Group(localGroupName);
+			g.updateTime = System.currentTimeMillis();
+			g.subMap = cloneSetMap(groupSubMap);
+			g.pubMap = cloneSetMap(groupPubMap);
+			allGroups.put(localGroupName, g);
+		}
 	}
 
 	private static boolean isGrpLinked(GroupLink gl) {
@@ -291,7 +297,7 @@ public class GroupUtil extends SysInfo {
 			downLeadTableFlow();//下发优先级为10的导向流表，将消息引导到第二级流表
 			if (localCtl.url.equals(groupCtl.url))
 				downRestFlow();//下发访问groupCtl的flood流表
-			pintSub();//打印所有当前订阅的主题
+			testPrint();//打印所有当前订阅的主题
 		}
 
 		private void downLeadTableFlow() {
@@ -374,10 +380,18 @@ public class GroupUtil extends SysInfo {
 			}
 		}
 
-		private void pintSub() {
-			System.out.println("当前订阅的主题有：");
+		private void testPrint() {
+			System.out.println("当前本地订阅的主题有：");
 			for (String topic : localSubTopics.keySet()) {
 				System.out.println(topic);
+			}
+			System.out.println("当前其他集群订阅的主题有：");
+			for (String topic : outerSubMap.keySet()) {
+				System.out.println(topic);
+			}
+			System.out.println("当前网络中的集群为：");
+			for (String grp : allGroups.keySet()) {
+				System.out.println(grp + "：" + allGroups.get(grp).toString());
 			}
 		}
 	}

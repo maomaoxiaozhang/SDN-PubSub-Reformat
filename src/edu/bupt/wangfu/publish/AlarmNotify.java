@@ -25,11 +25,11 @@ public class AlarmNotify {
 
         // 发布注册成功，开始发布消息
         if ( hs.wsnServerMethod("PUB#" + topic + "#" + content).contains("success")) {
-            try {
+            /*try {
                 Thread.sleep(20000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
+            }*/
             // 发布消息数
             for (int i = 1; i <= count; i ++) {
                 hs.wsnServerMethod("NOTIFY#" + topic + "#" + content);
