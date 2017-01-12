@@ -93,11 +93,13 @@ public class FlowUtil extends SysInfo {
 		// 非outport flood流表
 		if (out.equals("flood-in-grp")) {
 			if (switchMap.get(swtId).neighbors.keySet().isEmpty())
-				return null;
-			out = "";
-			for (String s : switchMap.get(swtId).neighbors.keySet())
-				out += ("," + s);
-			out = out.substring(1);
+				out = portWsn2Swt;
+			else {
+				out = "";
+				for (String s : switchMap.get(swtId).neighbors.keySet())
+					out += ("," + s);
+				out = out.substring(1);
+			}
 		}
 		String v6Addr = null;
 		if (topicType.equals("sys")) {
@@ -184,11 +186,13 @@ public class FlowUtil extends SysInfo {
 
 		if (out.equals("flood-in-grp")) {
 			if (switchMap.get(swtId).neighbors.keySet().isEmpty())
-				return null;
-			out = "";
-			for (String s : switchMap.get(swtId).neighbors.keySet())
-				out += ("," + s);
-			out = out.substring(1);
+				out = portWsn2Swt;
+			else {
+				out = "";
+				for (String s : switchMap.get(swtId).neighbors.keySet())
+					out += ("," + s);
+				out = out.substring(1);
+			}
 		}
 
 		flowcount++;
@@ -208,12 +212,6 @@ public class FlowUtil extends SysInfo {
 	public Flow generateRestFlow(String swtId, String out, String t_id, String pri, String v4Addr) {
 		System.out.println("生成Rest流表中，参数为：swtId=" + swtId + "；IPv4=" + v4Addr + "；out=" + out);
 		flowcount++;
-		if (out.equals("flood-in-grp")) {
-			out = "";
-			for (String s : switchMap.get(swtId).neighbors.keySet())
-				out += ("," + s);
-			out = out.substring(1);
-		}
 
 		Flow flow = new Flow();
 		flow.swtId = swtId;
