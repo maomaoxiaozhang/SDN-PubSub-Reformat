@@ -23,9 +23,9 @@ public class GroupDijkstra {
 		Set<Group> close = new TreeSet<>();
 		close.add(startGrp);
 		//distance存儲當前集群到starGrp集群距離
-		Map<String, Integer> distance = new HashMap<>();
+		Map<String, Integer> distance = new TreeMap<>();
 		//path存儲集群到達startGrp集群經過的集群
-		Map<String, List<String>> path = new HashMap<>();
+		Map<String, List<String>> path = new TreeMap<>();
 
 		//初始化distance，與startGrp集群不相鄰則設為-1
 		for (String st : open) {
@@ -40,7 +40,7 @@ public class GroupDijkstra {
 		}
 
 		Group nearest = startGrp;
-		while (nearest != endGrp) {
+		while (nearest != endGrp && !op.isEmpty()) {
 			//查詢與startGrp距離最近的集群
 			nearest = getNearestGroup(distance, op);
 			op.remove(nearest);
@@ -82,14 +82,20 @@ public class GroupDijkstra {
 				}
 			}
 		}
-		ArrayList<String> across = new ArrayList<>();
-		across.add(startGrpName);
-		if (!(path.get(endGrpName) == null)) {
-			across.addAll(path.get(endGrpName));
+		if(distance.get(endGrpName) == -1){
+			System.out.println("当前集群与目标集群无到达路径！");
+			return null;
 		}
-		across.add(endGrpName);
-		System.out.println("从集群" + startGrpName + "到集群" + endGrpName + "最短距离为: " + distance.get(endGrpName));
-		return across;
+		else{
+			ArrayList<String> across = new ArrayList<>();
+			across.add(startGrpName);
+			if (!(path.get(endGrpName) == null)) {
+				across.addAll(path.get(endGrpName));
+			}
+			across.add(endGrpName);
+			System.out.println("从集群" + startGrpName + "到集群" + endGrpName + "最短距离为: " + distance.get(endGrpName));
+			return across;
+		}
 	}
 
 	//返回distance中距离startGrp集群最近的集群
