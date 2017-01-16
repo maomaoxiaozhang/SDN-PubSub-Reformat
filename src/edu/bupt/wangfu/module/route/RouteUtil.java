@@ -19,12 +19,14 @@ import static edu.bupt.wangfu.module.base.WsnMgr.cloneStrList;
  */
 public class RouteUtil extends SysInfo {
 	public static List<String> calRoute(String startSwtId, String endSwtId) {
+		System.out.println("计算集群内路径中，起点为" + startSwtId + "，终点为" + endSwtId);
+
 		for (Route r : groupRoutes) {
 			if (r.startSwtId.equals(startSwtId) && r.endSwtId.equals(endSwtId)) {
+				printRoute(r.route);
 				return r.route;
 			}
 		}
-		System.out.println("计算集群内路径中，起点为" + startSwtId + "，终点为" + endSwtId);
 		List<String> route = Dijkstra.dijkstra(startSwtId, endSwtId, switchMap);
 		System.out.println("集群内路径结算结果为");
 		printRoute(route);
@@ -71,8 +73,7 @@ public class RouteUtil extends SysInfo {
 				FlowUtil.downFlow(groupCtl, floodFlow, "update");
 			} else {
 				Flow floodInFlow = FlowUtil.getInstance().generateNoInPortFlow(swtId, "flood-in-grp", topic, "notify", "0", "20");
-				if (floodInFlow != null)
-					FlowUtil.downFlow(groupCtl, floodInFlow, "update");
+				FlowUtil.downFlow(groupCtl, floodInFlow, "update");
 			}
 		}
 	}
@@ -114,7 +115,7 @@ public class RouteUtil extends SysInfo {
 				downBridgeFlow(route, topic);
 			}
 		}
-		System.out.println("路由重新计算完毕");
+		System.out.println("路由重新计算完毕，结束时间为：" + System.currentTimeMillis());
 	}
 
 	//收到其他集群的订阅或者发布，更新群间路由
@@ -177,7 +178,7 @@ public class RouteUtil extends SysInfo {
 					String swt2PreGrp = nbrGrpLinks.get(route.get(i - 1)).srcBorderSwtId;
 					String port2PreGrp = nbrGrpLinks.get(route.get(i - 1)).srcOutPort;
 
-					Flow inFloodFlow = FlowUtil.getInstance().generateFlow(swt2PreGrp, port2PreGrp, "flood-in-grp", topic, "notify", "0", "20");
+					Flow inFloodFlow = FlowUtil.getInstance().generateFlow(swt2PreGrp, port2PreGrp, "flood-in-grp", topic, "notify", "0", "50");
 					FlowUtil.downFlow(groupCtl, inFloodFlow, "update");
 				}
 			}
@@ -213,7 +214,7 @@ public class RouteUtil extends SysInfo {
 		if (route.size() == 1) {//测试
 			Flow flow = FlowUtil.getInstance().generateFlow(route.get(0), in, out, topic, topicType, "0", "50");
 			routeFlows.add(flow);
-			FlowUtil.downFlow(ctl, flow, "add");
+			FlowUtil.downFlow(ctl, flow, "update");
 			return routeFlows;
 		}
 		for (int i = 0; i < route.size(); i++) {
@@ -238,7 +239,7 @@ public class RouteUtil extends SysInfo {
 						outPort = e.startPort;
 				}
 			}
-			Flow flow = FlowUtil.getInstance().generateFlow(route.get(i), inPort, outPort, topic, topicType, outPort, "50");
+			Flow flow = FlowUtil.getInstance().generateFlow(route.get(i), inPort, outPort, topic, topicType, inPort, "50");
 			routeFlows.add(flow);
 			FlowUtil.downFlow(ctl, flow, "update");
 		}

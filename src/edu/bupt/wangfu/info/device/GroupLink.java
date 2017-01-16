@@ -12,4 +12,16 @@ public class GroupLink {
 
 	public String dstBorderSwtId;//outerGroup这边，边界swtId
 	public String dstOutPort;
+
+	@Override
+	public String toString() {
+		return "GroupLink{" +
+				"本地集群名='" + srcGroupName + '\'' +
+				", 对面集群名='" + dstGroupName + '\'' +
+				", 本集群边界交换机ID='" + srcBorderSwtId + '\'' +
+				", 本集群边界交换机端口='" + srcOutPort + '\'' +
+				", 对面集群边界交换机ID='" + dstBorderSwtId + '\'' +
+				", 对面集群边界交换机端口='" + dstOutPort + '\'' +
+				'}';
+	}
 }

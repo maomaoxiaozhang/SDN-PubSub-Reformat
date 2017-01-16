@@ -27,9 +27,10 @@ public class Config extends SysInfo {
 		//测试
 		notifyTopicAddrMap.put("all", "ff0e:0080:0000:0000:0000:0000:1111:0006");
 		notifyTopicAddrMap.put("all:a", "ff0e:0080:0000:0000:0000:0000:2222:0006");
-		notifyTopicAddrMap.put("all:a:1", "ff0e:0080:0000:0000:0000:0000:3333:0006");
-		notifyTopicAddrMap.put("all:a:2", "ff0e:0080:0000:0000:0000:0000:4444:0006");
-		notifyTopicAddrMap.put("all:a:3", "ff0e:0080:0000:0000:0000:0000:5555:0006");
+		notifyTopicAddrMap.put("all:b", "ff0e:0080:0000:0000:0000:0000:3333:0006");
+		notifyTopicAddrMap.put("all:a:1", "ff0e:0080:0000:0000:0000:0000:4444:0006");
+		notifyTopicAddrMap.put("all:a:2", "ff0e:0080:0000:0000:0000:0000:5555:0006");
+		notifyTopicAddrMap.put("all:a:3", "ff0e:0080:0000:0000:0000:0000:6666:0006");
 
 		System.out.println("参数及主题树配置完成\n");
 	}

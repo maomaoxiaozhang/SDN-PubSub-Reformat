@@ -56,7 +56,7 @@ public class SubReceiver extends SysInfo implements Runnable {
 				}
 			} else {//邻居集群产生的订阅
 				if (sub.action.equals(Action.SUB)) {
-					System.out.println("网络中产生新订阅，订阅主题为：" + sub.topic);
+					System.out.println("网络中产生新订阅，订阅主题为：" + sub.topic + "，接收到新订阅的时间为：" + System.currentTimeMillis());
 
 					if (outerSubMap.get(sub.topic) == null//该订阅是新订阅，之前没有，需要继续通过自己来发送
 							|| (outerSubMap.get(sub.topic) != null && !outerSubMap.get(sub.topic).contains(sub.group))) {

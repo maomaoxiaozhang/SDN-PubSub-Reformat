@@ -32,7 +32,7 @@ public class FlowUtil extends SysInfo {
 	}
 
 	public static void downFlow(Controller controller, Flow flow, String action) {
-		if (flow == null) {
+		if (flow == null || flow.out.equals("")) {
 			return;
 		}
 		//这里还要考虑下发到具体哪个流表里，看要执行的动作是 更新流表项 还是 添加新流表项
@@ -95,9 +95,12 @@ public class FlowUtil extends SysInfo {
 		//之前没生成过这条流表，需要重新生成
 		// 非outport flood流表
 		if (out.equals("flood-in-grp")) {
-			if (switchMap.get(swtId).neighbors.keySet().isEmpty())
-				return null;
-			else {
+			if (switchMap.get(swtId).neighbors.keySet().isEmpty()) {
+				if (in.equals(portWsn2Swt))
+					return null;
+				else
+					out = portWsn2Swt;
+			} else {
 				out = "";
 				for (String s : switchMap.get(swtId).neighbors.keySet())
 					out += ("," + s);

@@ -3,6 +3,7 @@ package edu.bupt.wangfu.module.topology.rcver;
 import edu.bupt.wangfu.info.device.Group;
 import edu.bupt.wangfu.info.msg.AllGrps;
 import edu.bupt.wangfu.module.base.SysInfo;
+import edu.bupt.wangfu.module.route.RouteUtil;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
 
 /**
@@ -21,15 +22,18 @@ public class LSAReceiver extends SysInfo implements Runnable {
 		while (true) {
 			Object msg = handler.v6Receive();
 			if (msg instanceof Group) {
-				Group lsa = (Group) msg;
-//				System.out.println("收到单条LSA");
-				Group localGrpInfo = allGroups.get(lsa.groupName);
-				if (localGrpInfo == null || localGrpInfo.id < lsa.id) {
-					allGroups.put(lsa.groupName, lsa);
+				Group newGrpInfo = (Group) msg;
+				Group localGrpInfo = allGroups.get(newGrpInfo.groupName);
+				if (localGrpInfo == null) {
+					allGroups.put(newGrpInfo.groupName, newGrpInfo);
+				} else if (localGrpInfo.id < newGrpInfo.id) {
+					allGroups.put(newGrpInfo.groupName, newGrpInfo);
+					if (isNbrChanged(newGrpInfo, localGrpInfo)) {
+						reCalRoutes();
+					}
 				}
 			} else if (msg instanceof AllGrps) {
 				AllGrps ags = (AllGrps) msg;
-//				System.out.print("收到LSDB");
 				for (Group group : ags.allGrps.values()) {
 					if (allGroups.containsKey(group.groupName) && allGroups.get(group.groupName).id < group.id) {
 						allGroups.put(group.groupName, group);
@@ -38,11 +42,31 @@ public class LSAReceiver extends SysInfo implements Runnable {
 					}
 				}
 			}
-			//测试
-			/*System.out.println("当前网络中集群信息为：");
-			for (Group group : allGroups.values()) {
-				System.out.println(group.toString());
-			}*/
 		}
+	}
+
+	private boolean isNbrChanged(Group newGrpInfo, Group localGrpInfo) {
+		for (String nbr : newGrpInfo.dist2NbrGrps.keySet()) {
+			if (!localGrpInfo.dist2NbrGrps.keySet().contains(nbr)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private void reCalRoutes() {
+		System.out.println("收到更新后的LSA，重新计算消息路由");
+		for (String topic : groupSubMap.keySet())
+			RouteUtil.updateNbrChange(topic);
+
+		for (String topic : groupPubMap.keySet())
+			RouteUtil.updateNbrChange(topic);
+
+		for (String topic : outerSubMap.keySet())
+			RouteUtil.updateNbrChange(topic);
+
+		for (String topic : outerPubMap.keySet())
+			RouteUtil.updateNbrChange(topic);
+
 	}
 }

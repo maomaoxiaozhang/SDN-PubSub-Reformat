@@ -56,9 +56,9 @@ public class PubReceiver extends SysInfo implements Runnable {
 				}
 			} else {
 				if (pub.action.equals(Action.PUB)) {
-					System.out.println("网络中产生新发布，订阅主题为：" + pub.topic);
+					System.out.println("网络中产生新发布，发布主题为：" + pub.topic + "，接收到新发布的时间为：" + System.currentTimeMillis());
 
-					if (outerPubMap.get(pub.topic) == null//该订阅是新订阅，之前没有，需要继续通过自己来发送
+					if (outerPubMap.get(pub.topic) == null//该发布是新发布，之前没有，需要继续通过自己来发送
 							|| (outerPubMap.get(pub.topic) != null && !outerPubMap.get(pub.topic).contains(pub.group))) {
 
 						handler.v6Send(pub);

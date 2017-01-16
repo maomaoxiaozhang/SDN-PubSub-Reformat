@@ -51,6 +51,11 @@ public class GroupUtil extends SysInfo {
 		for (Edge e : groupEdges) {
 			System.out.println(e.toString() + "; ");
 		}
+
+		System.out.println("集群间连接信息：");
+		for (String glName : nbrGrpLinks.keySet()) {
+			System.out.println("对面集群名为：" + glName + "，连接详情为：" + nbrGrpLinks.get(glName).toString());
+		}
 	}
 
 	private static void addSelf2Allgrps() {
@@ -336,6 +341,24 @@ public class GroupUtil extends SysInfo {
 			System.out.println("更新后的allGroups广播完毕");
 		}
 
+		private void downLSAFlow() {
+			for (String swtId : switchMap.keySet()) {
+				if (!outSwitches.keySet().contains(swtId)) {
+					Flow floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swtId, "flood", "lsa", "sys", "0", "50");
+					FlowUtil.downFlow(groupCtl, floodFlow, "add");
+				} else {
+					//测试
+					Flow allOutFlow = FlowUtil.getInstance().generateAllOutFlow(swtId, portWsn2Swt, "lsa", "sys", "0", "50");
+					FlowUtil.downFlow(groupCtl, allOutFlow, "add");
+
+					for (String outPort : outSwitches.get(swtId).portSet) {
+						Flow inFlow = FlowUtil.getInstance().generateFlow(swtId, outPort, portWsn2Swt, "lsa", "sys", "0", "50");
+						FlowUtil.downFlow(groupCtl, inFlow, "add");
+					}
+				}
+			}
+		}
+
 		private void downSubPubFlow() {
 			for (String swtId : switchMap.keySet()) {
 				if (!outSwitches.keySet().contains(swtId)) {
@@ -344,6 +367,7 @@ public class GroupUtil extends SysInfo {
 					floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swtId, "flood", "pub", "sys", "0", "50");
 					FlowUtil.downFlow(groupCtl, floodFlow, "add");
 				} else {
+					//测试
 					Flow allOutFlow = FlowUtil.getInstance().generateAllOutFlow(swtId, portWsn2Swt, "sub", "sys", "0", "50");
 					FlowUtil.downFlow(groupCtl, allOutFlow, "add");
 					allOutFlow = FlowUtil.getInstance().generateAllOutFlow(swtId, portWsn2Swt, "pub", "sys", "0", "50");

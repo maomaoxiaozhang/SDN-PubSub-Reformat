@@ -112,7 +112,7 @@ public class HelloReceiver extends SysInfo implements Runnable {
 			gl.dstBorderSwtId = finalHello.startBorderSwtId;
 			gl.dstOutPort = finalHello.startOutPort;
 			nbrGrpLinks.put(gl.dstGroupName, gl);
-			System.out.println("从" + finalHello.startGroup + "集群获得了FinallHello消息，此连接中我方边界交换机为" + gl.dstBorderSwtId + "，对外端口为" + gl.dstOutPort);
+			System.out.println("从" + finalHello.startGroup + "集群获得了FinallHello消息，此连接中我方边界交换机为" + gl.srcBorderSwtId + "，对外端口为" + gl.srcOutPort);
 
 			//同步LSDB，其他集群的连接情况；把对面已知的每个group的信息都替换为最新版本的
 			Map<String, Group> newAllGroup = finalHello.allGroups;

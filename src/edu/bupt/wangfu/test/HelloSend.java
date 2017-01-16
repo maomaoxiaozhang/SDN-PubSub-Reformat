@@ -16,7 +16,7 @@ public class HelloSend extends SysInfo {
 		multiHandler.v6Send(hello);
 		System.out.println("搞定！");*/
 
-boolean s=true;
-		System.out.println("adfssf"+s);
+		boolean s = true;
+		System.out.println("adfssf" + s);
 	}
 }
