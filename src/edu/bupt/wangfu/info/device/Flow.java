@@ -45,6 +45,8 @@ public class Flow implements Serializable {
 	}
 
 	public String toStringDelete() {
+		if (in == null)
+			return String.format("table=%s,dl_type=%s,ipv6_dst=%s", table_id, "0x86DD", ipv6_dst);
 		return String.format("table=%s,dl_type=%s,in_port=%s,ipv6_dst=%s", table_id, "0x86DD", in, ipv6_dst);
 	}
 }

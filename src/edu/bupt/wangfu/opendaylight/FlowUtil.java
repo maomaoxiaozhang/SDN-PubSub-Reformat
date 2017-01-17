@@ -54,7 +54,7 @@ public class FlowUtil extends SysInfo {
 							list.add("LOCAL");
 						if (singleFlow.split(",")[j].contains(":")) {
 							String str = singleFlow.split(",")[j].split(":")[1];
-							if (!list.contains(str))
+							if (!list.contains(str) && !flow.out.equals(str))
 								list.add(str);
 						}
 					}
@@ -63,7 +63,8 @@ public class FlowUtil extends SysInfo {
 					for (String s : list)
 						outPort += ("," + s);
 				}
-				outPort = outPort.substring(1);
+				if (outPort.length() > 1)
+					outPort = outPort.substring(1);
 				flow.out = outPort;
 				OvsProcess.addFlow(controller, flow.swtId, flow.toStringOutput());
 			}
