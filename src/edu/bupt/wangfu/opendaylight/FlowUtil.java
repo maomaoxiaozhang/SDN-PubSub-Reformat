@@ -77,7 +77,8 @@ public class FlowUtil extends SysInfo {
 
 	//这里使用单例模式是为了方便计数flowcount，每条流表的编号必须不一样
 	public Flow generateFlow(String swtId, String in, String out, String topic, String topicType, String t_id, String pri) {
-		System.out.println("生成简单流表中，参数为：swtId=" + swtId + "；in=" + in + "；out=" + out + "；topic=" + topic);
+		//测试
+//		System.out.println("生成简单流表中，参数为：swtId=" + swtId + "；in=" + in + "；out=" + out + "；topic=" + topic);
 		Set<Flow> topicFlowSet;
 		//将route中的每一段flow都添加到set中，保证后面不用重复下发，控制flowcount
 		if (notifyFlows.get(topic) != null) {
@@ -135,7 +136,8 @@ public class FlowUtil extends SysInfo {
 	}
 
 	public Flow generateAllOutFlow(String swtId, String in, String topic, String topicType, String t_id, String pri) {
-		System.out.println("生成AllOut流表中，参数为：swtId=" + swtId + "；in=" + in + "；out=全部outPort；topic=" + topic);
+//		测试
+//		System.out.println("生成AllOut流表中，参数为：swtId=" + swtId + "；in=" + in + "；out=全部outPort；topic=" + topic);
 		Set<Flow> topicFlowSet;
 		//将route中的每一段flow都添加到set中，保证后面不用重复下发，控制flowcount
 		if (notifyFlows.get(topic) != null) {
@@ -184,7 +186,8 @@ public class FlowUtil extends SysInfo {
 	public Flow generateNoInPortFlow(String swtId, String out, String topic, String topicType, String t_id, String pri) {
 		//Sys默认50，NoInPort默认20，InPort默认10，越高越早匹配
 		// out有一种是flood-in-grp，就是选择这个swt中所有非outPort作为out
-		System.out.println("生成NoInPort流表中，参数为：swtId=" + swtId + "；没有in端口；out=" + out + "；topic=" + topic);
+//		测试
+//		System.out.println("生成NoInPort流表中，参数为：swtId=" + swtId + "；没有in端口；out=" + out + "；topic=" + topic);
 		String v6Addr = null;
 		if (topicType.equals("sys")) {
 			v6Addr = sysTopicAddrMap.get(topic);
@@ -218,7 +221,8 @@ public class FlowUtil extends SysInfo {
 
 	//生成向groupCtl发送REST请求的专用流表
 	public Flow generateRestFlow(String swtId, String out, String t_id, String pri, String v4Addr) {
-		System.out.println("生成Rest流表中，参数为：swtId=" + swtId + "；IPv4=" + v4Addr + "；out=" + out);
+//		测试
+//		System.out.println("生成Rest流表中，参数为：swtId=" + swtId + "；IPv4=" + v4Addr + "；out=" + out);
 		flowcount++;
 
 		Flow flow = new Flow();

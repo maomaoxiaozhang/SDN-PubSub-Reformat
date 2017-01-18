@@ -146,7 +146,19 @@ public class RouteUtil extends SysInfo {
 				downBridgeFlow(route, topic);
 			}
 		}
-		System.out.println("路由重新计算完毕");
+		System.out.println("路由重新计算完毕，结束时间为：" + System.currentTimeMillis());
+	}
+
+	public static void reCalRoutes() {
+		System.out.println("收到更新后的LSA，重新计算消息路由！！");
+		for (String topic : groupSubMap.keySet())
+			RouteUtil.updateNbrChange(topic);
+		for (String topic : groupPubMap.keySet())
+			RouteUtil.updateNbrChange(topic);
+		for (String topic : outerSubMap.keySet())
+			RouteUtil.updateNbrChange(topic);
+		for (String topic : outerPubMap.keySet())
+			RouteUtil.updateNbrChange(topic);
 	}
 
 	private static void downBridgeFlow(List<String> route, String topic) {

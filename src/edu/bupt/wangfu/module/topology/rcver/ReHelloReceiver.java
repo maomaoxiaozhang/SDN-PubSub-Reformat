@@ -62,7 +62,9 @@ public class ReHelloReceiver extends SysInfo implements Runnable {
 			for (String grpName : newAllGroup.keySet()) {
 				if ((allGroups.get(grpName) == null //这个集群的信息对面有，而我没有
 						&& System.currentTimeMillis() - newAllGroup.get(grpName).updateTime < nbrGrpExpiration)//同时这条集群信息尚未过期
-						|| allGroups.get(grpName).id < newAllGroup.get(grpName).id)//或者这个集群的信息我和对面都有，但对面的比较新
+						|| (allGroups.get(grpName) != null//或者这个集群的信息我和对面都有
+						&& allGroups.get(grpName).id < newAllGroup.get(grpName).id))//但对面的比较新
+
 					allGroups.put(grpName, newAllGroup.get(grpName));
 			}
 

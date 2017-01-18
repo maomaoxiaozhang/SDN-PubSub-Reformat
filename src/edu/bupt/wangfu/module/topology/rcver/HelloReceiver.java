@@ -119,8 +119,10 @@ public class HelloReceiver extends SysInfo implements Runnable {
 			for (String grpName : newAllGroup.keySet()) {
 				if ((allGroups.get(grpName) == null
 						&& System.currentTimeMillis() - newAllGroup.get(grpName).updateTime < nbrGrpExpiration)
-						|| allGroups.get(grpName).id < newAllGroup.get(grpName).id)
-					allGroups.put(grpName, newAllGroup.get(grpName));
+						|| (allGroups.get(grpName) != null
+						&& allGroups.get(grpName).id < newAllGroup.get(grpName).id))
+
+				allGroups.put(grpName, newAllGroup.get(grpName));
 			}
 
 			System.out.println("邻居建立完成,邻居情况如下:");

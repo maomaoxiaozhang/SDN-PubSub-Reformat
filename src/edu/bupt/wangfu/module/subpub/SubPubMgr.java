@@ -59,7 +59,7 @@ public class SubPubMgr extends SysInfo {
 			String[] topicPath = topic.split(":");
 			String cur = topicPath[0];
 			for (int i = 1; i < topicPath.length; i++) {
-				if (localSubTopics.keySet().contains(cur)) {
+				if (localSubTopics.containsKey(cur)) {
 					System.out.println("有订阅过更早期的主题，取消订阅流程");
 					return false;
 				} else
@@ -108,7 +108,7 @@ public class SubPubMgr extends SysInfo {
 			g.subMap = cloneSetMap(groupSubMap);
 			g.id += 1;
 			g.updateTime = System.currentTimeMillis();
-			GroupUtil.spreadLocalGrp();
+//			GroupUtil.spreadLocalGrp();
 
 			new Thread(new SubMsgReciver(topic)).start();
 
@@ -123,7 +123,7 @@ public class SubPubMgr extends SysInfo {
 	public static boolean localUnsubscribe(String topic) {
 		if (joinedSubTopics.contains(topic))//若这个订阅是聚合而成的，那么不能取消，因为并不是真实订阅
 			return false;
-		if (!localSubTopics.keySet().contains(topic))
+		if (!localSubTopics.containsKey(topic))
 			return false;//本地没有这个订阅
 
 //		localSubTopics.remove(topic);
@@ -316,7 +316,7 @@ public class SubPubMgr extends SysInfo {
 
 			@Override
 			public void run() {
-				if (localSubTopics.keySet().contains(obj.topic) || joinedUnsubTopics.contains(obj.topic)) {
+				if (localSubTopics.containsKey(obj.topic) || joinedUnsubTopics.contains(obj.topic)) {
 					for (String serviceAddr : localSubTopics.get(obj.topic)) {
 						//查找本地订阅者，把这条消息用原来的webservice或者什么东东，发给本地订阅者
 						URL wsdlUrl;

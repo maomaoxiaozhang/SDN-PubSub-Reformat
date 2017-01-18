@@ -103,7 +103,11 @@ public class HeartMgr extends SysInfo {
 				if (!g.groupName.equals(localGroupName) && System.currentTimeMillis() - g.updateTime > nbrGrpExpiration) {
 					allGroups.remove(g.groupName);
 					nbrGrpLinks.remove(g.groupName);
-					System.out.println("从本地allGroups中删除" + g.groupName + "集群");
+					allGroups.get(localGroupName).dist2NbrGrps.remove(g.groupName);
+					System.out.println("集群" + g.groupName + "已失效，从本地删除，本地邻居为：" + allGroups.get(localGroupName).dist2NbrGrps.keySet());
+					GroupUtil.spreadLocalGrp();
+					System.out.println("***亲自发现邻居失效了，开始重新计算路由：" + System.currentTimeMillis());
+					RouteUtil.reCalRoutes();
 				}
 			}
 		}

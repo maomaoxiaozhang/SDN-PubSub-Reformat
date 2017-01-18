@@ -1,7 +1,6 @@
 package edu.bupt.wangfu.module.topology.rcver;
 
 import edu.bupt.wangfu.info.device.Group;
-import edu.bupt.wangfu.info.msg.AllGrps;
 import edu.bupt.wangfu.module.base.SysInfo;
 import edu.bupt.wangfu.module.route.RouteUtil;
 import edu.bupt.wangfu.opendaylight.MultiHandler;
@@ -23,16 +22,19 @@ public class LSAReceiver extends SysInfo implements Runnable {
 			Object msg = handler.v6Receive();
 			if (msg instanceof Group) {
 				Group newGrpInfo = (Group) msg;
-				Group localGrpInfo = allGroups.get(newGrpInfo.groupName);
-				if (localGrpInfo == null) {
-					allGroups.put(newGrpInfo.groupName, newGrpInfo);
-				} else if (localGrpInfo.id < newGrpInfo.id) {
-					allGroups.put(newGrpInfo.groupName, newGrpInfo);
-					if (isNbrChanged(newGrpInfo, localGrpInfo)) {
-						reCalRoutes();
+				if (!newGrpInfo.groupName.equals(localGroupName)) {
+					Group localGrpInfo = allGroups.get(newGrpInfo.groupName);
+					if (localGrpInfo == null) {
+						allGroups.put(newGrpInfo.groupName, newGrpInfo);
+					} else if (localGrpInfo.id < newGrpInfo.id) {
+						allGroups.put(newGrpInfo.groupName, newGrpInfo);
+						if (isNbrChanged(newGrpInfo, localGrpInfo)) {
+							System.out.println("***收到的LSA不太妙，开始重新计算路由：" + System.currentTimeMillis());
+							RouteUtil.reCalRoutes();
+						}
 					}
 				}
-			} else if (msg instanceof AllGrps) {
+			} /*else if (msg instanceof AllGrps) {
 				AllGrps ags = (AllGrps) msg;
 				for (Group group : ags.allGrps.values()) {
 					if (allGroups.containsKey(group.groupName) && allGroups.get(group.groupName).id < group.id) {
@@ -41,32 +43,16 @@ public class LSAReceiver extends SysInfo implements Runnable {
 						allGroups.put(group.groupName, group);
 					}
 				}
-			}
+			}*/
 		}
 	}
 
 	private boolean isNbrChanged(Group newGrpInfo, Group localGrpInfo) {
 		for (String nbr : newGrpInfo.dist2NbrGrps.keySet()) {
-			if (!localGrpInfo.dist2NbrGrps.keySet().contains(nbr)) {
+			if (!localGrpInfo.dist2NbrGrps.containsKey(nbr)) {
 				return true;
 			}
 		}
 		return false;
-	}
-
-	private void reCalRoutes() {
-		System.out.println("收到更新后的LSA，重新计算消息路由");
-		for (String topic : groupSubMap.keySet())
-			RouteUtil.updateNbrChange(topic);
-
-		for (String topic : groupPubMap.keySet())
-			RouteUtil.updateNbrChange(topic);
-
-		for (String topic : outerSubMap.keySet())
-			RouteUtil.updateNbrChange(topic);
-
-		for (String topic : outerPubMap.keySet())
-			RouteUtil.updateNbrChange(topic);
-
 	}
 }

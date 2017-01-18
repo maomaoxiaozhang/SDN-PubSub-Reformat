@@ -135,14 +135,14 @@ public class GroupUtil extends SysInfo {
 			//从groupSub和groupPub中清理本集群内失效的swt
 			for (Set<String> subSwts : groupSubMap.values()) {
 				for (String swt_Port : subSwts) {
-					if (!switchMap.keySet().contains(swt_Port.split(":")[0])) {//说明原本有订阅的这个swt丢失了，那么就要在subMap里面把它清除
+					if (!switchMap.containsKey(swt_Port.split(":")[0])) {//说明原本有订阅的这个swt丢失了，那么就要在subMap里面把它清除
 						subSwts.remove(swt_Port);
 					}
 				}
 			}
 			for (Set<String> pubSwts : groupPubMap.values()) {
 				for (String swt_Port : pubSwts) {
-					if (!switchMap.keySet().contains(swt_Port.split(":")[0])) {
+					if (!switchMap.containsKey(swt_Port.split(":")[0])) {
 						pubSwts.remove(swt_Port);
 					}
 				}
@@ -297,6 +297,7 @@ public class GroupUtil extends SysInfo {
 			downRcvHelloFlow();//接收Hello消息的流表
 			spreadLocalGrp();//全网定时广播本集群内容更新
 //			spreadAllGrps();//集群内定时广播自己拥有的allGroups，确保每个新增加的节点都有最新的全网集群信息
+			downLSAFlow();//下发LSA消息的流表
 			downSubPubFlow();//下发注册流表，之后如果wsn要产生新订阅或新发布，就可以通过它扩散到全网
 			downSynGrpRtFlow();//下发route同步流表，使wsn计算出来的新route可以在集群内同步
 			downLeadTableFlow();//下发优先级为10的导向流表，将消息引导到第二级流表
@@ -343,7 +344,7 @@ public class GroupUtil extends SysInfo {
 
 		private void downLSAFlow() {
 			for (String swtId : switchMap.keySet()) {
-				if (!outSwitches.keySet().contains(swtId)) {
+				if (!outSwitches.containsKey(swtId)) {
 					Flow floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swtId, "flood", "lsa", "sys", "0", "50");
 					FlowUtil.downFlow(groupCtl, floodFlow, "add");
 				} else {
@@ -361,7 +362,7 @@ public class GroupUtil extends SysInfo {
 
 		private void downSubPubFlow() {
 			for (String swtId : switchMap.keySet()) {
-				if (!outSwitches.keySet().contains(swtId)) {
+				if (!outSwitches.containsKey(swtId)) {
 					Flow floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swtId, "flood", "sub", "sys", "0", "50");
 					FlowUtil.downFlow(groupCtl, floodFlow, "add");
 					floodFlow = FlowUtil.getInstance().generateNoInPortFlow(swtId, "flood", "pub", "sys", "0", "50");
