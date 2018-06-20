@@ -90,6 +90,8 @@ public class GroupUtil extends SysInfo {
 		//初始化hostMap，switchMap，outPorts
 		private static void getGrpTopo(Controller controller) {
 			String url = controller.url + "/restconf/operational/network-topology:network-topology/";
+            System.out.println("url: " + url);
+
 
 			hostMap.clear();
 			switchMap.clear();

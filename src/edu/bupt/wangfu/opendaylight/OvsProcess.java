@@ -74,7 +74,7 @@ public class OvsProcess extends SysInfo {
 		StringBuilder sb = new StringBuilder();
 		try {
 			JSch jsch = new JSch();
-			Session session = jsch.getSession("root", "192.168.100.3", 22);
+			Session session = jsch.getSession("host2", "192.168.100.22", 22);
 			session.setPassword("123456");
 			Properties config = new Properties();
 			config.put("StrictHostKeyChecking", "no");
